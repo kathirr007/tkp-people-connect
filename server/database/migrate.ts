@@ -1,5 +1,7 @@
-import Database from 'better-sqlite3'
+import { createRequire } from 'node:module'
 import postgres from 'postgres'
+
+const _require = createRequire(import.meta.url)
 
 const DB_PATH = process.env.SQLITE_DB_PATH || './data/database.sqlite'
 
@@ -19,6 +21,8 @@ function normalizeUsernameCandidate(value: string) {
 }
 
 export function runSqliteMigrations() {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Database = _require('better-sqlite3')
   const db = new Database(DB_PATH)
   db.pragma('journal_mode = WAL')
 

@@ -94,7 +94,7 @@ export default defineNuxtConfig({
     plugins: ['~~/server/plugins/database.ts'],
     preset: 'vercel',
     unenv: {
-      external: ['papaparse', 'exceljs', 'better-sqlite3', 'postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
+      external: ['papaparse', 'exceljs', 'postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
     },
   },
 

@@ -1,8 +1,9 @@
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3'
+import { createRequire } from 'node:module'
 import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
-import Database from 'better-sqlite3'
 import postgres from 'postgres'
 import { sqliteUsers, sqlitePeople, pgUsers, pgPeople } from './schema'
+
+const _require = createRequire(import.meta.url)
 
 export type DbClient = ReturnType<typeof createDatabase>
 
@@ -23,7 +24,9 @@ function createDatabase() {
     }
   }
 
-  // Default: SQLite
+  // Default: SQLite (local dev only — not supported on Vercel)
+  const Database = _require('better-sqlite3')
+  const { drizzle: drizzleSqlite } = _require('drizzle-orm/better-sqlite3')
   const dbPath = process.env.SQLITE_DB_PATH || './data/database.sqlite'
   const sqlite = new Database(dbPath)
   sqlite.pragma('journal_mode = WAL')
