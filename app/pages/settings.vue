@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
 import { ROLE_LABELS, type Role } from '~~/shared/utils/roles'
 
 definePageMeta({ layout: 'dashboard' })

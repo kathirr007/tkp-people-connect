@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-
 const { user, logout } = useAuth()
 const config = useRuntimeConfig()
 const sidebarVisible = ref(true)

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import Skeleton from 'primevue/skeleton'
-
 definePageMeta({ layout: 'dashboard' })
 
 const { data: stats, isPending } = useDashboard()

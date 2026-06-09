@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Select from 'primevue/select'
-import Tag from 'primevue/tag'
-import InputText from 'primevue/inputtext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { ROLE_LABELS, type Role } from '~~/shared/utils/roles'
 

@@ -24,6 +24,7 @@ export default defineNuxtConfig({
   },
 
   primevue: {
+    autoImport: true,
     options: {
       ripple: true,
       inputVariant: 'filled',

@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import Button from 'primevue/button'
-import Message from 'primevue/message'
-
 definePageMeta({ layout: 'auth' })
 
 const { forgotPassword } = useAuth()

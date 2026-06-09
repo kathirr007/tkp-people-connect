@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
-import Skeleton from 'primevue/skeleton'
-
 definePageMeta({ layout: 'dashboard' })
 
 const route = useRoute()

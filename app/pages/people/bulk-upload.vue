@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import FileUpload from 'primevue/fileupload'
-import Button from 'primevue/button'
-import Message from 'primevue/message'
-import ProgressBar from 'primevue/progressbar'
 import type { FileUploadSelectEvent } from 'primevue/fileupload'
 
 definePageMeta({

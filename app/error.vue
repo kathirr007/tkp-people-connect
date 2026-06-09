@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
 import type { NuxtError } from '#app'
 
 const props = defineProps<{ error: NuxtError }>()

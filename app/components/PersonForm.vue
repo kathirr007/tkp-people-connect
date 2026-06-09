@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
-import AutoComplete from 'primevue/autocomplete'
-import ToggleSwitch from 'primevue/toggleswitch'
-import Button from 'primevue/button'
 import { z } from 'zod'
 import type { Person } from '~~/shared/types'
 

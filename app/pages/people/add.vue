@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import FileUpload from 'primevue/fileupload'
-import Message from 'primevue/message'
 import type { FileUploadSelectEvent } from 'primevue/fileupload'
 
 definePageMeta({

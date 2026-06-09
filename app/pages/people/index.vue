@@ -1,15 +1,4 @@
 <script setup lang="ts">
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import InputText from 'primevue/inputtext'
-import IconField from 'primevue/iconfield'
-import InputIcon from 'primevue/inputicon'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
-import Menu from 'primevue/menu'
-import Dialog from 'primevue/dialog'
-import FileUpload from 'primevue/fileupload'
-import Message from 'primevue/message'
 import type { FileUploadSelectEvent } from 'primevue/fileupload'
 import { useConfirm } from 'primevue/useconfirm'
 
