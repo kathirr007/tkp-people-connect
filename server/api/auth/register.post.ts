@@ -1,12 +1,11 @@
 import { randomBytes } from 'node:crypto'
-import { User } from '../../models/User'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const validated = registerSchema.parse(body)
 
-    const existingUser = await User.findOne({ email: validated.email })
+    const existingUser = await findUserByEmail(validated.email)
     if (existingUser) {
       throw createError({
         statusCode: 409,
@@ -17,7 +16,7 @@ export default defineEventHandler(async (event) => {
     const hashedPwd = await hashPassword(validated.password)
     const verificationToken = randomBytes(32).toString('hex')
 
-    await User.create({
+    await createUser({
       ...validated,
       password: hashedPwd,
       verificationToken,

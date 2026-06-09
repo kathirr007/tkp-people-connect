@@ -1,10 +1,8 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   const admin = requireRole(event, ['admin'])
 
   try {
-    const id = getRouterParam(event, 'id')
+    const id = getRouterParam(event, 'id')!
     const body = await readBody(event)
     const { role } = updateRoleSchema.parse(body)
 
@@ -15,12 +13,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const user = await User.findByIdAndUpdate(
-      id,
-      { role },
-      { new: true },
-    )
-
+    const user = await findUserById(id)
     if (!user) {
       throw createError({
         statusCode: 404,
@@ -28,9 +21,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    await updateUser(id, { role })
+
     sendRoleChangeNotification(user.email, role).catch(console.error)
 
-    return { success: true, data: user }
+    return { success: true, data: { ...user, role } }
   }
   catch (error) {
     handleApiError(error)

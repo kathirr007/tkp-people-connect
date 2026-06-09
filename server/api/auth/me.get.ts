@@ -1,9 +1,7 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   const auth = requireAuth(event)
 
-  const user = await User.findById(auth.userId)
+  const user = await findUserById(auth.userId)
   if (!user) {
     throw createError({
       statusCode: 404,
@@ -13,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     user: {
-      userId: user._id!.toString(),
+      userId: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,

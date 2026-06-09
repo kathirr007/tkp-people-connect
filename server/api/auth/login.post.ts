@@ -1,11 +1,9 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const validated = loginSchema.parse(body)
 
-    const user = await User.findOne({ email: validated.email }).select('+password')
+    const user = await findUserByEmail(validated.email)
     if (!user) {
       throw createError({
         statusCode: 401,
@@ -29,7 +27,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const tokenPayload = {
-      userId: user._id!.toString(),
+      userId: user.id,
       email: user.email,
       role: user.role,
     }
@@ -39,9 +37,9 @@ export default defineEventHandler(async (event) => {
       generateRefreshToken(tokenPayload),
     ])
 
-    await User.findByIdAndUpdate(user._id, {
+    await updateUser(user.id, {
       refreshToken,
-      lastLogin: new Date(),
+      lastLogin: new Date().toISOString(),
     })
 
     setAuthCookies(event, accessToken, refreshToken)
@@ -49,7 +47,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       user: {
-        userId: user._id!.toString(),
+        userId: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

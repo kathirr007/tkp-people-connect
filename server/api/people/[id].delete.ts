@@ -1,12 +1,10 @@
-import { Person } from '../../models/Person'
-
 export default defineEventHandler(async (event) => {
   requireRole(event, ['admin'])
 
-  const id = getRouterParam(event, 'id')
+  const id = getRouterParam(event, 'id')!
 
-  const person = await Person.findByIdAndDelete(id)
-  if (!person) {
+  const deleted = await deletePerson(id)
+  if (!deleted) {
     throw createError({
       statusCode: 404,
       message: 'Person not found',

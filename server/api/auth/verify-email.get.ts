@@ -1,5 +1,3 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const token = query.token as string
@@ -11,7 +9,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const user = await User.findOne({ verificationToken: token })
+  const user = await findUserByVerificationToken(token)
 
   if (!user) {
     throw createError({
@@ -20,7 +18,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  await User.findByIdAndUpdate(user._id, {
+  await updateUser(user.id, {
     isVerified: true,
     verificationToken: null,
   })

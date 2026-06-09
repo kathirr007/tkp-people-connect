@@ -1,12 +1,11 @@
 import { randomBytes } from 'node:crypto'
-import { User } from '../../models/User'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const { email } = forgotPasswordSchema.parse(body)
 
-    const user = await User.findOne({ email })
+    const user = await findUserByEmail(email)
 
     if (!user) {
       return {
@@ -16,9 +15,9 @@ export default defineEventHandler(async (event) => {
     }
 
     const resetToken = randomBytes(32).toString('hex')
-    const resetExpires = new Date(Date.now() + 60 * 60 * 1000)
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000).toISOString()
 
-    await User.findByIdAndUpdate(user._id, {
+    await updateUser(user.id, {
       resetPasswordToken: resetToken,
       resetPasswordExpires: resetExpires,
     })

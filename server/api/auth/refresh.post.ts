@@ -1,5 +1,3 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   const refreshTokenCookie = getCookie(event, 'refresh_token')
 
@@ -13,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     const payload = await verifyRefreshToken(refreshTokenCookie)
 
-    const user = await User.findById(payload.userId).select('+refreshToken')
+    const user = await findUserById(payload.userId)
     if (!user || user.refreshToken !== refreshTokenCookie) {
       throw createError({
         statusCode: 401,
@@ -22,7 +20,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const tokenPayload = {
-      userId: user._id!.toString(),
+      userId: user.id,
       email: user.email,
       role: user.role,
     }
@@ -32,7 +30,7 @@ export default defineEventHandler(async (event) => {
       generateRefreshToken(tokenPayload),
     ])
 
-    await User.findByIdAndUpdate(user._id, { refreshToken: newRefreshToken })
+    await updateUser(user.id, { refreshToken: newRefreshToken })
     setAuthCookies(event, newAccessToken, newRefreshToken)
 
     return { success: true }

@@ -1,24 +1,12 @@
-import { Person } from '../../models/Person'
-
 export default defineEventHandler(async (event) => {
   requireAuth(event)
 
   const query = getQuery(event)
-  const filter: Record<string, unknown> = {}
 
-  if (query.search) {
-    filter.$or = [
-      { firstName: { $regex: query.search, $options: 'i' } },
-      { lastName: { $regex: query.search, $options: 'i' } },
-      { email: { $regex: query.search, $options: 'i' } },
-      { organization: { $regex: query.search, $options: 'i' } },
-    ]
-  }
-  if (query.organization) {
-    filter.organization = { $regex: query.organization, $options: 'i' }
-  }
-
-  const people = await Person.find(filter).lean()
+  const people = await getAllPeopleForExport({
+    search: query.search as string | undefined,
+    organization: query.organization as string | undefined,
+  })
 
   const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Organization', 'Designation', 'Department', 'Street', 'City', 'State', 'Zip Code', 'Country', 'Tags', 'Active']
 

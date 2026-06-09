@@ -12,7 +12,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     jwtSecret: process.env.JWT_SECRET || '',
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
-    mongodbUri: process.env.MONGODB_URI || '',
+    dbDriver: process.env.DB_DRIVER || 'sqlite',
     awsRegion: process.env.AWS_REGION || 'us-east-1',
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
@@ -80,10 +80,10 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   nitro: {
-    plugins: ['~/server/plugins/mongodb.ts'],
+    plugins: ['~/server/plugins/database.ts'],
     preset: 'node-server',
     unenv: {
-      external: ['papaparse', 'exceljs', 'mongoose', 'bcrypt', '@aws-sdk/client-ses', 'jose'],
+      external: ['papaparse', 'exceljs', 'better-sqlite3', 'postgres', 'bcrypt', '@aws-sdk/client-ses', 'jose'],
     },
   },
 

@@ -1,14 +1,9 @@
-import { User } from '../../models/User'
-
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     const { token, password } = resetPasswordSchema.parse(body)
 
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() },
-    }).select('+resetPasswordToken +resetPasswordExpires')
+    const user = await findUserByResetToken(token)
 
     if (!user) {
       throw createError({
@@ -19,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
     const hashedPwd = await hashPassword(password)
 
-    await User.findByIdAndUpdate(user._id, {
+    await updateUser(user.id, {
       password: hashedPwd,
       resetPasswordToken: null,
       resetPasswordExpires: null,
