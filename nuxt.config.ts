@@ -94,8 +94,11 @@ export default defineNuxtConfig({
   nitro: {
     plugins: ['~~/server/plugins/database.ts'],
     preset: 'vercel',
+    prerender: {
+      routes: ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'],
+    },
     unenv: {
-      external: ['papaparse', 'exceljs', 'postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
+      external: ['postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
     },
   },
 
