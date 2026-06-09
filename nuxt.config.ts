@@ -92,9 +92,9 @@ export default defineNuxtConfig({
 
   nitro: {
     plugins: ['~~/server/plugins/database.ts'],
-    preset: 'node-server',
+    preset: 'vercel',
     unenv: {
-      external: ['papaparse', 'exceljs', 'better-sqlite3', 'postgres', 'bcrypt', '@aws-sdk/client-ses', 'jose'],
+      external: ['papaparse', 'exceljs', 'better-sqlite3', 'postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
     },
   },
 

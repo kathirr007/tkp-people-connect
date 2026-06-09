@@ -1,9 +1,9 @@
 import { mkdirSync, existsSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { useDatabase } from '../database'
-import { runSqliteMigrations } from '../database/migrate'
+import { runSqliteMigrations, runPostgresMigrations } from '../database/migrate'
 
-export default defineNitroPlugin(() => {
+export default defineNitroPlugin(async () => {
   const driver = process.env.DB_DRIVER || 'sqlite'
 
   if (driver === 'sqlite') {
@@ -16,9 +16,9 @@ export default defineNitroPlugin(() => {
     console.log(`[Database] SQLite initialized at ${dbPath}`)
   }
   else {
-    console.log('[Database] PostgreSQL mode - ensure DATABASE_URL is configured')
+    await runPostgresMigrations()
+    console.log('[Database] PostgreSQL initialized')
   }
 
-  // Initialize the database connection
   useDatabase()
 })

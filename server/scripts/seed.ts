@@ -1,6 +1,6 @@
 import { mkdirSync, existsSync } from 'node:fs'
 import { dirname } from 'node:path'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import Database from 'better-sqlite3'
 
 const DB_DRIVER = process.env.DB_DRIVER || 'sqlite'

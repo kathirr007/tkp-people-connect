@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3'
+import postgres from 'postgres'
 
 const DB_PATH = process.env.SQLITE_DB_PATH || './data/database.sqlite'
 
@@ -55,4 +56,61 @@ export function runSqliteMigrations() {
   `)
 
   db.close()
+}
+
+export async function runPostgresMigrations() {
+  const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/tkp-people-connect'
+  const sql = postgres(connectionString)
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      id VARCHAR(36) PRIMARY KEY,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password VARCHAR(255) NOT NULL,
+      first_name VARCHAR(100) NOT NULL,
+      last_name VARCHAR(100) NOT NULL,
+      role VARCHAR(10) NOT NULL DEFAULT 'viewer',
+      is_verified BOOLEAN NOT NULL DEFAULT false,
+      verification_token VARCHAR(255),
+      reset_password_token VARCHAR(255),
+      reset_password_expires TIMESTAMP,
+      refresh_token TEXT,
+      last_login TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS people (
+      id VARCHAR(36) PRIMARY KEY,
+      first_name VARCHAR(100) NOT NULL,
+      last_name VARCHAR(100) NOT NULL,
+      email VARCHAR(255),
+      phone VARCHAR(20),
+      street VARCHAR(200),
+      city VARCHAR(100),
+      state VARCHAR(100),
+      zip_code VARCHAR(20),
+      country VARCHAR(100),
+      organization VARCHAR(200),
+      designation VARCHAR(200),
+      department VARCHAR(200),
+      notes TEXT,
+      tags TEXT,
+      is_active BOOLEAN NOT NULL DEFAULT true,
+      created_by VARCHAR(36) NOT NULL,
+      updated_by VARCHAR(36),
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `
+
+  await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_people_email ON people(email)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_people_organization ON people(organization)`
+
+  await sql.end()
 }

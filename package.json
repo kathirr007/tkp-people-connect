@@ -17,7 +17,7 @@
     "@aws-sdk/client-ses": "^3.700.0",
     "@primeuix/themes": "^1.0.0",
     "@tanstack/vue-query": "^5.62.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.10.0",
     "drizzle-orm": "^0.45.2",
     "exceljs": "^4.4.0",
@@ -34,7 +34,6 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.12.0",
     "@primevue/nuxt-module": "^4.3.0",
-    "@types/bcrypt": "^5.0.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/papaparse": "^5.3.15",
     "@types/prompts": "^2.4.9",
