@@ -44,7 +44,7 @@ async function handleLogin() {
       Welcome back! Enter your credentials to continue.
     </template>
     <template #content>
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent.stop="handleLogin">
         <Message v-if="error" severity="error" :closable="false" class="mb-3">
           {{ error }}
         </Message>

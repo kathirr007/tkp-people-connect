@@ -1,32 +1,17 @@
 <script setup lang="ts">
 import Button from 'primevue/button'
 
-const { user, logout, isAdmin, canEdit } = useAuth()
+const { user, logout } = useAuth()
 const config = useRuntimeConfig()
 const sidebarVisible = ref(true)
 const route = useRoute()
 
-const menuItems = computed(() => {
-  const items = [
-    { label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' },
-    { label: 'People', icon: 'pi pi-users', to: '/people' },
-  ]
-
-  if (canEdit.value) {
-    items.push({ label: 'Add Person', icon: 'pi pi-user-plus', to: '/people/add' })
-  }
-
-  if (isAdmin.value) {
-    items.push(
-      { label: 'Bulk Upload', icon: 'pi pi-upload', to: '/people/bulk-upload' },
-      { label: 'Users', icon: 'pi pi-shield', to: '/users' },
-    )
-  }
-
-  items.push({ label: 'Settings', icon: 'pi pi-cog', to: '/settings' })
-
-  return items
-})
+const menuItems = [
+  { label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' },
+  { label: 'People', icon: 'pi pi-users', to: '/people' },
+  { label: 'Users', icon: 'pi pi-shield', to: '/users' },
+  { label: 'Settings', icon: 'pi pi-cog', to: '/settings' },
+]
 
 function isActive(path: string) {
   return route.path === path || route.path.startsWith(`${path}/`)
@@ -35,12 +20,20 @@ function isActive(path: string) {
 
 <template>
   <div class="layout-dashboard">
-    <aside v-show="sidebarVisible" class="sidebar">
+    <aside class="sidebar" :class="{ 'sidebar--collapsed': !sidebarVisible }">
       <div class="sidebar__header">
         <NuxtLink to="/dashboard" class="sidebar__logo">
           <i class="pi pi-users" />
           <span>{{ config.public.appName }}</span>
         </NuxtLink>
+        <Button
+          icon="pi pi-times"
+          text
+          rounded
+          size="small"
+          class="sidebar__close"
+          @click="sidebarVisible = false"
+        />
       </div>
       <nav class="sidebar__nav">
         <NuxtLink
@@ -62,12 +55,21 @@ function isActive(path: string) {
             <span class="sidebar__user-role">{{ user?.role }}</span>
           </div>
         </div>
+        <Button
+          label="Logout"
+          icon="pi pi-sign-out"
+          severity="secondary"
+          text
+          size="small"
+          class="sidebar__logout"
+          @click="logout()"
+        />
       </div>
     </aside>
     <div class="layout-dashboard__main">
       <header class="dashboard-header">
         <Button
-          icon="pi pi-bars"
+          :icon="sidebarVisible ? 'pi pi-times' : 'pi pi-bars'"
           text
           rounded
           @click="sidebarVisible = !sidebarVisible"
@@ -93,6 +95,7 @@ function isActive(path: string) {
 <style scoped>
 .sidebar {
   width: var(--app-sidebar-width);
+  min-width: var(--app-sidebar-width);
   background: var(--p-surface-0);
   border-right: 1px solid var(--p-surface-200);
   display: flex;
@@ -100,6 +103,11 @@ function isActive(path: string) {
   height: 100vh;
   position: sticky;
   top: 0;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar--collapsed {
+  margin-left: calc(-1 * var(--app-sidebar-width));
 }
 
 .dark-mode .sidebar {
@@ -110,6 +118,13 @@ function isActive(path: string) {
 .sidebar__header {
   padding: 1.25rem;
   border-bottom: 1px solid var(--p-surface-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__close {
+  display: none;
 }
 
 .dark-mode .sidebar__header {
@@ -200,6 +215,11 @@ function isActive(path: string) {
   text-transform: capitalize;
 }
 
+.sidebar__logout {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
 .dashboard-header {
   display: flex;
   align-items: center;
@@ -225,6 +245,17 @@ function isActive(path: string) {
     position: fixed;
     z-index: 100;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    margin-left: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar--collapsed {
+    margin-left: 0;
+    transform: translateX(-100%);
+  }
+
+  .sidebar__close {
+    display: inline-flex;
   }
 }
 </style>

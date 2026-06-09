@@ -12,11 +12,13 @@ const toggleDark = useToggle(isDark)
 </script>
 
 <template>
-  <Button
-    :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-    text
-    rounded
-    severity="secondary"
-    @click="toggleDark()"
-  />
+  <ClientOnly>
+    <Button
+      :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+      text
+      rounded
+      severity="secondary"
+      @click="toggleDark()"
+    />
+  </ClientOnly>
 </template>

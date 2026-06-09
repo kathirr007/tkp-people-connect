@@ -77,10 +77,15 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/main.css'],
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' },
+  },
+
+  css: ['primeicons/primeicons.css', '~/assets/css/main.css'],
 
   nitro: {
-    plugins: ['~/server/plugins/database.ts'],
+    plugins: ['~~/server/plugins/database.ts'],
     preset: 'node-server',
     unenv: {
       external: ['papaparse', 'exceljs', 'better-sqlite3', 'postgres', 'bcrypt', '@aws-sdk/client-ses', 'jose'],
@@ -92,4 +97,11 @@ export default defineNuxtConfig({
   },
 
   devtools: { enabled: true },
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@tanstack/vue-query',
+      ]
+    }
+  }
 })
