@@ -81,8 +81,9 @@ export default defineNuxtConfig({
 
   nitro: {
     plugins: ['~/server/plugins/mongodb.ts'],
-    externals: {
-      external: ['papaparse', 'exceljs', 'mongoose', 'bcrypt'],
+    preset: 'node-server',
+    unenv: {
+      external: ['papaparse', 'exceljs', 'mongoose', 'bcrypt', '@aws-sdk/client-ses', 'jose'],
     },
   },
 
