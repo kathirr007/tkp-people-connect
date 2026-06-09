@@ -6,6 +6,57 @@ import Database from 'better-sqlite3'
 const DB_DRIVER = process.env.DB_DRIVER || 'sqlite'
 const SQLITE_DB_PATH = process.env.SQLITE_DB_PATH || './data/database.sqlite'
 
+const seedPeople = [
+  {
+    firstName: 'Rajesh',
+    lastName: 'Kumar',
+    email: 'rajesh.kumar@example.com',
+    phone: '+91 98765 43210',
+    organization: 'TechCorp India',
+    designation: 'Senior Developer',
+    department: 'Engineering',
+    street: '42 MG Road',
+    city: 'Bangalore',
+    state: 'Karnataka',
+    zipCode: '560001',
+    country: 'India',
+    notes: 'Full-stack developer with 8 years of experience',
+    tags: JSON.stringify(['developer', 'fullstack', 'team-lead']),
+  },
+  {
+    firstName: 'Priya',
+    lastName: 'Sharma',
+    email: 'priya.sharma@example.com',
+    phone: '+91 87654 32109',
+    organization: 'DesignHub',
+    designation: 'UX Designer',
+    department: 'Design',
+    street: '15 Connaught Place',
+    city: 'New Delhi',
+    state: 'Delhi',
+    zipCode: '110001',
+    country: 'India',
+    notes: 'Specializes in mobile-first design and accessibility',
+    tags: JSON.stringify(['designer', 'ux', 'accessibility']),
+  },
+  {
+    firstName: 'Arun',
+    lastName: 'Patel',
+    email: 'arun.patel@example.com',
+    phone: '+91 76543 21098',
+    organization: 'DataWorks',
+    designation: 'Project Manager',
+    department: 'Operations',
+    street: '88 SG Highway',
+    city: 'Ahmedabad',
+    state: 'Gujarat',
+    zipCode: '380015',
+    country: 'India',
+    notes: 'PMP certified with expertise in agile methodologies',
+    tags: JSON.stringify(['manager', 'agile', 'pmp']),
+  },
+]
+
 const seedUsers = [
   { email: 'admin1@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'One', role: 'admin' },
   { email: 'admin2@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'Two', role: 'admin' },
@@ -56,6 +107,24 @@ async function seed() {
           VALUES (${id}, ${u.email}, ${hashedPassword}, ${u.firstName}, ${u.lastName}, ${u.role}, true, NOW(), NOW())
         `
         console.log(`[Seed] Created ${u.role}: ${u.email}`)
+      }
+
+      const adminUser = await sql`SELECT id FROM users WHERE role = 'admin' LIMIT 1`
+      const createdBy = adminUser[0]?.id || 'system'
+
+      for (const p of seedPeople) {
+        const existing = await sql`SELECT id FROM people WHERE email = ${p.email}`
+        if (existing.length > 0) {
+          console.log(`[Seed] Person already exists: ${p.email}`)
+          continue
+        }
+
+        const id = crypto.randomUUID()
+        await sql`
+          INSERT INTO people (id, first_name, last_name, email, phone, organization, designation, department, street, city, state, zip_code, country, notes, tags, is_active, created_by, created_at, updated_at)
+          VALUES (${id}, ${p.firstName}, ${p.lastName}, ${p.email}, ${p.phone}, ${p.organization}, ${p.designation}, ${p.department}, ${p.street}, ${p.city}, ${p.state}, ${p.zipCode}, ${p.country}, ${p.notes}, ${p.tags}, true, ${createdBy}, NOW(), NOW())
+        `
+        console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
       }
 
       await sql.end()
@@ -113,6 +182,53 @@ async function seed() {
 
       insertStmt.run(id, u.email, hashedPassword, u.firstName, u.lastName, u.role, now, now)
       console.log(`[Seed] Created ${u.role}: ${u.email}`)
+    }
+
+    const adminRow = db.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").get() as { id: string } | undefined
+    const createdBy = adminRow?.id || 'system'
+
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS people (
+        id TEXT PRIMARY KEY,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        street TEXT,
+        city TEXT,
+        state TEXT,
+        zip_code TEXT,
+        country TEXT,
+        organization TEXT,
+        designation TEXT,
+        department TEXT,
+        notes TEXT,
+        tags TEXT,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_by TEXT NOT NULL,
+        updated_by TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `)
+
+    const checkPersonStmt = db.prepare('SELECT id FROM people WHERE email = ?')
+    const insertPersonStmt = db.prepare(`
+      INSERT INTO people (id, first_name, last_name, email, phone, organization, designation, department, street, city, state, zip_code, country, notes, tags, is_active, created_by, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+    `)
+
+    for (const p of seedPeople) {
+      const existing = checkPersonStmt.get(p.email)
+      if (existing) {
+        console.log(`[Seed] Person already exists: ${p.email}`)
+        continue
+      }
+
+      const id = crypto.randomUUID()
+      const now = new Date().toISOString()
+      insertPersonStmt.run(id, p.firstName, p.lastName, p.email, p.phone, p.organization, p.designation, p.department, p.street, p.city, p.state, p.zipCode, p.country, p.notes, p.tags, createdBy, now, now)
+      console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
     }
 
     db.close()

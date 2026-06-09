@@ -2,8 +2,11 @@
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import InputText from 'primevue/inputtext'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
+import Menu from 'primevue/menu'
 import Dialog from 'primevue/dialog'
 import FileUpload from 'primevue/fileupload'
 import Message from 'primevue/message'
@@ -16,6 +19,19 @@ const { canEdit, isAdmin } = useAuth()
 const { showSuccess, showApiError } = useToastMessages()
 const confirm = useConfirm()
 const uploadMutation = useBulkUpload()
+
+const actionsMenu = ref()
+const actionsMenuItems = computed(() => {
+  const items = []
+  if (canEdit.value) {
+    items.push({ label: 'Add Person', icon: 'pi pi-plus', command: () => navigateTo('/people/add') })
+  }
+  if (isAdmin.value) {
+    items.push({ label: 'Import', icon: 'pi pi-upload', command: () => { importDialogVisible.value = true } })
+  }
+  items.push({ label: 'Export', icon: 'pi pi-download', command: () => navigateTo('/api/people/export', { external: true }) })
+  return items
+})
 
 const filters = ref({
   page: 1,
@@ -114,35 +130,21 @@ function confirmDelete(id: string, name: string) {
     <div class="page-header">
       <h1>People Directory</h1>
       <div style="display: flex; gap: 0.75rem; align-items: center;">
-        <span class="p-input-icon-left">
-          <i class="pi pi-search" />
+        <IconField>
+          <InputIcon class="pi pi-search" />
           <InputText
             v-model="searchInput"
             placeholder="Search people..."
             @input="onSearchInput"
           />
-        </span>
+        </IconField>
         <Button
-          v-if="canEdit"
-          label="Add Person"
-          icon="pi pi-plus"
-          @click="navigateTo('/people/add')"
+          icon="pi pi-ellipsis-v"
+          rounded
+          text
+          @click="actionsMenu.toggle($event)"
         />
-        <Button
-          v-if="isAdmin"
-          label="Import"
-          icon="pi pi-upload"
-          severity="secondary"
-          outlined
-          @click="importDialogVisible = true"
-        />
-        <Button
-          label="Export"
-          icon="pi pi-download"
-          severity="secondary"
-          outlined
-          @click="navigateTo('/api/people/export', { external: true })"
-        />
+        <Menu ref="actionsMenu" :model="actionsMenuItems" popup />
       </div>
     </div>
 

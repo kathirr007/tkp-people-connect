@@ -2,7 +2,7 @@
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
-import Chips from 'primevue/chips'
+import AutoComplete from 'primevue/autocomplete'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
 import { z } from 'zod'
@@ -172,7 +172,7 @@ async function handleSubmit() {
         <h3 style="font-size: 1rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem;">Additional</h3>
         <div class="form-field" style="margin-bottom: 1rem;">
           <label for="tags">Tags</label>
-          <Chips id="tags" v-model="form.tags" placeholder="Type and press Enter" fluid />
+          <AutoComplete id="tags" v-model="form.tags" multiple typeahead placeholder="Type and press Enter" fluid />
         </div>
         <div class="form-field">
           <label for="notes">Notes</label>
