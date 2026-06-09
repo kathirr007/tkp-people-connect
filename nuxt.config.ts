@@ -61,6 +61,11 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    '/': { prerender: true },
+    '/login': { ssr: false },
+    '/register': { ssr: false },
+    '/forgot-password': { ssr: false },
+    '/reset-password': { ssr: false },
     '/api/auth/login': {
       security: {
         rateLimiter: { tokensPerInterval: 5, interval: 60000 },
@@ -97,12 +102,34 @@ export default defineNuxtConfig({
     strict: true,
   },
 
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   vite: {
     optimizeDeps: {
       include: [
         '@tanstack/vue-query',
-      ]
-    }
+        'primevue/datatable',
+        'primevue/column',
+        'primevue/button',
+        'primevue/card',
+        'primevue/inputtext',
+        'primevue/dialog',
+        'primevue/menu',
+        'primevue/toast',
+        'primevue/confirmdialog',
+        'primevue/password',
+        'primevue/tag',
+        'primevue/message',
+        'primevue/skeleton',
+        'primevue/fileupload',
+        'primevue/toggleswitch',
+        'primevue/autocomplete',
+        'primevue/textarea',
+        'primevue/iconfield',
+        'primevue/inputicon',
+        'primevue/progressbar',
+        'primevue/select',
+        'primevue/useconfirm',
+      ],
+    },
   }
 })

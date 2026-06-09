@@ -2,6 +2,7 @@ import type { AuthUser, LoginCredentials, RegisterData } from '~~/shared/types'
 
 export function useAuth() {
   const user = useState<AuthUser | null>('auth-user', () => null)
+  const hasFetched = useState<boolean>('auth-fetched', () => false)
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
   const canEdit = computed(() => user.value?.role === 'admin' || user.value?.role === 'user')
@@ -12,6 +13,7 @@ export function useAuth() {
       body: credentials,
     })
     user.value = data.user
+    hasFetched.value = true
     return data
   }
 
@@ -25,10 +27,13 @@ export function useAuth() {
   async function logout() {
     await $fetch('/api/auth/logout', { method: 'POST' })
     user.value = null
+    hasFetched.value = false
     await navigateTo('/login')
   }
 
   async function fetchUser() {
+    if (hasFetched.value) return
+
     try {
       const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined
       const data = await $fetch<{ user: AuthUser }>('/api/auth/me', { headers })
@@ -36,6 +41,9 @@ export function useAuth() {
     }
     catch {
       user.value = null
+    }
+    finally {
+      hasFetched.value = true
     }
   }
 
