@@ -62,10 +62,11 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/': { prerender: true },
-    '/login': { ssr: false },
-    '/register': { ssr: false },
-    '/forgot-password': { ssr: false },
-    '/reset-password': { ssr: false },
+    '/login': { prerender: true },
+    '/register': { prerender: true },
+    '/forgot-password': { prerender: true },
+    '/reset-password': { prerender: true },
+    '/verify-email': { prerender: true },
     '/api/auth/login': {
       security: {
         rateLimiter: { tokensPerInterval: 5, interval: 60000 },
