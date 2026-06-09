@@ -96,10 +96,7 @@ export default defineNuxtConfig({
     preset: 'vercel',
     prerender: {
       routes: ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'],
-    },
-    unenv: {
-      external: ['postgres', 'bcryptjs', '@aws-sdk/client-ses', 'jose'],
-    },
+    }
   },
 
   typescript: {
