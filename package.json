@@ -11,7 +11,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "seed:admin": "tsx server/scripts/seed-admin.ts"
+    "seed": "tsx server/scripts/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.700.0",
