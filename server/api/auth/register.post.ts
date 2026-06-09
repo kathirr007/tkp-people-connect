@@ -5,11 +5,19 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const validated = registerSchema.parse(body)
 
-    const existingUser = await findUserByEmail(validated.email)
-    if (existingUser) {
+    const existingEmail = await findUserByEmail(validated.email)
+    if (existingEmail) {
       throw createError({
         statusCode: 409,
         message: 'Email already registered',
+      })
+    }
+
+    const existingUsername = await findUserByUsername(validated.username)
+    if (existingUsername) {
+      throw createError({
+        statusCode: 409,
+        message: 'Username already taken',
       })
     }
 

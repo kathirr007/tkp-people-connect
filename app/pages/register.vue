@@ -5,6 +5,7 @@ const { register } = useAuth()
 const { showSuccess, showApiError } = useToastMessages()
 
 const form = reactive({
+  username: '',
   firstName: '',
   lastName: '',
   email: '',
@@ -57,6 +58,15 @@ async function handleRegister() {
         <Message v-if="error" severity="error" :closable="false" class="mb-3">
           {{ error }}
         </Message>
+        <div class="form-field" style="margin-bottom: 1rem;">
+          <label for="username">Username</label>
+          <InputText
+            id="username"
+            v-model="form.username"
+            placeholder="Choose a username"
+            fluid
+          />
+        </div>
         <div class="form-grid" style="margin-bottom: 1rem;">
           <div class="form-field">
             <label for="firstName">First Name</label>

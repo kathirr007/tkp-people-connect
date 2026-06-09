@@ -5,7 +5,7 @@ const { login } = useAuth()
 const { showApiError } = useToastMessages()
 
 const form = reactive({
-  email: '',
+  identifier: '',
   password: '',
 })
 const loading = ref(false)
@@ -43,12 +43,11 @@ async function handleLogin() {
           {{ error }}
         </Message>
         <div class="form-field" style="margin-bottom: 1rem;">
-          <label for="email">Email</label>
+          <label for="identifier">Email or Username</label>
           <InputText
-            id="email"
-            v-model="form.email"
-            type="email"
-            placeholder="Enter your email"
+            id="identifier"
+            v-model="form.identifier"
+            placeholder="Enter your email or username"
             fluid
           />
         </div>

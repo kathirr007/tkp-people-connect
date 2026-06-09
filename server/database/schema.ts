@@ -4,6 +4,7 @@ import { pgTable, varchar, text as pgText, boolean, timestamp, integer as pgInte
 // SQLite Schema
 export const sqliteUsers = sqliteTable('users', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
   firstName: text('first_name').notNull(),
@@ -45,6 +46,7 @@ export const sqlitePeople = sqliteTable('people', {
 // PostgreSQL Schema
 export const pgUsers = pgTable('users', {
   id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  username: varchar('username', { length: 50 }).notNull().unique(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: varchar('password', { length: 255 }).notNull(),
   firstName: varchar('first_name', { length: 100 }).notNull(),

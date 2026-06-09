@@ -3,6 +3,21 @@ import postgres from 'postgres'
 
 const DB_PATH = process.env.SQLITE_DB_PATH || './data/database.sqlite'
 
+function getTableColumns(db: any, tableName: string) {
+  return db.prepare(`PRAGMA table_info('${tableName}')`).all().map((row: any) => row.name as string)
+}
+
+function normalizeUsernameCandidate(value: string) {
+  const candidate = value
+    .toLowerCase()
+    .replace(/[^a-z0-9_.-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .slice(0, 50)
+    .replace(/^_+|_+$/g, '')
+
+  return candidate || `user_${Math.random().toString(36).slice(2, 10)}`
+}
+
 export function runSqliteMigrations() {
   const db = new Database(DB_PATH)
   db.pragma('journal_mode = WAL')
@@ -10,6 +25,7 @@ export function runSqliteMigrations() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL,
       first_name TEXT NOT NULL,
@@ -47,7 +63,35 @@ export function runSqliteMigrations() {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+  `)
 
+  const userColumns = getTableColumns(db, 'users')
+  if (!userColumns.includes('username')) {
+    db.exec('ALTER TABLE users ADD COLUMN username TEXT')
+
+    const existingUsers = db.prepare('SELECT id, email FROM users').all() as Array<{ id: string; email: string | null }>
+    const usedUsernames = new Set<string>()
+    const updateStmt = db.prepare('UPDATE users SET username = ? WHERE id = ?')
+
+    for (const user of existingUsers) {
+      const localPart = user.email && user.email.includes('@')
+        ? user.email.slice(0, user.email.indexOf('@'))
+        : user.id
+      let username = normalizeUsernameCandidate(localPart)
+      const baseUsername = username
+      let suffix = 1
+
+      while (usedUsernames.has(username)) {
+        username = `${baseUsername}_${suffix++}`.slice(0, 50)
+      }
+
+      usedUsernames.add(username)
+      updateStmt.run(username, user.id)
+    }
+  }
+
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name);
     CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name);
@@ -65,6 +109,7 @@ export async function runPostgresMigrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id VARCHAR(36) PRIMARY KEY,
+      username VARCHAR(50) NOT NULL UNIQUE,
       email VARCHAR(255) NOT NULL UNIQUE,
       password VARCHAR(255) NOT NULL,
       first_name VARCHAR(100) NOT NULL,
@@ -106,6 +151,7 @@ export async function runPostgresMigrations() {
     )
   `
 
+  await sql`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`
   await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name)`

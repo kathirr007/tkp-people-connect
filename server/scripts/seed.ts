@@ -58,12 +58,12 @@ const seedPeople = [
 ]
 
 const seedUsers = [
-  { email: 'admin1@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'One', role: 'admin' },
-  { email: 'admin2@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'Two', role: 'admin' },
-  { email: 'user1@tkp-people-connect.com', password: 'User@123', firstName: 'User', lastName: 'One', role: 'user' },
-  { email: 'user2@tkp-people-connect.com', password: 'User@123', firstName: 'User', lastName: 'Two', role: 'user' },
-  { email: 'viewer1@tkp-people-connect.com', password: 'Viewer@123', firstName: 'Viewer', lastName: 'One', role: 'viewer' },
-  { email: 'viewer2@tkp-people-connect.com', password: 'Viewer@123', firstName: 'Viewer', lastName: 'Two', role: 'viewer' },
+  { username: 'admin1', email: 'admin1@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'One', role: 'admin' },
+  { username: 'admin2', email: 'admin2@tkp-people-connect.com', password: 'Admin@123', firstName: 'Admin', lastName: 'Two', role: 'admin' },
+  { username: 'user1', email: 'user1@tkp-people-connect.com', password: 'User@123', firstName: 'User', lastName: 'One', role: 'user' },
+  { username: 'user2', email: 'user2@tkp-people-connect.com', password: 'User@123', firstName: 'User', lastName: 'Two', role: 'user' },
+  { username: 'viewer1', email: 'viewer1@tkp-people-connect.com', password: 'Viewer@123', firstName: 'Viewer', lastName: 'One', role: 'viewer' },
+  { username: 'viewer2', email: 'viewer2@tkp-people-connect.com', password: 'Viewer@123', firstName: 'Viewer', lastName: 'Two', role: 'viewer' },
 ]
 
 async function seed() {
@@ -76,6 +76,7 @@ async function seed() {
       await sql`
         CREATE TABLE IF NOT EXISTS users (
           id VARCHAR(36) PRIMARY KEY,
+          username VARCHAR(50) NOT NULL UNIQUE,
           email VARCHAR(255) NOT NULL UNIQUE,
           password VARCHAR(255) NOT NULL,
           first_name VARCHAR(100) NOT NULL,
@@ -103,8 +104,8 @@ async function seed() {
         const id = crypto.randomUUID()
 
         await sql`
-          INSERT INTO users (id, email, password, first_name, last_name, role, is_verified, created_at, updated_at)
-          VALUES (${id}, ${u.email}, ${hashedPassword}, ${u.firstName}, ${u.lastName}, ${u.role}, true, NOW(), NOW())
+          INSERT INTO users (id, username, email, password, first_name, last_name, role, is_verified, created_at, updated_at)
+          VALUES (${id}, ${u.username}, ${u.email}, ${hashedPassword}, ${u.firstName}, ${u.lastName}, ${u.role}, true, NOW(), NOW())
         `
         console.log(`[Seed] Created ${u.role}: ${u.email}`)
       }
@@ -147,6 +148,7 @@ async function seed() {
     db.exec(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         first_name TEXT NOT NULL,
@@ -165,8 +167,8 @@ async function seed() {
 
     const checkStmt = db.prepare('SELECT id FROM users WHERE email = ?')
     const insertStmt = db.prepare(`
-      INSERT INTO users (id, email, password, first_name, last_name, role, is_verified, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+      INSERT INTO users (id, username, email, password, first_name, last_name, role, is_verified, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
     `)
 
     for (const u of seedUsers) {
@@ -180,7 +182,7 @@ async function seed() {
       const id = crypto.randomUUID()
       const now = new Date().toISOString()
 
-      insertStmt.run(id, u.email, hashedPassword, u.firstName, u.lastName, u.role, now, now)
+      insertStmt.run(id, u.username, u.email, hashedPassword, u.firstName, u.lastName, u.role, now, now)
       console.log(`[Seed] Created ${u.role}: ${u.email}`)
     }
 

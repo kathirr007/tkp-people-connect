@@ -1,18 +1,24 @@
 import { z } from 'zod'
 
 export const registerSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(50, 'Username must be at most 50 characters')
+    .regex(/^[a-zA-Z0-9_.-]+$/, 'Username can only contain letters, numbers, dots, hyphens, and underscores'),
+  email: z.string().trim().email('Invalid email address'),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
-  firstName: z.string().min(2, 'First name must be at least 2 characters').max(100),
-  lastName: z.string().min(2, 'Last name must be at least 2 characters').max(100),
+  firstName: z.string().trim().min(2, 'First name must be at least 2 characters').max(100),
+  lastName: z.string().trim().min(2, 'Last name must be at least 2 characters').max(100),
 })
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  identifier: z.string().trim().min(1, 'Email or username is required'),
   password: z.string().min(1, 'Password is required'),
 })
 

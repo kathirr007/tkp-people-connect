@@ -3,11 +3,11 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const validated = loginSchema.parse(body)
 
-    const user = await findUserByEmail(validated.email)
+    const user = await findUserByIdentifier(validated.identifier)
     if (!user) {
       throw createError({
         statusCode: 401,
-        message: 'Invalid email or password',
+        message: 'Invalid credentials',
       })
     }
 
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     if (!isValidPassword) {
       throw createError({
         statusCode: 401,
-        message: 'Invalid email or password',
+        message: 'Invalid credentials',
       })
     }
 
@@ -48,6 +48,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       user: {
         userId: user.id,
+        username: user.username,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,

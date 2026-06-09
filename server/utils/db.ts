@@ -3,6 +3,7 @@ import { useDatabase } from '../database'
 
 export interface UserRecord {
   id: string
+  username: string
   email: string
   password: string
   firstName: string
@@ -45,8 +46,25 @@ export interface PersonRecord {
 
 export async function findUserByEmail(email: string): Promise<UserRecord | undefined> {
   const { db, users } = useDatabase()
-  const results = await db.select().from(users).where(eq(users.email, email.toLowerCase())).limit(1)
+  const normalizedEmail = email.trim().toLowerCase()
+  const results = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1)
   return results[0] as UserRecord | undefined
+}
+
+export async function findUserByUsername(username: string): Promise<UserRecord | undefined> {
+  const { db, users } = useDatabase()
+  const normalizedUsername = username.trim().toLowerCase()
+  const results = await db.select().from(users).where(eq(users.username, normalizedUsername)).limit(1)
+  return results[0] as UserRecord | undefined
+}
+
+export async function findUserByIdentifier(identifier: string): Promise<UserRecord | undefined> {
+  const normalizedIdentifier = identifier.trim()
+  const isEmail = normalizedIdentifier.includes('@')
+  if (isEmail) {
+    return findUserByEmail(normalizedIdentifier)
+  }
+  return findUserByUsername(normalizedIdentifier)
 }
 
 export async function findUserById(id: string): Promise<UserRecord | undefined> {
@@ -73,6 +91,7 @@ export async function findUserByResetToken(token: string): Promise<UserRecord | 
 }
 
 export async function createUser(data: {
+  username: string
   email: string
   password: string
   firstName: string
@@ -84,6 +103,7 @@ export async function createUser(data: {
   const { db, users } = useDatabase()
   const now = new Date().toISOString()
   const results = await db.insert(users).values({
+    username: data.username.toLowerCase(),
     email: data.email.toLowerCase(),
     password: data.password,
     firstName: data.firstName,
@@ -111,6 +131,7 @@ export async function listUsers(params: { page: number, limit: number, search?: 
   let whereClause
   if (search) {
     whereClause = or(
+      like(users.username, `%${search}%`),
       like(users.firstName, `%${search}%`),
       like(users.lastName, `%${search}%`),
       like(users.email, `%${search}%`),
