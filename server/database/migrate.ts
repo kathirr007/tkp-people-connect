@@ -113,7 +113,7 @@ export async function runPostgresMigrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id VARCHAR(36) PRIMARY KEY,
-      username VARCHAR(50) NOT NULL UNIQUE,
+      username VARCHAR(50) UNIQUE,
       email VARCHAR(255) NOT NULL UNIQUE,
       password VARCHAR(255) NOT NULL,
       first_name VARCHAR(100) NOT NULL,
@@ -154,6 +154,37 @@ export async function runPostgresMigrations() {
       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `
+
+  // Check if username column exists; add it if missing
+  const userColumns = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'username'
+  `
+
+  if (userColumns.length === 0) {
+    await sql`ALTER TABLE users ADD COLUMN username VARCHAR(50) UNIQUE`
+
+    // Generate usernames from email for existing users
+    const existingUsers = await sql`SELECT id, email FROM users WHERE username IS NULL`
+    const usedUsernames = new Set<string>()
+
+    for (const user of existingUsers) {
+      const localPart = user.email && user.email.includes('@')
+        ? user.email.slice(0, user.email.indexOf('@'))
+        : user.id
+      let username = normalizeUsernameCandidate(localPart)
+      const baseUsername = username
+      let suffix = 1
+
+      while (usedUsernames.has(username)) {
+        username = `${baseUsername}_${suffix++}`.slice(0, 50)
+      }
+
+      usedUsernames.add(username)
+      await sql`UPDATE users SET username = ${username} WHERE id = ${user.id}`
+    }
+  }
 
   await sql`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`
   await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`
