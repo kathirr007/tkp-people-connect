@@ -24,18 +24,27 @@ export interface PersonRecord {
   id: string
   firstName: string
   lastName: string
-  email: string | null
+  gender: string | null
+  dateOfBirth: string | null
   phone: string | null
-  street: string | null
-  city: string | null
-  state: string | null
-  zipCode: string | null
-  country: string | null
-  organization: string | null
-  designation: string | null
-  department: string | null
+  email: string | null
+  village: string | null
+  ward: string | null
+  address: string | null
+  fatherName: string | null
+  fatherPhone: string | null
+  fatherId: string | null
+  motherName: string | null
+  motherPhone: string | null
+  motherId: string | null
+  maritalStatus: string | null
+  spouseName: string | null
+  spousePhone: string | null
+  spouseId: string | null
+  marriageYear: number | null
+  numberOfChildren: number | null
   notes: string | null
-  tags: string | null
+  isAlive: boolean
   isActive: boolean
   createdBy: string
   updatedBy: string | null
@@ -193,25 +202,16 @@ export async function findPersonById(id: string): Promise<PersonRecord | undefin
 
 export async function createPerson(data: Record<string, unknown>): Promise<PersonRecord> {
   const { db, people } = useDatabase()
-  const results = await db.insert(people).values({
-    ...data,
-    tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : (data.tags || null),
-  } as any).returning()
+  const results = await db.insert(people).values({ ...data } as any).returning()
   return results[0] as PersonRecord
 }
 
 export async function updatePerson(id: string, data: Record<string, unknown>): Promise<PersonRecord | undefined> {
   const { db, people, driver } = useDatabase()
-  
-  const updateData: any = {
-    ...data,
-    tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : data.tags,
-  }
 
-  if (driver === 'postgres') {
-    // For PostgreSQL, updatedAt has defaultNow() so we don't need to set it
-  } else {
-    // For SQLite, manually set updatedAt
+  const updateData: any = { ...data }
+
+  if (driver === 'sqlite') {
     updateData.updatedAt = new Date().toISOString()
   }
 
@@ -229,13 +229,13 @@ export async function listPeople(params: {
   page: number
   limit: number
   search?: string
-  organization?: string
+  village?: string
   isActive?: boolean
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
 }) {
   const { db, people } = useDatabase()
-  const { page, limit, search, organization, isActive, sortBy = 'createdAt', sortOrder = 'desc' } = params
+  const { page, limit, search, village, isActive, sortBy = 'createdAt', sortOrder = 'desc' } = params
   const offset = (page - 1) * limit
 
   const conditions = []
@@ -243,51 +243,39 @@ export async function listPeople(params: {
     conditions.push(or(
       like(people.firstName, `%${search}%`),
       like(people.lastName, `%${search}%`),
-      like(people.email, `%${search}%`),
-      like(people.organization, `%${search}%`),
+      like(people.phone, `%${search}%`),
+      like(people.village, `%${search}%`),
     ))
   }
-  if (organization) {
-    conditions.push(like(people.organization, `%${organization}%`))
+  if (village) {
+    conditions.push(like(people.village, `%${village}%`))
   }
   if (isActive !== undefined) {
     conditions.push(eq(people.isActive, isActive))
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined
-
   const sortColumn = (people as any)[sortBy] || people.createdAt
   const orderFn = sortOrder === 'asc' ? asc : desc
 
   const [data, totalResult] = await Promise.all([
-    db.select().from(people)
-      .where(whereClause)
-      .orderBy(orderFn(sortColumn))
-      .limit(limit)
-      .offset(offset),
+    db.select().from(people).where(whereClause).orderBy(orderFn(sortColumn)).limit(limit).offset(offset),
     db.select({ count: count() }).from(people).where(whereClause),
   ])
 
-  const total = totalResult[0]?.count || 0
-
   return {
     data: (data as PersonRecord[]).map(formatPerson),
-    meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    meta: { total: totalResult[0]?.count || 0, page, limit, totalPages: Math.ceil((totalResult[0]?.count || 0) / limit) },
   }
 }
 
 export async function insertManyPeople(records: Record<string, unknown>[]): Promise<number> {
   const { db, people } = useDatabase()
-  const values = records.map(r => ({
-    ...r,
-    tags: Array.isArray(r.tags) ? JSON.stringify(r.tags) : (r.tags || null),
-  })) as any[]
-
-  const result = await db.insert(people).values(values).returning()
+  const result = await db.insert(people).values(records as any[]).returning()
   return result.length
 }
 
-export async function getAllPeopleForExport(filter?: { search?: string, organization?: string }) {
+export async function getAllPeopleForExport(filter?: { search?: string, village?: string }) {
   const { db, people } = useDatabase()
 
   const conditions = []
@@ -295,12 +283,11 @@ export async function getAllPeopleForExport(filter?: { search?: string, organiza
     conditions.push(or(
       like(people.firstName, `%${filter.search}%`),
       like(people.lastName, `%${filter.search}%`),
-      like(people.email, `%${filter.search}%`),
-      like(people.organization, `%${filter.search}%`),
+      like(people.village, `%${filter.search}%`),
     ))
   }
-  if (filter?.organization) {
-    conditions.push(like(people.organization, `%${filter.organization}%`))
+  if (filter?.village) {
+    conditions.push(like(people.village, `%${filter.village}%`))
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -311,37 +298,20 @@ export async function getAllPeopleForExport(filter?: { search?: string, organiza
 export async function getDashboardStats() {
   const { db, people } = useDatabase()
 
-  const [totalResult, activeResult, allPeople] = await Promise.all([
+  const [totalResult, activeResult, recentPeople] = await Promise.all([
     db.select({ count: count() }).from(people),
     db.select({ count: count() }).from(people).where(eq(people.isActive, true)),
-    db.select().from(people).orderBy(desc(people.createdAt)),
+    db.select().from(people).orderBy(desc(people.createdAt)).limit(5),
   ])
 
   const total = totalResult[0]?.count || 0
   const active = activeResult[0]?.count || 0
-  const allRecords = allPeople as PersonRecord[]
-
-  // Get top organizations
-  const orgCounts: Record<string, number> = {}
-  for (const p of allRecords) {
-    if (p.organization) {
-      orgCounts[p.organization] = (orgCounts[p.organization] || 0) + 1
-    }
-  }
-  const byOrganization = Object.entries(orgCounts)
-    .map(([name, cnt]) => ({ name, count: cnt }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10)
-
-  const recentlyAdded = allRecords.slice(0, 5).map(formatPerson)
 
   return {
     totalPeople: total,
     activePeople: active,
     inactivePeople: total - active,
-    totalOrganizations: Object.keys(orgCounts).length,
-    recentlyAdded,
-    byOrganization,
+    recentlyAdded: (recentPeople as PersonRecord[]).map(formatPerson),
   }
 }
 
@@ -352,20 +322,27 @@ function formatPerson(record: PersonRecord) {
     _id: record.id,
     firstName: record.firstName,
     lastName: record.lastName,
-    email: record.email || '',
+    gender: record.gender || '',
+    dateOfBirth: record.dateOfBirth || '',
     phone: record.phone || '',
-    address: {
-      street: record.street || '',
-      city: record.city || '',
-      state: record.state || '',
-      zipCode: record.zipCode || '',
-      country: record.country || '',
-    },
-    organization: record.organization || '',
-    designation: record.designation || '',
-    department: record.department || '',
+    email: record.email || '',
+    village: record.village || '',
+    ward: record.ward || '',
+    address: record.address || '',
+    fatherName: record.fatherName || '',
+    fatherPhone: record.fatherPhone || '',
+    fatherId: record.fatherId || '',
+    motherName: record.motherName || '',
+    motherPhone: record.motherPhone || '',
+    motherId: record.motherId || '',
+    maritalStatus: record.maritalStatus || '',
+    spouseName: record.spouseName || '',
+    spousePhone: record.spousePhone || '',
+    spouseId: record.spouseId || '',
+    marriageYear: record.marriageYear || null,
+    numberOfChildren: record.numberOfChildren ?? null,
     notes: record.notes || '',
-    tags: record.tags ? JSON.parse(record.tags) : [],
+    isAlive: record.isAlive,
     isActive: record.isActive,
     createdBy: record.createdBy,
     createdAt: record.createdAt,

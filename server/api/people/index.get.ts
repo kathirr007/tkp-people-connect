@@ -3,18 +3,9 @@ export default defineEventHandler(async (event) => {
 
   try {
     const query = getQuery(event)
-    const { page, limit, search, sortBy, sortOrder, organization, isActive } =
-      paginationSchema.parse(query)
+    const { page, limit, search, sortBy, sortOrder, village, isActive } = paginationSchema.parse(query)
 
-    const result = await listPeople({
-      page,
-      limit,
-      search,
-      organization,
-      isActive,
-      sortBy,
-      sortOrder,
-    })
+    const result = await listPeople({ page, limit, search, village, isActive, sortBy, sortOrder })
 
     return result
   }

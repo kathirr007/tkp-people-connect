@@ -46,20 +46,11 @@ export default defineEventHandler(async (event) => {
       const result = personSchema.safeParse(rows[i])
       if (result.success) {
         validPeople.push({
-          firstName: result.data.firstName,
-          lastName: result.data.lastName,
-          email: result.data.email || null,
-          phone: result.data.phone || null,
-          street: result.data.address?.street || null,
-          city: result.data.address?.city || null,
-          state: result.data.address?.state || null,
-          zipCode: result.data.address?.zipCode || null,
-          country: result.data.address?.country || null,
-          organization: result.data.organization || null,
-          designation: result.data.designation || null,
-          department: result.data.department || null,
-          notes: result.data.notes || null,
-          tags: result.data.tags || [],
+          ...result.data,
+          fatherId: result.data.fatherId || null,
+          motherId: result.data.motherId || null,
+          spouseId: result.data.spouseId || null,
+          isAlive: result.data.isAlive ?? true,
           isActive: result.data.isActive ?? true,
           createdBy: user.userId,
         })

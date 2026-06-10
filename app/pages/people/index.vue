@@ -28,6 +28,7 @@ const filters = ref({
   search: '',
   sortBy: 'createdAt',
   sortOrder: 'desc' as const,
+  village: '',
 })
 
 const { data, isPending } = usePeopleList(filters)
@@ -152,12 +153,18 @@ function confirmDelete(id: string, name: string) {
     >
       <Column field="firstName" header="First Name" sortable />
       <Column field="lastName" header="Last Name" sortable />
-      <Column field="email" header="Email" />
-      <Column field="organization" header="Organization" sortable />
-      <Column field="designation" header="Designation" />
+      <Column field="village" header="Village" sortable />
+      <Column field="phone" header="Phone" />
+      <Column field="fatherName" header="Father's Name" />
+      <Column field="maritalStatus" header="Marital Status" />
+      <Column field="isAlive" header="Alive">
+        <template #body="{ data: row }">
+          <Tag :value="row.isAlive ? 'Alive' : 'Deceased'" :severity="row.isAlive ? 'success' : 'secondary'" />
+        </template>
+      </Column>
       <Column field="isActive" header="Status">
         <template #body="{ data: row }">
-          <Tag :value="row.isActive ? 'Active' : 'Inactive'" :severity="row.isActive ? 'success' : 'danger'" />
+          <Tag :value="row.isActive ? 'Active' : 'Inactive'" :severity="row.isActive ? 'info' : 'danger'" />
         </template>
       </Column>
       <Column header="Actions" style="width: 10rem;">

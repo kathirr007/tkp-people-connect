@@ -38,22 +38,27 @@ export const resetPasswordSchema = z.object({
 export const personSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(100),
   lastName: z.string().min(1, 'Last name is required').max(100),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  dateOfBirth: z.string().optional().or(z.literal('')),
   phone: z.string().max(20).optional().or(z.literal('')),
-  address: z
-    .object({
-      street: z.string().max(200).optional().or(z.literal('')),
-      city: z.string().max(100).optional().or(z.literal('')),
-      state: z.string().max(100).optional().or(z.literal('')),
-      zipCode: z.string().max(20).optional().or(z.literal('')),
-      country: z.string().max(100).optional().or(z.literal('')),
-    })
-    .optional(),
-  organization: z.string().max(200).optional().or(z.literal('')),
-  designation: z.string().max(200).optional().or(z.literal('')),
-  department: z.string().max(200).optional().or(z.literal('')),
+  email: z.string().email('Invalid email').optional().or(z.literal('')),
+  village: z.string().max(100).optional().or(z.literal('')),
+  ward: z.string().max(100).optional().or(z.literal('')),
+  address: z.string().max(500).optional().or(z.literal('')),
+  fatherName: z.string().max(100).optional().or(z.literal('')),
+  fatherPhone: z.string().max(20).optional().or(z.literal('')),
+  fatherId: z.string().max(36).optional().or(z.literal('')),
+  motherName: z.string().max(100).optional().or(z.literal('')),
+  motherPhone: z.string().max(20).optional().or(z.literal('')),
+  motherId: z.string().max(36).optional().or(z.literal('')),
+  maritalStatus: z.enum(['single', 'married', 'widowed', 'divorced']).optional(),
+  spouseName: z.string().max(100).optional().or(z.literal('')),
+  spousePhone: z.string().max(20).optional().or(z.literal('')),
+  spouseId: z.string().max(36).optional().or(z.literal('')),
+  marriageYear: z.number().int().min(1900).max(2100).optional().nullable(),
+  numberOfChildren: z.number().int().min(0).optional().nullable(),
   notes: z.string().max(2000).optional().or(z.literal('')),
-  tags: z.array(z.string().max(50)).max(20).optional(),
+  isAlive: z.boolean().optional(),
   isActive: z.boolean().optional(),
 })
 
@@ -63,7 +68,7 @@ export const paginationSchema = z.object({
   search: z.string().optional(),
   sortBy: z.string().optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
-  organization: z.string().optional(),
+  village: z.string().optional(),
   isActive: z
     .string()
     .optional()

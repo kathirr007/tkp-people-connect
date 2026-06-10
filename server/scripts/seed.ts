@@ -46,52 +46,52 @@ console.log(`[Seed] DATABASE_URL=${process.env.DATABASE_URL ? '[loaded]' : '[not
 
 const seedPeople = [
   {
-    firstName: 'Rajesh',
-    lastName: 'Kumar',
-    email: 'rajesh.kumar@example.com',
+    firstName: 'Murugan',
+    lastName: 'Selvam',
+    gender: 'male',
+    dateOfBirth: '1975-06-15',
     phone: '+91 98765 43210',
-    organization: 'TechCorp India',
-    designation: 'Senior Developer',
-    department: 'Engineering',
-    street: '42 MG Road',
-    city: 'Bangalore',
-    state: 'Karnataka',
-    zipCode: '560001',
-    country: 'India',
-    notes: 'Full-stack developer with 8 years of experience',
-    tags: JSON.stringify(['developer', 'fullstack', 'team-lead']),
+    village: 'Thuraiyur',
+    ward: 'Ward 3',
+    address: '12 Main Street, Thuraiyur, Tamil Nadu',
+    fatherName: 'Selvam Gounder',
+    fatherPhone: '+91 97654 32109',
+    motherName: 'Meenakshi Selvam',
+    maritalStatus: 'married',
+    spouseName: 'Lakshmi Murugan',
+    spousePhone: '+91 87654 32109',
+    marriageYear: 2002,
+    numberOfChildren: 3,
+    notes: 'Farmer. Active member of village panchayat.',
   },
   {
-    firstName: 'Priya',
-    lastName: 'Sharma',
-    email: 'priya.sharma@example.com',
-    phone: '+91 87654 32109',
-    organization: 'DesignHub',
-    designation: 'UX Designer',
-    department: 'Design',
-    street: '15 Connaught Place',
-    city: 'New Delhi',
-    state: 'Delhi',
-    zipCode: '110001',
-    country: 'India',
-    notes: 'Specializes in mobile-first design and accessibility',
-    tags: JSON.stringify(['designer', 'ux', 'accessibility']),
-  },
-  {
-    firstName: 'Arun',
-    lastName: 'Patel',
-    email: 'arun.patel@example.com',
+    firstName: 'Ravi',
+    lastName: 'Krishnan',
+    gender: 'male',
+    dateOfBirth: '1990-03-22',
     phone: '+91 76543 21098',
-    organization: 'DataWorks',
-    designation: 'Project Manager',
-    department: 'Operations',
-    street: '88 SG Highway',
-    city: 'Ahmedabad',
-    state: 'Gujarat',
-    zipCode: '380015',
-    country: 'India',
-    notes: 'PMP certified with expertise in agile methodologies',
-    tags: JSON.stringify(['manager', 'agile', 'pmp']),
+    village: 'Thuraiyur',
+    ward: 'Ward 1',
+    address: '45 North Street, Thuraiyur, Tamil Nadu',
+    fatherName: 'Krishnan Pillai',
+    motherName: 'Saraswathi Krishnan',
+    maritalStatus: 'single',
+    notes: 'School teacher at government high school.',
+  },
+  {
+    firstName: 'Kavitha',
+    lastName: 'Raj',
+    gender: 'female',
+    dateOfBirth: '1985-11-08',
+    phone: '+91 65432 10987',
+    village: 'Senthurai',
+    ward: 'Ward 2',
+    address: '7 Temple Road, Senthurai, Tamil Nadu',
+    fatherName: 'Raj Mudaliar',
+    motherName: 'Vijaya Raj',
+    maritalStatus: 'widowed',
+    numberOfChildren: 2,
+    notes: 'Runs a small grocery shop.',
   },
 ]
 
@@ -133,6 +133,42 @@ async function seed() {
         )
       `
 
+      await sql`
+        CREATE TABLE IF NOT EXISTS people (
+          id VARCHAR(36) PRIMARY KEY,
+          first_name VARCHAR(100) NOT NULL,
+          last_name VARCHAR(100) NOT NULL,
+          gender VARCHAR(10),
+          date_of_birth VARCHAR(20),
+          phone VARCHAR(20),
+          email VARCHAR(255),
+          village VARCHAR(100),
+          ward VARCHAR(100),
+          address TEXT,
+          father_name VARCHAR(100),
+          father_phone VARCHAR(20),
+          father_id VARCHAR(36),
+          mother_name VARCHAR(100),
+          mother_phone VARCHAR(20),
+          mother_id VARCHAR(36),
+          marital_status VARCHAR(20),
+          spouse_name VARCHAR(100),
+          spouse_phone VARCHAR(20),
+          spouse_id VARCHAR(36),
+          marriage_year INTEGER,
+          number_of_children INTEGER,
+          children TEXT,
+          education TEXT,
+          notes TEXT,
+          is_alive BOOLEAN NOT NULL DEFAULT true,
+          is_active BOOLEAN NOT NULL DEFAULT true,
+          created_by VARCHAR(36) NOT NULL,
+          updated_by VARCHAR(36),
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )
+      `
+
       for (const u of seedUsers) {
         const existing = await sql`SELECT id FROM users WHERE email = ${u.email}`
         if (existing.length > 0) {
@@ -154,16 +190,25 @@ async function seed() {
       const createdBy = adminUser[0]?.id || 'system'
 
       for (const p of seedPeople) {
-        const existing = await sql`SELECT id FROM people WHERE email = ${p.email}`
+        const existing = await sql`SELECT id FROM people WHERE first_name = ${p.firstName} AND last_name = ${p.lastName} AND village = ${p.village}`
         if (existing.length > 0) {
-          console.log(`[Seed] Person already exists: ${p.email}`)
+          console.log(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
           continue
         }
 
         const id = crypto.randomUUID()
         await sql`
-          INSERT INTO people (id, first_name, last_name, email, phone, organization, designation, department, street, city, state, zip_code, country, notes, tags, is_active, created_by, created_at, updated_at)
-          VALUES (${id}, ${p.firstName}, ${p.lastName}, ${p.email}, ${p.phone}, ${p.organization}, ${p.designation}, ${p.department}, ${p.street}, ${p.city}, ${p.state}, ${p.zipCode}, ${p.country}, ${p.notes}, ${p.tags}, true, ${createdBy}, NOW(), NOW())
+          INSERT INTO people (id, first_name, last_name, gender, date_of_birth, phone, village, ward, address,
+            father_name, father_phone, mother_name, marital_status, spouse_name, spouse_phone,
+            marriage_year, number_of_children, children, education, notes, is_alive, is_active, created_by, created_at, updated_at)
+          VALUES (
+            ${id}, ${p.firstName}, ${p.lastName}, ${p.gender ?? null}, ${p.dateOfBirth ?? null}, ${p.phone ?? null},
+            ${p.village ?? null}, ${p.ward ?? null}, ${p.address ?? null},
+            ${p.fatherName ?? null}, ${p.fatherPhone ?? null}, ${p.motherName ?? null},
+            ${p.maritalStatus ?? null}, ${p.spouseName ?? null}, ${p.spousePhone ?? null},
+            ${p.marriageYear ?? null}, ${p.numberOfChildren ?? null}, '[]', '[]', ${p.notes ?? null},
+            true, true, ${createdBy}, NOW(), NOW()
+          )
         `
         console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
       }
@@ -234,18 +279,27 @@ async function seed() {
         id TEXT PRIMARY KEY,
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
-        email TEXT,
+        gender TEXT,
+        date_of_birth TEXT,
         phone TEXT,
-        street TEXT,
-        city TEXT,
-        state TEXT,
-        zip_code TEXT,
-        country TEXT,
-        organization TEXT,
-        designation TEXT,
-        department TEXT,
+        email TEXT,
+        village TEXT,
+        ward TEXT,
+        address TEXT,
+        father_name TEXT,
+        father_phone TEXT,
+        father_id TEXT,
+        mother_name TEXT,
+        mother_phone TEXT,
+        mother_id TEXT,
+        marital_status TEXT,
+        spouse_name TEXT,
+        spouse_phone TEXT,
+        spouse_id TEXT,
+        marriage_year INTEGER,
+        number_of_children INTEGER,
         notes TEXT,
-        tags TEXT,
+        is_alive INTEGER NOT NULL DEFAULT 1,
         is_active INTEGER NOT NULL DEFAULT 1,
         created_by TEXT NOT NULL,
         updated_by TEXT,
@@ -254,22 +308,31 @@ async function seed() {
       )
     `)
 
-    const checkPersonStmt = db.prepare('SELECT id FROM people WHERE email = ?')
+    const checkPersonStmt = db.prepare('SELECT id FROM people WHERE first_name = ? AND last_name = ? AND village = ?')
     const insertPersonStmt = db.prepare(`
-      INSERT INTO people (id, first_name, last_name, email, phone, organization, designation, department, street, city, state, zip_code, country, notes, tags, is_active, created_by, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+      INSERT INTO people (id, first_name, last_name, gender, date_of_birth, phone, village, ward, address,
+        father_name, father_phone, mother_name, marital_status, spouse_name, spouse_phone,
+        marriage_year, number_of_children, notes, is_alive, is_active, created_by, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?, ?, ?)
     `)
 
     for (const p of seedPeople) {
-      const existing = checkPersonStmt.get(p.email)
+      const existing = checkPersonStmt.get(p.firstName, p.lastName, p.village ?? '')
       if (existing) {
-        console.log(`[Seed] Person already exists: ${p.email}`)
+        console.log(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
         continue
       }
 
       const id = crypto.randomUUID()
       const now = new Date().toISOString()
-      insertPersonStmt.run(id, p.firstName, p.lastName, p.email, p.phone, p.organization, p.designation, p.department, p.street, p.city, p.state, p.zipCode, p.country, p.notes, p.tags, createdBy, now, now)
+      insertPersonStmt.run(
+        id, p.firstName, p.lastName, p.gender ?? null, p.dateOfBirth ?? null, p.phone ?? null,
+        p.village ?? null, p.ward ?? null, p.address ?? null,
+        p.fatherName ?? null, p.fatherPhone ?? null, p.motherName ?? null,
+        p.maritalStatus ?? null, p.spouseName ?? null, p.spousePhone ?? null,
+        p.marriageYear ?? null, p.numberOfChildren ?? null, p.notes ?? null,
+        createdBy, now, now,
+      )
       console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
     }
 

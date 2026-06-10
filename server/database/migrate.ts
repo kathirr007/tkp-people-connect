@@ -49,18 +49,27 @@ export function runSqliteMigrations() {
       id TEXT PRIMARY KEY,
       first_name TEXT NOT NULL,
       last_name TEXT NOT NULL,
-      email TEXT,
+      gender TEXT,
+      date_of_birth TEXT,
       phone TEXT,
-      street TEXT,
-      city TEXT,
-      state TEXT,
-      zip_code TEXT,
-      country TEXT,
-      organization TEXT,
-      designation TEXT,
-      department TEXT,
+      email TEXT,
+      village TEXT,
+      ward TEXT,
+      address TEXT,
+      father_name TEXT,
+      father_phone TEXT,
+      father_id TEXT,
+      mother_name TEXT,
+      mother_phone TEXT,
+      mother_id TEXT,
+      marital_status TEXT,
+      spouse_name TEXT,
+      spouse_phone TEXT,
+      spouse_id TEXT,
+      marriage_year INTEGER,
+      number_of_children INTEGER,
       notes TEXT,
-      tags TEXT,
+      is_alive INTEGER NOT NULL DEFAULT 1,
       is_active INTEGER NOT NULL DEFAULT 1,
       created_by TEXT NOT NULL,
       updated_by TEXT,
@@ -94,13 +103,21 @@ export function runSqliteMigrations() {
     }
   }
 
+  // Add children and education columns if they don't exist
+  const peopleColumns = getTableColumns(db, 'people')
+  if (!peopleColumns.includes('children')) {
+    db.exec('ALTER TABLE people ADD COLUMN children TEXT DEFAULT \'[]\'')
+  }
+  if (!peopleColumns.includes('education')) {
+    db.exec('ALTER TABLE people ADD COLUMN education TEXT DEFAULT \'[]\'')
+  }
+
   db.exec(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name);
     CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name);
-    CREATE INDEX IF NOT EXISTS idx_people_email ON people(email);
-    CREATE INDEX IF NOT EXISTS idx_people_organization ON people(organization);
+    CREATE INDEX IF NOT EXISTS idx_people_village ON people(village);
   `)
 
   db.close()
@@ -137,18 +154,27 @@ export async function runPostgresMigrations() {
       id VARCHAR(36) PRIMARY KEY,
       first_name VARCHAR(100) NOT NULL,
       last_name VARCHAR(100) NOT NULL,
-      email VARCHAR(255),
+      gender VARCHAR(10),
+      date_of_birth VARCHAR(20),
       phone VARCHAR(20),
-      street VARCHAR(200),
-      city VARCHAR(100),
-      state VARCHAR(100),
-      zip_code VARCHAR(20),
-      country VARCHAR(100),
-      organization VARCHAR(200),
-      designation VARCHAR(200),
-      department VARCHAR(200),
+      email VARCHAR(255),
+      village VARCHAR(100),
+      ward VARCHAR(100),
+      address TEXT,
+      father_name VARCHAR(100),
+      father_phone VARCHAR(20),
+      father_id VARCHAR(36),
+      mother_name VARCHAR(100),
+      mother_phone VARCHAR(20),
+      mother_id VARCHAR(36),
+      marital_status VARCHAR(20),
+      spouse_name VARCHAR(100),
+      spouse_phone VARCHAR(20),
+      spouse_id VARCHAR(36),
+      marriage_year INTEGER,
+      number_of_children INTEGER,
       notes TEXT,
-      tags TEXT,
+      is_alive BOOLEAN NOT NULL DEFAULT true,
       is_active BOOLEAN NOT NULL DEFAULT true,
       created_by VARCHAR(36) NOT NULL,
       updated_by VARCHAR(36),
@@ -167,7 +193,6 @@ export async function runPostgresMigrations() {
   if (userColumns.length === 0) {
     await sql`ALTER TABLE users ADD COLUMN username VARCHAR(50) UNIQUE`
 
-    // Generate usernames from email for existing users
     const existingUsers = await sql`SELECT id, email FROM users WHERE username IS NULL`
     const usedUsernames = new Set<string>()
 
@@ -192,8 +217,23 @@ export async function runPostgresMigrations() {
   await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name)`
-  await sql`CREATE INDEX IF NOT EXISTS idx_people_email ON people(email)`
-  await sql`CREATE INDEX IF NOT EXISTS idx_people_organization ON people(organization)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_people_village ON people(village)`
+
+  // Add children and education columns if they don't exist
+  const peopleColumns = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'people' AND column_name IN ('children', 'education')
+  `
+  const columnNames = peopleColumns.map((c: any) => c.column_name)
+
+  if (!columnNames.includes('children')) {
+    await sql`ALTER TABLE people ADD COLUMN children TEXT`
+  }
+
+  if (!columnNames.includes('education')) {
+    await sql`ALTER TABLE people ADD COLUMN education TEXT`
+  }
 
   await sql.end()
 }
