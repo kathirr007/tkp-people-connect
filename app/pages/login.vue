@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'auth' })
 
-const { login } = useAuth()
+const { login, resendVerificationEmail } = useAuth()
 const { showApiError } = useToastMessages()
 
 const form = reactive({
@@ -10,9 +10,18 @@ const form = reactive({
 })
 const loading = ref(false)
 const error = ref('')
+const resendLoading = ref(false)
+const resendMessage = ref('')
+const resendError = ref('')
+
+const canResendVerification = computed(() =>
+  error.value === 'Please verify your email before logging in' && form.identifier.trim().length > 0,
+)
 
 async function handleLogin() {
   error.value = ''
+  resendMessage.value = ''
+  resendError.value = ''
   loading.value = true
   try {
     await login(form)
@@ -25,6 +34,29 @@ async function handleLogin() {
   }
   finally {
     loading.value = false
+  }
+}
+
+async function handleResendVerification() {
+  resendMessage.value = ''
+  resendError.value = ''
+
+  if (!form.identifier.trim()) {
+    resendError.value = 'Please enter your email or username to resend verification.'
+    return
+  }
+
+  resendLoading.value = true
+  try {
+    const response = await resendVerificationEmail(form.identifier)
+    resendMessage.value = response.message
+  }
+  catch (e: unknown) {
+    const err = e as { data?: { message?: string } }
+    resendError.value = err?.data?.message || 'Unable to resend verification email.'
+  }
+  finally {
+    resendLoading.value = false
   }
 }
 </script>
@@ -42,6 +74,35 @@ async function handleLogin() {
         <Message v-if="error" severity="error" :closable="false" class="mb-3">
           {{ error }}
         </Message>
+        <div v-if="canResendVerification" class="mb-3">
+          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">
+            Didn't receive the verification email? You can resend it now.
+          </p>
+          <Button
+            type="button"
+            label="Resend verification email"
+            :loading="resendLoading"
+            fluid
+            severity="secondary"
+            @click="handleResendVerification"
+          />
+          <Message
+            v-if="resendMessage"
+            severity="success"
+            :closable="false"
+            class="mt-3"
+          >
+            {{ resendMessage }}
+          </Message>
+          <Message
+            v-if="resendError"
+            severity="warn"
+            :closable="false"
+            class="mt-3"
+          >
+            {{ resendError }}
+          </Message>
+        </div>
         <div class="form-field" style="margin-bottom: 1rem;">
           <label for="identifier">Email or Username</label>
           <InputText

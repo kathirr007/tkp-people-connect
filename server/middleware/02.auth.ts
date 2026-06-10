@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     '/api/auth/reset-password',
     '/api/auth/verify-email',
     '/api/auth/refresh',
+    '/api/auth/resend-verification',
   ]
 
   if (!path.startsWith('/api') || publicPaths.includes(path)) {

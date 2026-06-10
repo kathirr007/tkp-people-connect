@@ -77,6 +77,11 @@ export default defineNuxtConfig({
         rateLimiter: { tokensPerInterval: 3, interval: 60000 },
       },
     },
+    '/api/auth/resend-verification': {
+      security: {
+        rateLimiter: { tokensPerInterval: 3, interval: 300000 },
+      },
+    },
     '/api/auth/forgot-password': {
       security: {
         rateLimiter: { tokensPerInterval: 3, interval: 300000 },

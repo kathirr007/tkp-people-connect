@@ -61,6 +61,13 @@ export function useAuth() {
     })
   }
 
+  async function resendVerificationEmail(identifier: string) {
+    return $fetch<{ success: boolean, message: string }>('/api/auth/resend-verification', {
+      method: 'POST',
+      body: { identifier },
+    })
+  }
+
   return {
     user,
     isAuthenticated,
@@ -72,5 +79,6 @@ export function useAuth() {
     fetchUser,
     forgotPassword,
     resetPassword,
+    resendVerificationEmail,
   }
 }

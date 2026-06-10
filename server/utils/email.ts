@@ -13,12 +13,18 @@ function getClient(): SESClient | null {
     return null
   }
 
+  // Support optional session token for temporary credentials
+  const creds: any = {
+    accessKeyId: config.awsAccessKeyId,
+    secretAccessKey: config.awsSecretAccessKey,
+  }
+  if (config.awsSessionToken) {
+    creds.sessionToken = config.awsSessionToken
+  }
+
   sesClient = new SESClient({
     region: config.awsRegion,
-    credentials: {
-      accessKeyId: config.awsAccessKeyId,
-      secretAccessKey: config.awsSecretAccessKey,
-    },
+    credentials: creds,
   })
 
   return sesClient
@@ -44,7 +50,14 @@ async function sendEmail(to: string, subject: string, htmlBody: string): Promise
     },
   })
 
-  await client.send(command)
+  try {
+    await client.send(command)
+  }
+  catch (err: unknown) {
+    console.error('[Email] SES send error:', err)
+    // Re-throw so callers can handle/log as needed
+    throw err
+  }
 }
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
