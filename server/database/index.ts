@@ -14,7 +14,14 @@ function createDatabase() {
 
   if (driver === 'postgres') {
     const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/tkp-people-connect'
-    const client = postgres(connectionString)
+    const client = postgres(connectionString, {
+      max: 20,
+      idle_timeout: 30,
+      connection_timeout: 10,
+      max_lifetime: 60 * 60,
+      backoff: (retries) => Math.min(Math.pow(2, retries) * 100, 5000),
+      onnotice: () => {},
+    })
     const db = drizzlePg(client)
     return {
       db,

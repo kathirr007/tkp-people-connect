@@ -120,8 +120,31 @@ export async function createUser(data: {
 }
 
 export async function updateUser(id: string, data: Partial<Record<string, unknown>>): Promise<void> {
-  const { db, users } = useDatabase()
-  const updateData = { ...data, updatedAt: new Date().toISOString() } as any
+  const { db, users, driver } = useDatabase()
+  
+  const updateData: any = { ...data }
+  
+  if (driver === 'postgres') {
+    // For PostgreSQL, convert ISO strings/Date to Date objects for timestamp columns
+    if (updateData.lastLogin) {
+      updateData.lastLogin = updateData.lastLogin instanceof Date ? updateData.lastLogin : new Date(updateData.lastLogin as string)
+    }
+    if (updateData.resetPasswordExpires) {
+      updateData.resetPasswordExpires = updateData.resetPasswordExpires instanceof Date ? updateData.resetPasswordExpires : new Date(updateData.resetPasswordExpires as string)
+    }
+    // For PostgreSQL, updatedAt has defaultNow() so we don't need to set it
+  } else {
+    // For SQLite, convert Date objects to ISO strings for text columns
+    if (updateData.lastLogin instanceof Date) {
+      updateData.lastLogin = updateData.lastLogin.toISOString()
+    }
+    if (updateData.resetPasswordExpires instanceof Date) {
+      updateData.resetPasswordExpires = updateData.resetPasswordExpires.toISOString()
+    }
+    // For SQLite, manually set updatedAt
+    updateData.updatedAt = new Date().toISOString()
+  }
+
   await db.update(users).set(updateData).where(eq(users.id, id))
 }
 
@@ -178,12 +201,20 @@ export async function createPerson(data: Record<string, unknown>): Promise<Perso
 }
 
 export async function updatePerson(id: string, data: Record<string, unknown>): Promise<PersonRecord | undefined> {
-  const { db, people } = useDatabase()
-  const updateData = {
+  const { db, people, driver } = useDatabase()
+  
+  const updateData: any = {
     ...data,
     tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : data.tags,
-    updatedAt: new Date().toISOString(),
-  } as any
+  }
+
+  if (driver === 'postgres') {
+    // For PostgreSQL, updatedAt has defaultNow() so we don't need to set it
+  } else {
+    // For SQLite, manually set updatedAt
+    updateData.updatedAt = new Date().toISOString()
+  }
+
   const results = await db.update(people).set(updateData).where(eq(people.id, id)).returning()
   return results[0] as PersonRecord | undefined
 }

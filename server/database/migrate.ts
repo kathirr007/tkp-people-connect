@@ -108,7 +108,9 @@ export function runSqliteMigrations() {
 
 export async function runPostgresMigrations() {
   const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/tkp-people-connect'
-  const sql = postgres(connectionString)
+  const sql = postgres(connectionString, {
+    onnotice: () => {},
+  })
 
   await sql`
     CREATE TABLE IF NOT EXISTS users (

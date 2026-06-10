@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     await updateUser(user.id, {
       refreshToken,
-      lastLogin: new Date().toISOString(),
+      lastLogin: new Date(),
     })
 
     setAuthCookies(event, accessToken, refreshToken)

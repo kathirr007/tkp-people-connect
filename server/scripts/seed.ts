@@ -108,7 +108,9 @@ async function seed() {
   if (DB_DRIVER === 'postgres') {
     const { default: postgres } = await import('postgres')
     const connectionString = process.env.DATABASE_URL || 'postgresql://localhost:5432/tkp-people-connect'
-    const sql = postgres(connectionString)
+    const sql = postgres(connectionString, {
+      onnotice: () => {},
+    })
 
     try {
       await sql`

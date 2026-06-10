@@ -9,7 +9,7 @@ export const sqliteUsers = sqliteTable('users', {
   password: text('password').notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
-  role: text('role', { enum: ['admin', 'user', 'viewer'] }).notNull().default('viewer'),
+  role: text('role').notNull().default('viewer'),
   isVerified: integer('is_verified', { mode: 'boolean' }).notNull().default(false),
   verificationToken: text('verification_token'),
   resetPasswordToken: text('reset_password_token'),
