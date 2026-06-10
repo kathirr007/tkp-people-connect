@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { eq, like, or, and, desc, asc, sql, count } from 'drizzle-orm'
 import { useDatabase } from '../database'
 
@@ -101,8 +102,10 @@ export async function createUser(data: {
   verificationToken?: string | null
 }): Promise<UserRecord> {
   const { db, users } = useDatabase()
-  const now = new Date().toISOString()
+  const id = randomUUID()
+
   const results = await db.insert(users).values({
+    id,
     username: data.username.toLowerCase(),
     email: data.email.toLowerCase(),
     password: data.password,
@@ -111,9 +114,8 @@ export async function createUser(data: {
     role: data.role || 'viewer',
     isVerified: data.isVerified || false,
     verificationToken: data.verificationToken || null,
-    createdAt: now,
-    updatedAt: now,
   } as any).returning()
+
   return results[0] as UserRecord
 }
 
@@ -168,12 +170,9 @@ export async function findPersonById(id: string): Promise<PersonRecord | undefin
 
 export async function createPerson(data: Record<string, unknown>): Promise<PersonRecord> {
   const { db, people } = useDatabase()
-  const now = new Date().toISOString()
   const results = await db.insert(people).values({
     ...data,
     tags: Array.isArray(data.tags) ? JSON.stringify(data.tags) : (data.tags || null),
-    createdAt: now,
-    updatedAt: now,
   } as any).returning()
   return results[0] as PersonRecord
 }
@@ -248,12 +247,9 @@ export async function listPeople(params: {
 
 export async function insertManyPeople(records: Record<string, unknown>[]): Promise<number> {
   const { db, people } = useDatabase()
-  const now = new Date().toISOString()
   const values = records.map(r => ({
     ...r,
     tags: Array.isArray(r.tags) ? JSON.stringify(r.tags) : (r.tags || null),
-    createdAt: now,
-    updatedAt: now,
   })) as any[]
 
   const result = await db.insert(people).values(values).returning()

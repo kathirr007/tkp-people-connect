@@ -1,0 +1,49 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "client: chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/app"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "backend: nuxt",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "nuxt", "dev"],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true,
+      "envFile": "${workspaceFolder}/.env",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "http://localhost:([0-9]+)",
+        "uriFormat": "http://localhost:%s"
+      },
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "attach: existing nuxt",
+      "port": 9229,
+      "address": "localhost",
+      "restart": false,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "fullstack: nuxt",
+      "configurations": [
+        "backend: nuxt",
+        "client: chrome"
+      ]
+    }
+  ]
+}
