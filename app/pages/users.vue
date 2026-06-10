@@ -34,6 +34,10 @@ const updateRoleMutation = useMutation({
   },
 })
 
+const handleRoleMutation = (id: string, role: string) => {
+  updateRoleMutation.mutate({ id, role })
+}
+
 const roleOptions = [
   { label: 'Admin', value: 'admin' },
   { label: 'User', value: 'user' },
@@ -102,7 +106,7 @@ function getRoleSeverity(role: string) {
             option-value="value"
             placeholder="Select role"
             size="small"
-            @update:model-value="(val: string) => updateRoleMutation.mutate({ id: row._id, role: val })"
+            @update:model-value="(val: string) => handleRoleMutation(row.id, val)"
           />
         </template>
       </Column>
