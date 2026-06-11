@@ -192,7 +192,7 @@ async function handleResendVerification() {
           <small v-if="showPasswordError" id="password-error" class="p-error" role="alert">{{ loginErrorMessages.password }}</small>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <NuxtLink to="/forgot-password" style="font-size: 0.875rem; color: var(--p-primary-500);">
+          <NuxtLink to="/auth/forgot-password" style="font-size: 0.875rem; color: var(--p-primary-500);">
             Forgot password?
           </NuxtLink>
         </div>
@@ -205,7 +205,7 @@ async function handleResendVerification() {
         />
         <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
           Don't have an account?
-          <NuxtLink to="/register" style="color: var(--p-primary-500); font-weight: 600;">
+          <NuxtLink to="/auth/signup" style="color: var(--p-primary-500); font-weight: 600;">
             Sign up
           </NuxtLink>
         </p>

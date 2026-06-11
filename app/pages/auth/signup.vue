@@ -146,10 +146,10 @@ async function handleRegister() {
           Registration successful! Please check your email to verify your account before logging in.
         </Message>
         <Button
-          label="Go to Login"
+          label="Go to Sign In"
           class="mt-3"
           fluid
-          @click="navigateTo('/login')"
+          @click="navigateTo('/auth/signin')"
         />
       </div>
       <form v-else @submit.prevent="handleRegister" role="form" aria-labelledby="form-title">
@@ -248,7 +248,7 @@ async function handleRegister() {
         />
         <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
           Already have an account?
-          <NuxtLink to="/login" style="color: var(--p-primary-500); font-weight: 600;">
+          <NuxtLink to="/auth/signin" style="color: var(--p-primary-500); font-weight: 600;">
             Sign in
           </NuxtLink>
         </p>

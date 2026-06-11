@@ -62,11 +62,11 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/': { prerender: true },
-    '/login': { prerender: true },
-    '/register': { prerender: true },
-    '/forgot-password': { prerender: true },
-    '/reset-password': { prerender: true },
-    '/verify-email': { prerender: true },
+    '/auth/signin': { prerender: true },
+    '/auth/signup': { prerender: true },
+    '/auth/forgot-password': { prerender: true },
+    '/auth/reset-password': { prerender: true },
+    '/auth/verify-email': { prerender: true },
     '/api/auth/login': {
       security: {
         rateLimiter: { tokensPerInterval: 5, interval: 60000 },
@@ -100,7 +100,7 @@ export default defineNuxtConfig({
     plugins: ['~~/server/plugins/database.ts'],
     preset: 'vercel',
     prerender: {
-      routes: ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'],
+      routes: ['/auth/signin', '/auth/signup', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'],
     }
   },
 

@@ -28,7 +28,6 @@ export function useAuth() {
     await $fetch('/api/auth/logout', { method: 'POST' })
     user.value = null
     hasFetched.value = false
-    await navigateTo('/login')
   }
 
   async function fetchUser() {

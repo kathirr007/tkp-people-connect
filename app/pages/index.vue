@@ -18,7 +18,7 @@ const { isAuthenticated } = useAuth()
           label="Get Started"
           icon="pi pi-arrow-right"
           icon-pos="right"
-          @click="navigateTo('/register')"
+          @click="navigateTo('/auth/signup')"
         />
         <Button
           v-if="isAuthenticated"
@@ -32,7 +32,7 @@ const { isAuthenticated } = useAuth()
           label="Sign In"
           severity="secondary"
           outlined
-          @click="navigateTo('/login')"
+          @click="navigateTo('/auth/signin')"
         />
       </div>
     </section>

@@ -1,6 +1,11 @@
 <script setup lang="ts">
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, logout } = useAuth()
 const config = useRuntimeConfig()
+
+async function handleLogout() {
+  await logout()
+  await navigateTo('/')
+}
 </script>
 
 <template>
@@ -15,11 +20,14 @@ const config = useRuntimeConfig()
           <NuxtLink v-if="isAuthenticated" to="/dashboard">
             Dashboard
           </NuxtLink>
-          <NuxtLink v-else to="/login">
-            Login
+          <a v-if="isAuthenticated" href="#" @click.prevent="handleLogout">
+            Logout
+          </a>
+          <NuxtLink v-if="!isAuthenticated" to="/auth/signin">
+            Sign In
           </NuxtLink>
-          <NuxtLink v-if="!isAuthenticated" to="/register">
-            Register
+          <NuxtLink v-if="!isAuthenticated" to="/auth/signup">
+            Sign Up
           </NuxtLink>
         </nav>
       </div>

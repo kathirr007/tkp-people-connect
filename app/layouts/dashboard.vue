@@ -1,5 +1,10 @@
 <script setup lang="ts">
-const { user, logout } = useAuth()
+const { user, logout: doLogout } = useAuth()
+
+async function logout() {
+  await doLogout()
+  await navigateTo('/auth/signin')
+}
 const config = useRuntimeConfig()
 const sidebarVisible = ref(true)
 const route = useRoute()

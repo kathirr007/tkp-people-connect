@@ -49,10 +49,10 @@ async function handleSubmit() {
           Password reset successful! You can now log in with your new password.
         </Message>
         <Button
-          label="Go to Login"
+          label="Go to Sign In"
           class="mt-3"
           fluid
-          @click="navigateTo('/login')"
+          @click="navigateTo('/auth/signin')"
         />
       </div>
       <form v-else @submit.prevent="handleSubmit">

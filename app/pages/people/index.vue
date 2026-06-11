@@ -49,8 +49,8 @@ function onPage(event: { page: number, rows: number }) {
   filters.value = { ...filters.value, page: event.page + 1, limit: event.rows }
 }
 
-function onSort(event: { sortField: string | undefined, sortOrder: number | null }) {
-  if (event.sortField) {
+function onSort(event: { sortField: string | ((item: any) => string) | undefined, sortOrder: number | null | undefined }) {
+  if (event.sortField && typeof event.sortField === 'string') {
     filters.value = {
       ...filters.value,
       sortBy: event.sortField,
