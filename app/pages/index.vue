@@ -12,7 +12,7 @@ const { isAuthenticated } = useAuth()
         A comprehensive people management platform for your organization.
         Manage contacts, track relationships, and keep your directory organized.
       </p>
-      <div role="group" aria-label="Quick navigation">
+      <div role="group" aria-label="Quick navigation" class="quick-navigation">
         <Button
           v-if="!isAuthenticated"
           label="Get Started"
@@ -64,3 +64,10 @@ const { isAuthenticated } = useAuth()
     </section>
   </div>
 </template>
+
+<style scoped>  
+.quick-navigation {
+  display: flex;
+  gap: var(--p-button-gap);
+}
+</style>
