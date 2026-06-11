@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { eq, like, or, and, desc, asc, sql, count } from 'drizzle-orm'
+import { and, asc, count, desc, eq, like, or, sql } from 'drizzle-orm'
 import { useDatabase } from '../database'
 
 export interface UserRecord {
@@ -91,12 +91,10 @@ export async function findUserByVerificationToken(token: string): Promise<UserRe
 
 export async function findUserByResetToken(token: string): Promise<UserRecord | undefined> {
   const { db, users } = useDatabase()
-  const results = await db.select().from(users)
-    .where(and(
-      eq(users.resetPasswordToken, token),
-      sql`${users.resetPasswordExpires} > ${new Date().toISOString()}`,
-    ))
-    .limit(1)
+  const results = await db.select().from(users).where(and(
+    eq(users.resetPasswordToken, token),
+    sql`${users.resetPasswordExpires} > ${new Date().toISOString()}`,
+  )).limit(1)
   return results[0] as UserRecord | undefined
 }
 
@@ -130,9 +128,9 @@ export async function createUser(data: {
 
 export async function updateUser(id: string, data: Partial<Record<string, unknown>>): Promise<void> {
   const { db, users, driver } = useDatabase()
-  
+
   const updateData: any = { ...data }
-  
+
   if (driver === 'postgres') {
     // For PostgreSQL, convert ISO strings/Date to Date objects for timestamp columns
     if (updateData.lastLogin) {
@@ -142,7 +140,8 @@ export async function updateUser(id: string, data: Partial<Record<string, unknow
       updateData.resetPasswordExpires = updateData.resetPasswordExpires instanceof Date ? updateData.resetPasswordExpires : new Date(updateData.resetPasswordExpires as string)
     }
     // For PostgreSQL, updatedAt has defaultNow() so we don't need to set it
-  } else {
+  }
+  else {
     // For SQLite, convert Date objects to ISO strings for text columns
     if (updateData.lastLogin instanceof Date) {
       updateData.lastLogin = updateData.lastLogin.toISOString()
@@ -173,11 +172,7 @@ export async function listUsers(params: { page: number, limit: number, search?: 
   }
 
   const [data, totalResult] = await Promise.all([
-    db.select().from(users)
-      .where(whereClause)
-      .orderBy(desc(users.createdAt))
-      .limit(limit)
-      .offset(offset),
+    db.select().from(users).where(whereClause).orderBy(desc(users.createdAt)).limit(limit).offset(offset),
     db.select({ count: count() }).from(users).where(whereClause),
   ])
 
@@ -315,7 +310,187 @@ export async function getDashboardStats() {
   }
 }
 
+// ---- Youth queries ----
+
+export interface YouthRecord {
+  id: string
+  firstName: string
+  lastName: string
+  gender: string | null
+  dateOfBirth: string | null
+  phone: string | null
+  email: string | null
+  village: string | null
+  ward: string | null
+  address: string | null
+  fatherName: string | null
+  fatherPhone: string | null
+  motherName: string | null
+  motherPhone: string | null
+  currentlyStudying: boolean
+  educationDetails: string | null
+  activities: string | null
+  achievements: string | null
+  interests: string | null
+  careerGoal: string | null
+  bloodGroup: string | null
+  notes: string | null
+  isActive: boolean
+  createdBy: string
+  updatedBy: string | null
+  createdAt: string | Date
+  updatedAt: string | Date
+}
+
+export async function findYouthById(id: string): Promise<YouthRecord | undefined> {
+  const { db, youth } = useDatabase()
+  const results = await db.select().from(youth).where(eq(youth.id, id)).limit(1)
+  return results[0] as YouthRecord | undefined
+}
+
+export async function createYouth(data: Record<string, unknown>): Promise<YouthRecord> {
+  const { db, youth } = useDatabase()
+  const results = await db.insert(youth).values({ ...data } as any).returning()
+  return results[0] as YouthRecord
+}
+
+export async function updateYouth(id: string, data: Record<string, unknown>): Promise<YouthRecord | undefined> {
+  const { db, youth, driver } = useDatabase()
+
+  const updateData: any = { ...data }
+
+  if (driver === 'sqlite') {
+    updateData.updatedAt = new Date().toISOString()
+  }
+
+  const results = await db.update(youth).set(updateData).where(eq(youth.id, id)).returning()
+  return results[0] as YouthRecord | undefined
+}
+
+export async function deleteYouth(id: string): Promise<boolean> {
+  const { db, youth } = useDatabase()
+  const results = await db.delete(youth).where(eq(youth.id, id)).returning()
+  return results.length > 0
+}
+
+export async function listYouth(params: {
+  page: number
+  limit: number
+  search?: string
+  village?: string
+  isActive?: boolean
+  currentlyStudying?: boolean
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}) {
+  const { db, youth } = useDatabase()
+  const { page, limit, search, village, isActive, currentlyStudying, sortBy = 'createdAt', sortOrder = 'desc' } = params
+  const offset = (page - 1) * limit
+
+  const conditions = []
+  if (search) {
+    conditions.push(or(
+      like(youth.firstName, `%${search}%`),
+      like(youth.lastName, `%${search}%`),
+      like(youth.phone, `%${search}%`),
+      like(youth.village, `%${search}%`),
+    ))
+  }
+  if (village) {
+    conditions.push(like(youth.village, `%${village}%`))
+  }
+  if (isActive !== undefined) {
+    conditions.push(eq(youth.isActive, isActive))
+  }
+  if (currentlyStudying !== undefined) {
+    conditions.push(eq(youth.currentlyStudying, currentlyStudying))
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+  const sortColumn = (youth as any)[sortBy] || youth.createdAt
+  const orderFn = sortOrder === 'asc' ? asc : desc
+
+  const [data, totalResult] = await Promise.all([
+    db.select().from(youth).where(whereClause).orderBy(orderFn(sortColumn)).limit(limit).offset(offset),
+    db.select({ count: count() }).from(youth).where(whereClause),
+  ])
+
+  return {
+    data: (data as YouthRecord[]).map(formatYouth),
+    meta: { total: totalResult[0]?.count || 0, page, limit, totalPages: Math.ceil((totalResult[0]?.count || 0) / limit) },
+  }
+}
+
+export async function insertManyYouth(records: Record<string, unknown>[]): Promise<number> {
+  const { db, youth } = useDatabase()
+  const result = await db.insert(youth).values(records as any[]).returning()
+  return result.length
+}
+
+export async function getAllYouthForExport(filter?: { search?: string, village?: string }) {
+  const { db, youth } = useDatabase()
+
+  const conditions = []
+  if (filter?.search) {
+    conditions.push(or(
+      like(youth.firstName, `%${filter.search}%`),
+      like(youth.lastName, `%${filter.search}%`),
+      like(youth.village, `%${filter.search}%`),
+    ))
+  }
+  if (filter?.village) {
+    conditions.push(like(youth.village, `%${filter.village}%`))
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+  const data = await db.select().from(youth).where(whereClause)
+  return (data as YouthRecord[]).map(formatYouth)
+}
+
 // ---- Helpers ----
+
+function formatYouth(record: YouthRecord) {
+  return {
+    _id: record.id,
+    firstName: record.firstName,
+    lastName: record.lastName,
+    gender: record.gender || '',
+    dateOfBirth: record.dateOfBirth || '',
+    phone: record.phone || '',
+    email: record.email || '',
+    village: record.village || '',
+    ward: record.ward || '',
+    address: record.address || '',
+    fatherName: record.fatherName || '',
+    fatherPhone: record.fatherPhone || '',
+    motherName: record.motherName || '',
+    motherPhone: record.motherPhone || '',
+    currentlyStudying: record.currentlyStudying,
+    educationDetails: parseJson(record.educationDetails),
+    activities: parseJson(record.activities),
+    achievements: parseJson(record.achievements),
+    interests: record.interests || '',
+    careerGoal: record.careerGoal || '',
+    bloodGroup: record.bloodGroup || '',
+    notes: record.notes || '',
+    isActive: record.isActive,
+    createdBy: record.createdBy,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+  }
+}
+
+function parseJson(value: string | null): any[] {
+  if (!value)
+    return []
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value
+    return Array.isArray(parsed) ? parsed : []
+  }
+  catch {
+    return []
+  }
+}
 
 function formatPerson(record: PersonRecord) {
   return {

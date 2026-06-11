@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
-import { pgTable, varchar, text as pgText, boolean, timestamp, integer as pgInteger } from 'drizzle-orm/pg-core'
+import { boolean, integer as pgInteger, pgTable, text as pgText, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 // SQLite Schema
 export const sqliteUsers = sqliteTable('users', {
@@ -117,6 +117,84 @@ export const pgPeople = pgTable('people', {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
+// Youth (Unmarried persons)
+export const sqliteYouth = sqliteTable('youth', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  gender: text('gender'),
+  dateOfBirth: text('date_of_birth'),
+  phone: text('phone'),
+  email: text('email'),
+  // Location
+  village: text('village'),
+  ward: text('ward'),
+  address: text('address'),
+  // Parent details
+  fatherName: text('father_name'),
+  fatherPhone: text('father_phone'),
+  motherName: text('mother_name'),
+  motherPhone: text('mother_phone'),
+  // Education
+  currentlyStudying: integer('currently_studying', { mode: 'boolean' }).notNull().default(true),
+  educationDetails: text('education_details', { mode: 'json' }).$defaultFn(() => []),
+  // Skills & Activities
+  activities: text('activities', { mode: 'json' }).$defaultFn(() => []),
+  // Achievements
+  achievements: text('achievements', { mode: 'json' }).$defaultFn(() => []),
+  // Interests & Goals
+  interests: text('interests'),
+  careerGoal: text('career_goal'),
+  // Blood group
+  bloodGroup: text('blood_group'),
+  // Meta
+  notes: text('notes'),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  updatedBy: text('updated_by'),
+  createdAt: text('created_at').notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text('updated_at').notNull().$defaultFn(() => new Date().toISOString()),
+})
+
+export const pgYouth = pgTable('youth', {
+  id: varchar('id', { length: 36 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  gender: varchar('gender', { length: 10 }),
+  dateOfBirth: varchar('date_of_birth', { length: 20 }),
+  phone: varchar('phone', { length: 20 }),
+  email: varchar('email', { length: 255 }),
+  // Location
+  village: varchar('village', { length: 100 }),
+  ward: varchar('ward', { length: 100 }),
+  address: pgText('address'),
+  // Parent details
+  fatherName: varchar('father_name', { length: 100 }),
+  fatherPhone: varchar('father_phone', { length: 20 }),
+  motherName: varchar('mother_name', { length: 100 }),
+  motherPhone: varchar('mother_phone', { length: 20 }),
+  // Education
+  currentlyStudying: boolean('currently_studying').notNull().default(true),
+  educationDetails: pgText('education_details').$defaultFn(() => JSON.stringify([])),
+  // Skills & Activities
+  activities: pgText('activities').$defaultFn(() => JSON.stringify([])),
+  // Achievements
+  achievements: pgText('achievements').$defaultFn(() => JSON.stringify([])),
+  // Interests & Goals
+  interests: pgText('interests'),
+  careerGoal: varchar('career_goal', { length: 255 }),
+  // Blood group
+  bloodGroup: varchar('blood_group', { length: 10 }),
+  // Meta
+  notes: pgText('notes'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: varchar('created_by', { length: 36 }).notNull(),
+  updatedBy: varchar('updated_by', { length: 36 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
 // Export type-safe table references (resolved at runtime based on DB_DRIVER)
 export type UsersTable = typeof sqliteUsers | typeof pgUsers
 export type PeopleTable = typeof sqlitePeople | typeof pgPeople
+export type YouthTable = typeof sqliteYouth | typeof pgYouth

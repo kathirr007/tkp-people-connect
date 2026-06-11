@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import process from 'node:process'
 import postgres from 'postgres'
 
 const _require = createRequire(import.meta.url)
@@ -21,7 +22,6 @@ function normalizeUsernameCandidate(value: string) {
 }
 
 export function runSqliteMigrations() {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const Database = _require('better-sqlite3')
   const db = new Database(DB_PATH)
   db.pragma('journal_mode = WAL')
@@ -82,7 +82,7 @@ export function runSqliteMigrations() {
   if (!userColumns.includes('username')) {
     db.exec('ALTER TABLE users ADD COLUMN username TEXT')
 
-    const existingUsers = db.prepare('SELECT id, email FROM users').all() as Array<{ id: string; email: string | null }>
+    const existingUsers = db.prepare('SELECT id, email FROM users').all() as Array<{ id: string, email: string | null }>
     const usedUsernames = new Set<string>()
     const updateStmt = db.prepare('UPDATE users SET username = ? WHERE id = ?')
 
@@ -113,11 +113,46 @@ export function runSqliteMigrations() {
   }
 
   db.exec(`
+    CREATE TABLE IF NOT EXISTS youth (
+      id TEXT PRIMARY KEY,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      gender TEXT,
+      date_of_birth TEXT,
+      phone TEXT,
+      email TEXT,
+      village TEXT,
+      ward TEXT,
+      address TEXT,
+      father_name TEXT,
+      father_phone TEXT,
+      mother_name TEXT,
+      mother_phone TEXT,
+      currently_studying INTEGER NOT NULL DEFAULT 1,
+      education_details TEXT DEFAULT '[]',
+      activities TEXT DEFAULT '[]',
+      achievements TEXT DEFAULT '[]',
+      interests TEXT,
+      career_goal TEXT,
+      blood_group TEXT,
+      notes TEXT,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_by TEXT NOT NULL,
+      updated_by TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+  `)
+
+  db.exec(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name);
     CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name);
     CREATE INDEX IF NOT EXISTS idx_people_village ON people(village);
+    CREATE INDEX IF NOT EXISTS idx_youth_first_name ON youth(first_name);
+    CREATE INDEX IF NOT EXISTS idx_youth_last_name ON youth(last_name);
+    CREATE INDEX IF NOT EXISTS idx_youth_village ON youth(village);
   `)
 
   db.close()
@@ -213,11 +248,46 @@ export async function runPostgresMigrations() {
     }
   }
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS youth (
+      id VARCHAR(36) PRIMARY KEY,
+      first_name VARCHAR(100) NOT NULL,
+      last_name VARCHAR(100) NOT NULL,
+      gender VARCHAR(10),
+      date_of_birth VARCHAR(20),
+      phone VARCHAR(20),
+      email VARCHAR(255),
+      village VARCHAR(100),
+      ward VARCHAR(100),
+      address TEXT,
+      father_name VARCHAR(100),
+      father_phone VARCHAR(20),
+      mother_name VARCHAR(100),
+      mother_phone VARCHAR(20),
+      currently_studying BOOLEAN NOT NULL DEFAULT true,
+      education_details TEXT,
+      activities TEXT,
+      achievements TEXT,
+      interests TEXT,
+      career_goal VARCHAR(255),
+      blood_group VARCHAR(10),
+      notes TEXT,
+      is_active BOOLEAN NOT NULL DEFAULT true,
+      created_by VARCHAR(36) NOT NULL,
+      updated_by VARCHAR(36),
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )
+  `
+
   await sql`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`
   await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_first_name ON people(first_name)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_last_name ON people(last_name)`
   await sql`CREATE INDEX IF NOT EXISTS idx_people_village ON people(village)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_youth_first_name ON youth(first_name)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_youth_last_name ON youth(last_name)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_youth_village ON youth(village)`
 
   // Add children and education columns if they don't exist
   const peopleColumns = await sql`

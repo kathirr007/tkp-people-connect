@@ -13,6 +13,7 @@ const sidebarRef = ref<HTMLElement | null>(null)
 const menuItems = computed(() => {
   const items = [
     { label: 'People', icon: 'pi pi-users', to: '/people' },
+    { label: 'Youth', icon: 'pi pi-graduation-cap', to: '/youth' },
   ]
   if (isAuthenticated.value) {
     items.unshift({ label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' })

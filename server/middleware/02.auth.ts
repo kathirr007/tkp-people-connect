@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   ]
 
   // eslint-disable-next-line regexp/no-unused-capturing-group
-  const isPublicGet = event.method === 'GET' && /^\/api\/people(\/[^/]+)?$/.test(path) && path !== '/api/people/export'
+  const isPublicGet = event.method === 'GET' && ((/^\/api\/people(\/[^/]+)?$/.test(path) && path !== '/api/people/export') || (/^\/api\/youth(\/[^/]+)?$/.test(path) && path !== '/api/youth/export'))
 
   if (!path.startsWith('/api') || publicPaths.includes(path) || isPublicGet) {
     return
