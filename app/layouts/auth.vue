@@ -11,7 +11,9 @@ const config = useRuntimeConfig()
           <span>{{ config.public.appName }}</span>
         </NuxtLink>
       </div>
-      <slot />
+      <main>
+        <slot />
+      </main>
     </div>
   </div>
 </template>

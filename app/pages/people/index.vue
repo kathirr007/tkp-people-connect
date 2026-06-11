@@ -28,7 +28,7 @@ const filters = ref({
   limit: 20,
   search: '',
   sortBy: 'createdAt',
-  sortOrder: 'desc' as const,
+  sortOrder: 'desc' as 'asc' | 'desc' | undefined,
   village: '',
 })
 
@@ -117,152 +117,151 @@ function confirmDelete(id: string, name: string) {
 </script>
 
 <template>
-  <main>
-    <div class="page-header" role="search">
-      <h1>People Directory</h1>
-      <div style="display: flex; gap: 0.75rem; align-items: center;">
-        <IconField>
-          <InputIcon class="pi pi-search" />
-          <InputText
-            v-model="searchInput"
-            placeholder="Search people..."
-            @input="onSearchInput"
-            aria-label="Search people by name, village, or phone"
-          />
-        </IconField>
-        <Button
-          :icon="actionsMenuVisible ? 'pi pi-times' : 'pi pi-ellipsis-v'"
-          :aria-label="actionsMenuVisible ? 'Close menu' : 'Open actions menu'"
-          rounded
-          text
-          @click="actionsMenu.toggle($event)"
+  <div class="page-header" role="search">
+    <h1>People Directory</h1>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <IconField>
+        <InputIcon class="pi pi-search" />
+        <InputText
+          v-model="searchInput"
+          placeholder="Search people..."
+          @input="onSearchInput"
+          aria-label="Search people by name, village, or phone"
         />
-        <Menu
-          ref="actionsMenu"
-          :model="actionsMenuItems"
-          popup
-          :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
-          v-model:visible="actionsMenuVisible"
-        />
-      </div>
+      </IconField>
+      <Button
+        :icon="actionsMenuVisible ? 'pi pi-times' : 'pi pi-ellipsis-v'"
+        :aria-label="actionsMenuVisible ? 'Close menu' : 'Open actions menu'"
+        rounded
+        text
+        @click="actionsMenu.toggle($event)"
+      />
+      <Menu
+        ref="actionsMenu"
+        :model="actionsMenuItems"
+        popup
+        :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
+        v-model:visible="actionsMenuVisible"
+      />
     </div>
+  </div>
 
-    <div aria-live="polite">
-      <DataTable
-        :value="data?.data || []"
-        :loading="isPending"
-        lazy
-        paginator
-        :rows="filters.limit"
-        :total-records="data?.meta?.total || 0"
-        :rows-per-page-options="[10, 20, 50]"
-        striped-rows
-        removable-sort
-        @page="onPage($event)"
-        @sort="onSort($event)"
-        aria-label="People directory table"
-      >
-      <Column field="firstName" header="First Name" sortable />
-      <Column field="lastName" header="Last Name" sortable />
-      <Column field="village" header="Village" sortable />
-      <Column field="phone" header="Phone" />
-      <Column field="fatherName" header="Father's Name" />
-      <Column field="maritalStatus" header="Marital Status" />
-      <Column field="isAlive" header="Alive">
-        <template #body="{ data: row }">
-          <Tag :value="row.isAlive ? 'Alive' : 'Deceased'" :severity="row.isAlive ? 'success' : 'secondary'" />
-        </template>
-      </Column>
-      <Column field="isActive" header="Status">
-        <template #body="{ data: row }">
-          <Tag :value="row.isActive ? 'Active' : 'Inactive'" :severity="row.isActive ? 'info' : 'danger'" />
-        </template>
-      </Column>
-      <Column header="Actions" style="width: 10rem;">
-        <template #body="{ data: row }">
-          <div style="display: flex; gap: 0.25rem;">
-            <Button
-              icon="pi pi-eye"
-              text
-              rounded
-              size="small"
-              @click="navigateTo(`/people/${row._id}`)"
-            />
-            <Button
-              v-if="canEdit"
-              icon="pi pi-pencil"
-              text
-              rounded
-              size="small"
-              severity="info"
-              @click="navigateTo(`/people/${row._id}/edit`)"
-            />
-            <Button
-              v-if="isAdmin"
-              icon="pi pi-trash"
-              text
-              rounded
-              size="small"
-              severity="danger"
-              @click="confirmDelete(row._id, `${row.firstName} ${row.lastName}`)"
-            />
-          </div>
-        </template>
-      </Column>
-      <template #empty>
-        <div style="text-align: center; padding: 2rem; color: var(--p-text-muted-color);">
-          No people found. {{ canEdit ? 'Click "Add Person" to get started.' : '' }}
+  <div aria-live="polite">
+    <DataTable
+      :value="data?.data || []"
+      :loading="isPending"
+      lazy
+      paginator
+      :rows="filters.limit"
+      :total-records="data?.meta?.total || 0"
+      :rows-per-page-options="[10, 20, 50]"
+      striped-rows
+      removable-sort
+      @page="onPage($event)"
+      @sort="onSort($event)"
+      aria-label="People directory table"
+    >
+    <Column field="firstName" header="First Name" sortable />
+    <Column field="lastName" header="Last Name" sortable />
+    <Column field="village" header="Village" sortable />
+    <Column field="phone" header="Phone" />
+    <Column field="fatherName" header="Father's Name" />
+    <Column field="maritalStatus" header="Marital Status" />
+    <Column field="isAlive" header="Alive">
+      <template #body="{ data: row }">
+        <Tag :value="row.isAlive ? 'Alive' : 'Deceased'" :severity="row.isAlive ? 'success' : 'secondary'" />
+      </template>
+    </Column>
+    <Column field="isActive" header="Status">
+      <template #body="{ data: row }">
+        <Tag :value="row.isActive ? 'Active' : 'Inactive'" :severity="row.isActive ? 'info' : 'danger'" />
+      </template>
+    </Column>
+    <Column header="Actions" style="width: 10rem;">
+      <template #body="{ data: row }">
+        <div style="display: flex; gap: 0.25rem;">
+          <Button
+            icon="pi pi-eye"
+            text
+            rounded
+            size="small"
+            @click="navigateTo(`/people/${row._id}`)"
+          />
+          <Button
+            v-if="canEdit"
+            icon="pi pi-pencil"
+            text
+            rounded
+            size="small"
+            severity="info"
+            @click="navigateTo(`/people/${row._id}/edit`)"
+          />
+          <Button
+            v-if="isAdmin"
+            icon="pi pi-trash"
+            text
+            rounded
+            size="small"
+            severity="danger"
+            @click="confirmDelete(row._id, `${row.firstName} ${row.lastName}`)"
+          />
         </div>
       </template>
-    </DataTable>
+    </Column>
+    <template #empty>
+      <div style="text-align: center; padding: 2rem; color: var(--p-text-muted-color);">
+        No people found. {{ canEdit ? 'Click "Add Person" to get started.' : '' }}
+      </div>
+    </template>
+  </DataTable>
 
-    <Dialog
-      v-model:visible="importDialogVisible"
-      header="Import People"
-      modal
-      :style="{ width: '32rem' }"
-      @hide="closeImportDialog"
+  <Dialog
+    v-model:visible="importDialogVisible"
+    header="Import People"
+    modal
+    :style="{ width: '32rem' }"
+    @hide="closeImportDialog"
+  >
+    <FileUpload
+      mode="advanced"
+      :multiple="false"
+      accept=".csv,.xlsx,.xls,.json"
+      :max-file-size="10000000"
+      :auto="false"
+      choose-label="Choose File"
+      :show-upload-button="false"
+      :show-cancel-button="false"
+      @select="onImportSelect"
+      @clear="onImportClear"
     >
-      <FileUpload
-        mode="advanced"
-        :multiple="false"
-        accept=".csv,.xlsx,.xls,.json"
-        :max-file-size="10000000"
-        :auto="false"
-        choose-label="Choose File"
-        :show-upload-button="false"
-        :show-cancel-button="false"
-        @select="onImportSelect"
-        @clear="onImportClear"
-      >
-        <template #empty>
-          <div style="text-align: center; padding: 1.5rem;">
-            <i class="pi pi-cloud-upload" style="font-size: 2rem; color: var(--p-text-muted-color);" />
-            <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--p-text-muted-color);">
-              Drag and drop or click to browse. Supported: CSV, Excel, JSON (max 10MB)
-            </p>
-          </div>
-        </template>
-      </FileUpload>
+      <template #empty>
+        <div style="text-align: center; padding: 1.5rem;">
+          <i class="pi pi-cloud-upload" style="font-size: 2rem; color: var(--p-text-muted-color);" />
+          <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--p-text-muted-color);">
+            Drag and drop or click to browse. Supported: CSV, Excel, JSON (max 10MB)
+          </p>
+        </div>
+      </template>
+    </FileUpload>
 
-      <div v-if="importFile" style="margin-top: 1rem;">
-        <Button
-          label="Upload & Import"
-          icon="pi pi-upload"
-          :loading="uploadMutation.isPending.value"
-          @click="handleImport"
-        />
-      </div>
+    <div v-if="importFile" style="margin-top: 1rem;">
+      <Button
+        label="Upload & Import"
+        icon="pi pi-upload"
+        :loading="uploadMutation.isPending.value"
+        @click="handleImport"
+      />
+    </div>
 
-      <Message v-if="importResults" severity="info" :closable="false" style="margin-top: 1rem;">
-        {{ importResults.total }} total, {{ importResults.success }} imported, {{ importResults.failed }} failed.
-      </Message>
+    <Message v-if="importResults" severity="info" :closable="false" style="margin-top: 1rem;">
+      {{ importResults.total }} total, {{ importResults.success }} imported, {{ importResults.failed }} failed.
+    </Message>
 
-      <div v-if="importResults?.errors.length" style="margin-top: 0.75rem; max-height: 10rem; overflow-y: auto; background: var(--p-surface-50); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.75rem;">
-        <p v-for="(err, i) in importResults.errors" :key="i" style="margin-bottom: 0.25rem; color: var(--p-red-500);">
-          {{ err }}
-        </p>
-      </div>
-    </Dialog>
-  </main>
+    <div v-if="importResults?.errors.length" style="margin-top: 0.75rem; max-height: 10rem; overflow-y: auto; background: var(--p-surface-50); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.75rem;">
+      <p v-for="(err, i) in importResults.errors" :key="i" style="margin-bottom: 0.25rem; color: var(--p-red-500);">
+        {{ err }}
+      </p>
+    </div>
+  </Dialog>
+  </div>
 </template>

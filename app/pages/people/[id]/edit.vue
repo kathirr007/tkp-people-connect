@@ -13,22 +13,20 @@ const person = computed(() => data.value?.data)
 </script>
 
 <template>
-  <main>
-    <div class="page-header">
-      <h1>Edit Person</h1>
-    </div>
+  <div class="page-header">
+    <h1>Edit Person</h1>
+  </div>
 
-    <Card v-if="isPending">
-      <template #content>
-        <Skeleton v-for="i in 8" :key="i" height="2.5rem" class="mb-3" />
-      </template>
-    </Card>
+  <Card v-if="isPending">
+    <template #content>
+      <Skeleton v-for="i in 8" :key="i" height="2.5rem" class="mb-3" />
+    </template>
+  </Card>
 
-    <PersonForm
-      v-else-if="person"
-      mode="edit"
-      :initial-data="person"
-      @success="navigateTo(`/people/${id}`)"
-    />
-  </main>
+  <PersonForm
+    v-else-if="person"
+    mode="edit"
+    :initial-data="person"
+    @success="navigateTo(`/people/${id}`)"
+  />
 </template>
