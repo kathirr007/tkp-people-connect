@@ -7,7 +7,7 @@ const { isAuthenticated } = useAuth()
 <template>
   <div>
     <section class="landing-hero" aria-labelledby="hero-heading">
-      <h1 id="hero-heading">TKP People Connect</h1>
+      <h1 id="hero-heading">TKP People Connect - Staging</h1>
       <p>
         A comprehensive people management platform for your organization.
         Manage contacts, track relationships, and keep your directory organized.
