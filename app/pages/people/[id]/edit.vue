@@ -13,7 +13,7 @@ const person = computed(() => data.value?.data)
 </script>
 
 <template>
-  <div>
+  <main>
     <div class="page-header">
       <h1>Edit Person</h1>
     </div>
@@ -30,5 +30,5 @@ const person = computed(() => data.value?.data)
       :initial-data="person"
       @success="navigateTo(`/people/${id}`)"
     />
-  </div>
+  </main>
 </template>

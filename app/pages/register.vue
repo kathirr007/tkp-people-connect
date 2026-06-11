@@ -141,7 +141,7 @@ async function handleRegister() {
       Join TKP People Connect to start managing contacts.
     </template>
     <template #content>
-      <div v-if="success">
+      <div v-if="success" role="status" aria-live="polite">
         <Message severity="success" :closable="false">
           Registration successful! Please check your email to verify your account before logging in.
         </Message>
@@ -152,8 +152,8 @@ async function handleRegister() {
           @click="navigateTo('/login')"
         />
       </div>
-      <form v-else @submit.prevent="handleRegister">
-        <Message v-if="error" severity="error" :closable="false" class="mb-3">
+      <form v-else @submit.prevent="handleRegister" role="form" aria-labelledby="form-title">
+        <Message v-if="error" severity="error" :closable="false" class="mb-3" role="alert">
           {{ error }}
         </Message>
         <div class="form-field" style="margin-bottom: 1rem;">
@@ -163,10 +163,12 @@ async function handleRegister() {
             v-model="form.username"
             placeholder="Choose a username"
             fluid
-            @input="touched.username = true"
             @blur="touched.username = true"
+            aria-describedby="username-error"
+            aria-invalid="showUsernameError"
+            autocomplete="username"
           />
-          <small v-if="showUsernameError" class="p-error">{{ registerErrorMessages.username }}</small>
+          <small v-if="showUsernameError" id="username-error" class="p-error" role="alert">{{ registerErrorMessages.username }}</small>
         </div>
         <div class="form-grid" style="margin-bottom: 1rem;">
           <div class="form-field">
@@ -175,10 +177,12 @@ async function handleRegister() {
               id="firstName"
               v-model="form.firstName"
               placeholder="First name"
-              @input="touched.firstName = true"
               @blur="touched.firstName = true"
+              aria-describedby="firstName-error"
+              aria-invalid="showFirstNameError"
+              autocomplete="given-name"
             />
-            <small v-if="showFirstNameError" class="p-error">{{ registerErrorMessages.firstName }}</small>
+            <small v-if="showFirstNameError" id="firstName-error" class="p-error" role="alert">{{ registerErrorMessages.firstName }}</small>
           </div>
           <div class="form-field">
             <label for="lastName">Last Name</label>
@@ -186,6 +190,7 @@ async function handleRegister() {
               id="lastName"
               v-model="form.lastName"
               placeholder="Last name"
+              autocomplete="family-name"
             />
           </div>
         </div>
@@ -197,10 +202,12 @@ async function handleRegister() {
             type="email"
             placeholder="Enter your email"
             fluid
-            @input="touched.email = true"
             @blur="touched.email = true"
+            aria-describedby="email-error"
+            aria-invalid="showEmailError"
+            autocomplete="email"
           />
-          <small v-if="showEmailError" class="p-error">{{ registerErrorMessages.email }}</small>
+          <small v-if="showEmailError" id="email-error" class="p-error" role="alert">{{ registerErrorMessages.email }}</small>
         </div>
         <div class="form-field" style="margin-bottom: 1rem;">
           <label for="password">Password *</label>
@@ -210,10 +217,12 @@ async function handleRegister() {
             placeholder="Min 8 chars"
             toggle-mask
             fluid
-            @input="touched.password = true"
             @blur="touched.password = true"
+            aria-describedby="password-error"
+            aria-invalid="showPasswordError"
+            autocomplete="new-password"
           />
-          <small v-if="showPasswordError" class="p-error">{{ registerErrorMessages.password }}</small>
+          <small v-if="showPasswordError" id="password-error" class="p-error" role="alert">{{ registerErrorMessages.password }}</small>
         </div>
         <div class="form-field" style="margin-bottom: 1.5rem;">
           <label for="confirmPassword">Confirm Password *</label>
@@ -223,10 +232,12 @@ async function handleRegister() {
             placeholder="Confirm your password"
             toggle-mask
             fluid
-            @input="touched.confirmPassword = true"
             @blur="touched.confirmPassword = true"
+            aria-describedby="confirmPassword-error"
+            aria-invalid="showConfirmPasswordError"
+            autocomplete="new-password"
           />
-          <small v-if="showConfirmPasswordError" class="p-error">{{ registerErrorMessages.confirmPassword }}</small>
+          <small v-if="showConfirmPasswordError" id="confirmPassword-error" class="p-error" role="alert">{{ registerErrorMessages.confirmPassword }}</small>
         </div>
         <Button
           type="submit"

@@ -118,90 +118,100 @@ async function handleResendVerification() {
 </script>
 
 <template>
-  <Card>
-    <template #title>
-      Sign In
-    </template>
-    <template #subtitle>
-      Welcome back! Enter your credentials to continue.
-    </template>
-    <template #content>
-      <form @submit.prevent.stop="handleLogin">
-        <Message v-if="error" severity="error" :closable="false" class="mb-3">
-          {{ error }}
-        </Message>
-        <div v-if="canResendVerification" class="mb-3">
-          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">
-            Didn't receive the verification email? You can resend it now.
-          </p>
+  <main>
+    <Card>
+      <template #title>
+        <h1>Sign In</h1>
+      </template>
+      <template #subtitle>
+        <p>Welcome back! Enter your credentials to continue.</p>
+      </template>
+      <template #content>
+        <form @submit.prevent.stop="handleLogin" role="form" aria-labelledby="form-title">
+          <Message v-if="error" severity="error" :closable="false" class="mb-3" role="alert">
+            {{ error }}
+          </Message>
+          <div v-if="canResendVerification" class="mb-3">
+            <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">
+              Didn't receive the verification email? You can resend it now.
+            </p>
+            <Button
+              type="button"
+              label="Resend verification email"
+              :loading="resendLoading"
+              fluid
+              severity="secondary"
+              @click="handleResendVerification"
+            />
+            <Message
+              v-if="resendMessage"
+              severity="success"
+              :closable="false"
+              class="mt-3"
+              role="status"
+            >
+              {{ resendMessage }}
+            </Message>
+            <Message
+              v-if="resendError"
+              severity="warn"
+              :closable="false"
+              class="mt-3"
+              role="alert"
+            >
+              {{ resendError }}
+            </Message>
+          </div>
+          <div class="form-field" style="margin-bottom: 1rem;">
+            <label for="identifier">Email or Username</label>
+            <InputText
+              id="identifier"
+              v-model="form.identifier"
+              placeholder="Enter your email or username"
+              fluid
+              @blur="touched.identifier = true"
+              aria-describedby="identifier-error"
+              aria-invalid="showIdentifierError"
+              autocomplete="username"
+            />
+            <small v-if="showIdentifierError" id="identifier-error" class="p-error" role="alert">{{ loginErrorMessages.identifier }}</small>
+          </div>
+          <div class="form-field" style="margin-bottom: 1rem;">
+            <label for="password">Password</label>
+            <Password
+              id="password"
+              v-model="form.password"
+              placeholder="Enter your password"
+              :feedback="false"
+              toggle-mask
+              fluid
+              @blur="touched.password = true"
+              aria-describedby="password-error"
+              aria-invalid="showPasswordError"
+              autocomplete="current-password"
+            />
+            <small v-if="showPasswordError" id="password-error" class="p-error" role="alert">{{ loginErrorMessages.password }}</small>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <NuxtLink to="/forgot-password" style="font-size: 0.875rem; color: var(--p-primary-500);">
+              Forgot password?
+            </NuxtLink>
+          </div>
           <Button
-            type="button"
-            label="Resend verification email"
-            :loading="resendLoading"
+            type="submit"
+            label="Sign In"
+            :loading="loading"
+            :disabled="!isLoginValid"
             fluid
-            severity="secondary"
-            @click="handleResendVerification"
           />
-          <Message
-            v-if="resendMessage"
-            severity="success"
-            :closable="false"
-            class="mt-3"
-          >
-            {{ resendMessage }}
-          </Message>
-          <Message
-            v-if="resendError"
-            severity="warn"
-            :closable="false"
-            class="mt-3"
-          >
-            {{ resendError }}
-          </Message>
-        </div>
-        <div class="form-field" style="margin-bottom: 1rem;">
-          <label for="identifier">Email or Username</label>
-          <InputText
-            id="identifier"
-            v-model="form.identifier"
-            placeholder="Enter your email or username"
-            fluid
-            @blur="touched.identifier = true"
-          />
-          <small v-if="showIdentifierError" class="p-error">{{ loginErrorMessages.identifier }}</small>
-        </div>
-        <div class="form-field" style="margin-bottom: 1rem;">
-          <label for="password">Password</label>
-          <Password
-            id="password"
-            v-model="form.password"
-            placeholder="Enter your password"
-            :feedback="false"
-            toggle-mask
-            fluid
-            @blur="touched.password = true"
-          />
-          <small v-if="showPasswordError" class="p-error">{{ loginErrorMessages.password }}</small>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-          <NuxtLink to="/forgot-password" style="font-size: 0.875rem; color: var(--p-primary-500);">
-            Forgot password?
-          </NuxtLink>
-        </div>
-        <Button
-          type="submit"
-          label="Sign In"
-          :loading="loading"
-          :disabled="!isLoginValid"
-          fluid
-        />
-        <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
-          Don't have an account?
-          <NuxtLink to="/register" style="color: var(--p-primary-500); font-weight: 600;">
-            Sign up
-          </NuxtLink>
-        </p>
-      </form>
-    </template>
-  </Card>
+          <p style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem;">
+            Don't have an account?
+            <NuxtLink to="/register" style="color: var(--p-primary-500); font-weight: 600;">
+              Sign up
+            </NuxtLink>
+          </p>
+        </form>
+      </template>
+    </Card>
+  </main>
 </template>

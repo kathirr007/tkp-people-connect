@@ -49,8 +49,8 @@ function closeImportDialog() {
 </script>
 
 <template>
-  <div>
-    <div class="page-header">
+  <main>
+    <div class="page-header" role="search">
       <h1>Add Person</h1>
       <Button
         v-if="isAdmin"
@@ -59,6 +59,7 @@ function closeImportDialog() {
         severity="secondary"
         outlined
         @click="importDialogVisible = true"
+        aria-label="Import people from file"
       />
     </div>
     <PersonForm mode="create" @success="navigateTo('/people')" />

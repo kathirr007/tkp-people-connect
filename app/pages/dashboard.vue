@@ -5,16 +5,18 @@ const { data: stats, isPending } = useDashboard()
 </script>
 
 <template>
-  <div>
+  <main>
     <div class="page-header">
       <h1>Dashboard</h1>
     </div>
 
-    <div class="stats-grid">
+    <section aria-labelledby="stats-heading">
+      <h2 id="stats-heading" class="visually-hidden">Statistics Overview</h2>
+      <div class="stats-grid">
       <Card>
         <template #content>
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <i class="pi pi-users" style="font-size: 2rem; color: var(--p-primary-500);" />
+          <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+            <i class="pi pi-users" style="font-size: 2rem; color: var(--p-primary-500);" aria-hidden="true" />
             <div>
               <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Total People</p>
               <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
@@ -28,8 +30,8 @@ const { data: stats, isPending } = useDashboard()
 
       <Card>
         <template #content>
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <i class="pi pi-check-circle" style="font-size: 2rem; color: var(--p-green-500);" />
+          <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+            <i class="pi pi-check-circle" style="font-size: 2rem; color: var(--p-green-500);" aria-hidden="true" />
             <div>
               <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Active</p>
               <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
@@ -43,8 +45,8 @@ const { data: stats, isPending } = useDashboard()
 
       <Card>
         <template #content>
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <i class="pi pi-times-circle" style="font-size: 2rem; color: var(--p-red-500);" />
+          <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+            <i class="pi pi-times-circle" style="font-size: 2rem; color: var(--p-red-500);" aria-hidden="true" />
             <div>
               <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Inactive</p>
               <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
@@ -58,8 +60,8 @@ const { data: stats, isPending } = useDashboard()
 
       <Card>
         <template #content>
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <i class="pi pi-building" style="font-size: 2rem; color: var(--p-orange-500);" />
+          <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+            <i class="pi pi-building" style="font-size: 2rem; color: var(--p-orange-500);" aria-hidden="true" />
             <div>
               <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Organizations</p>
               <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
@@ -75,7 +77,7 @@ const { data: stats, isPending } = useDashboard()
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
       <Card>
         <template #title>
-          Recently Added
+          <h3>Recently Added</h3>
         </template>
         <template #content>
           <div v-if="isPending">
@@ -104,7 +106,7 @@ const { data: stats, isPending } = useDashboard()
 
       <Card>
         <template #title>
-          Top Organizations
+          <h3>Top Organizations</h3>
         </template>
         <template #content>
           <div v-if="isPending">
@@ -126,5 +128,5 @@ const { data: stats, isPending } = useDashboard()
         </template>
       </Card>
     </div>
-  </div>
+  </main>
 </template>

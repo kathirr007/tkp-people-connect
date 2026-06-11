@@ -10,6 +10,7 @@ const confirm = useConfirm()
 const uploadMutation = useBulkUpload()
 
 const actionsMenu = ref()
+const actionsMenuVisible = ref(false)
 const actionsMenuItems = computed(() => {
   const items = []
   if (canEdit.value) {
@@ -116,8 +117,8 @@ function confirmDelete(id: string, name: string) {
 </script>
 
 <template>
-  <div>
-    <div class="page-header">
+  <main>
+    <div class="page-header" role="search">
       <h1>People Directory</h1>
       <div style="display: flex; gap: 0.75rem; align-items: center;">
         <IconField>
@@ -126,31 +127,41 @@ function confirmDelete(id: string, name: string) {
             v-model="searchInput"
             placeholder="Search people..."
             @input="onSearchInput"
+            aria-label="Search people by name, village, or phone"
           />
         </IconField>
         <Button
-          icon="pi pi-ellipsis-v"
+          :icon="actionsMenuVisible ? 'pi pi-times' : 'pi pi-ellipsis-v'"
+          :aria-label="actionsMenuVisible ? 'Close menu' : 'Open actions menu'"
           rounded
           text
           @click="actionsMenu.toggle($event)"
         />
-        <Menu ref="actionsMenu" :model="actionsMenuItems" popup />
+        <Menu
+          ref="actionsMenu"
+          :model="actionsMenuItems"
+          popup
+          :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
+          v-model:visible="actionsMenuVisible"
+        />
       </div>
     </div>
 
-    <DataTable
-      :value="data?.data || []"
-      :loading="isPending"
-      lazy
-      paginator
-      :rows="filters.limit"
-      :total-records="data?.meta?.total || 0"
-      :rows-per-page-options="[10, 20, 50]"
-      striped-rows
-      removable-sort
-      @page="onPage($event)"
-      @sort="onSort($event)"
-    >
+    <div aria-live="polite">
+      <DataTable
+        :value="data?.data || []"
+        :loading="isPending"
+        lazy
+        paginator
+        :rows="filters.limit"
+        :total-records="data?.meta?.total || 0"
+        :rows-per-page-options="[10, 20, 50]"
+        striped-rows
+        removable-sort
+        @page="onPage($event)"
+        @sort="onSort($event)"
+        aria-label="People directory table"
+      >
       <Column field="firstName" header="First Name" sortable />
       <Column field="lastName" header="Last Name" sortable />
       <Column field="village" header="Village" sortable />
@@ -253,5 +264,5 @@ function confirmDelete(id: string, name: string) {
         </p>
       </div>
     </Dialog>
-  </div>
+  </main>
 </template>
