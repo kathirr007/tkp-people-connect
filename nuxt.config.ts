@@ -61,12 +61,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true },
-    '/login': { prerender: true },
-    '/register': { prerender: true },
-    '/forgot-password': { prerender: true },
-    '/reset-password': { prerender: true },
-    '/verify-email': { prerender: true },
     '/api/auth/login': {
       security: {
         rateLimiter: { tokensPerInterval: 5, interval: 60000 },
@@ -99,9 +93,6 @@ export default defineNuxtConfig({
   nitro: {
     plugins: ['~~/server/plugins/database.ts'],
     preset: 'vercel',
-    prerender: {
-      routes: ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'],
-    }
   },
 
   typescript: {

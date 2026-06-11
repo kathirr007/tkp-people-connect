@@ -43,10 +43,10 @@ onMounted(async () => {
           Your email has been verified successfully!
         </Message>
         <Button
-          label="Go to Login"
+          label="Go to Sign In"
           class="mt-3"
           fluid
-          @click="navigateTo('/login')"
+          @click="navigateTo('/auth/signin')"
         />
       </div>
       <div v-else>

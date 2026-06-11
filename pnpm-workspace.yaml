@@ -1,7 +1,12 @@
+shellEmulator: true
+
+trustPolicy: no-downgrade
+
 allowBuilds:
   '@parcel/watcher': true
   bcrypt: true
   better-sqlite3: true
   esbuild: true
+  simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true

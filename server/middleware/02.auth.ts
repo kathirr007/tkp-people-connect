@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
     '/api/auth/resend-verification',
   ]
 
-  if (!path.startsWith('/api') || publicPaths.includes(path)) {
+  // eslint-disable-next-line regexp/no-unused-capturing-group
+  const isPublicGet = event.method === 'GET' && /^\/api\/people(\/[^/]+)?$/.test(path) && path !== '/api/people/export'
+
+  if (!path.startsWith('/api') || publicPaths.includes(path) || isPublicGet) {
     return
   }
 
@@ -26,6 +29,7 @@ export default defineEventHandler(async (event) => {
         const newAccessToken = await generateAccessToken(payload)
         setCookie(event, 'access_token', newAccessToken, {
           httpOnly: true,
+          // eslint-disable-next-line node/prefer-global/process
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: 60 * 15,
