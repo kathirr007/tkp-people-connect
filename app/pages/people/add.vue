@@ -49,21 +49,22 @@ function closeImportDialog() {
 </script>
 
 <template>
-  <div class="page-header" role="search">
-    <h1>Add Person</h1>
-    <Button
-      v-if="isAdmin"
-      label="Import from File"
-      icon="pi pi-upload"
-      severity="secondary"
-      outlined
-      @click="importDialogVisible = true"
-      aria-label="Import people from file"
-    />
-  </div>
-  <PersonForm mode="create" @success="navigateTo('/people')" />
+  <div class="page-container">
+    <div class="page-header" role="search">
+      <h1>Add Person</h1>
+      <Button
+        v-if="isAdmin"
+        label="Import from File"
+        icon="pi pi-upload"
+        severity="secondary"
+        outlined
+        @click="importDialogVisible = true"
+        aria-label="Import people from file"
+      />
+    </div>
+    <PersonForm mode="create" @success="navigateTo('/people')" />
 
-  <Dialog
+    <Dialog
     v-model:visible="importDialogVisible"
     header="Import People"
     modal
@@ -110,5 +111,6 @@ function closeImportDialog() {
         {{ err }}
       </p>
     </div>
-  </Dialog>
+    </Dialog>
+  </div>
 </template>

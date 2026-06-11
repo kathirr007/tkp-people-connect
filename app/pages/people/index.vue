@@ -117,36 +117,37 @@ function confirmDelete(id: string, name: string) {
 </script>
 
 <template>
-  <div class="page-header" role="search">
-    <h1>People Directory</h1>
-    <div style="display: flex; gap: 0.75rem; align-items: center;">
-      <IconField>
-        <InputIcon class="pi pi-search" />
-        <InputText
-          v-model="searchInput"
-          placeholder="Search people..."
-          @input="onSearchInput"
-          aria-label="Search people by name, village, or phone"
+  <div class="page-container">
+    <div class="page-header" role="search">
+      <h1>People Directory</h1>
+      <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <IconField>
+          <InputIcon class="pi pi-search" />
+          <InputText
+            v-model="searchInput"
+            placeholder="Search people..."
+            @input="onSearchInput"
+            aria-label="Search people by name, village, or phone"
+          />
+        </IconField>
+        <Button
+          :icon="actionsMenuVisible ? 'pi pi-times' : 'pi pi-ellipsis-v'"
+          :aria-label="actionsMenuVisible ? 'Close menu' : 'Open actions menu'"
+          rounded
+          text
+          @click="actionsMenu.toggle($event)"
         />
-      </IconField>
-      <Button
-        :icon="actionsMenuVisible ? 'pi pi-times' : 'pi pi-ellipsis-v'"
-        :aria-label="actionsMenuVisible ? 'Close menu' : 'Open actions menu'"
-        rounded
-        text
-        @click="actionsMenu.toggle($event)"
-      />
-      <Menu
-        ref="actionsMenu"
-        :model="actionsMenuItems"
-        popup
-        :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
-        v-model:visible="actionsMenuVisible"
-      />
+        <Menu
+          ref="actionsMenu"
+          :model="actionsMenuItems"
+          popup
+          :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
+          v-model:visible="actionsMenuVisible"
+        />
+      </div>
     </div>
-  </div>
 
-  <div aria-live="polite">
+    <div aria-live="polite">
     <DataTable
       :value="data?.data || []"
       :loading="isPending"
@@ -262,6 +263,7 @@ function confirmDelete(id: string, name: string) {
         {{ err }}
       </p>
     </div>
-  </Dialog>
+    </Dialog>
+    </div>
   </div>
 </template>

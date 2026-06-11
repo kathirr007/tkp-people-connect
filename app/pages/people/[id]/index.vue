@@ -18,7 +18,8 @@ const statusSeverity = (value: boolean, alive: boolean) => {
 </script>
 
 <template>
-  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+  <div class="page-container">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
     <div>
       <h1>Person Details</h1>
       <p v-if="person" class="text-muted" style="margin:0.5rem 0 0 0;font-size:0.9rem;">
@@ -236,6 +237,7 @@ const statusSeverity = (value: boolean, alive: boolean) => {
       </template>
     </Card>
   </template>
+  </div>
 </template>
 
 <style scoped>

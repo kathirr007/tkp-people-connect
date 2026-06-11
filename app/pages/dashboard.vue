@@ -5,75 +5,77 @@ const { data: stats, isPending } = useDashboard()
 </script>
 
 <template>
-  <div class="page-header">
-    <h1>Dashboard</h1>
-  </div>
+  <div class="page-container">
+    <div class="page-header">
+      <h1>Dashboard</h1>
+    </div>
 
-  <section aria-labelledby="stats-heading">
-    <h2 id="stats-heading" class="visually-hidden">Statistics Overview</h2>
-    <div class="stats-grid">
-    <Card>
-      <template #content>
-        <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
-          <i class="pi pi-users" style="font-size: 2rem; color: var(--p-primary-500);" aria-hidden="true" />
-          <div>
-            <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Total People</p>
-            <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
-            <p v-else style="font-size: 1.5rem; font-weight: 700;">
-              {{ stats?.totalPeople || 0 }}
-            </p>
-          </div>
-        </div>
-      </template>
-    </Card>
+    <section aria-labelledby="stats-heading">
+      <h2 id="stats-heading" class="visually-hidden">Statistics Overview</h2>
+      <div class="stats-grid">
+        <Card>
+          <template #content>
+            <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+              <i class="pi pi-users" style="font-size: 2rem; color: var(--p-primary-500);" aria-hidden="true" />
+              <div>
+                <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Total People</p>
+                <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
+                <p v-else style="font-size: 1.5rem; font-weight: 700;">
+                  {{ stats?.totalPeople || 0 }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-    <Card>
-      <template #content>
-        <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
-          <i class="pi pi-check-circle" style="font-size: 2rem; color: var(--p-green-500);" aria-hidden="true" />
-          <div>
-            <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Active</p>
-            <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
-            <p v-else style="font-size: 1.5rem; font-weight: 700;">
-              {{ stats?.activePeople || 0 }}
-            </p>
-          </div>
-        </div>
-      </template>
-    </Card>
+        <Card>
+          <template #content>
+            <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+              <i class="pi pi-check-circle" style="font-size: 2rem; color: var(--p-green-500);" aria-hidden="true" />
+              <div>
+                <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Active</p>
+                <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
+                <p v-else style="font-size: 1.5rem; font-weight: 700;">
+                  {{ stats?.activePeople || 0 }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-    <Card>
-      <template #content>
-        <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
-          <i class="pi pi-times-circle" style="font-size: 2rem; color: var(--p-red-500);" aria-hidden="true" />
-          <div>
-            <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Inactive</p>
-            <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
-            <p v-else style="font-size: 1.5rem; font-weight: 700;">
-              {{ stats?.inactivePeople || 0 }}
-            </p>
-          </div>
-        </div>
-      </template>
-    </Card>
+        <Card>
+          <template #content>
+            <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+              <i class="pi pi-times-circle" style="font-size: 2rem; color: var(--p-red-500);" aria-hidden="true" />
+              <div>
+                <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Inactive</p>
+                <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
+                <p v-else style="font-size: 1.5rem; font-weight: 700;">
+                  {{ stats?.inactivePeople || 0 }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </Card>
 
-    <Card>
-      <template #content>
-        <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
-          <i class="pi pi-building" style="font-size: 2rem; color: var(--p-orange-500);" aria-hidden="true" />
-          <div>
-            <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Organizations</p>
-            <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
-            <p v-else style="font-size: 1.5rem; font-weight: 700;">
-              {{ stats?.totalOrganizations || 0 }}
-            </p>
-          </div>
-        </div>
-      </template>
-    </Card>
-  </div>
+        <Card>
+          <template #content>
+            <div style="display: flex; align-items: center; gap: 1rem;" role="status" aria-live="polite">
+              <i class="pi pi-building" style="font-size: 2rem; color: var(--p-orange-500);" aria-hidden="true" />
+              <div>
+                <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">Organizations</p>
+                <Skeleton v-if="isPending" width="4rem" height="1.5rem" />
+                <p v-else style="font-size: 1.5rem; font-weight: 700;">
+                  {{ stats?.totalOrganizations || 0 }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </Card>
+      </div>
+    </section>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
     <Card>
       <template #title>
         <h3>Recently Added</h3>
@@ -127,5 +129,5 @@ const { data: stats, isPending } = useDashboard()
       </template>
     </Card>
   </div>
-</section>
+  </div>
 </template>

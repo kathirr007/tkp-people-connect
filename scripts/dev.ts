@@ -17,9 +17,13 @@ async function main() {
     }
   }
 
-  // Read current DB_DRIVER from .env
+  // Read current DB_DRIVER and PORT from .env
   let envContent = existsSync(ENV_PATH) ? readFileSync(ENV_PATH, 'utf-8') : ''
   const currentDriver = envContent.match(/^DB_DRIVER=(.+)$/m)?.[1]?.trim()
+  const currentPort = envContent.match(/^PORT=(\d+)$/m)?.[1]?.trim()
+  const currentAppUrl = envContent.match(/^APP_URL=(.+)$/m)?.[1]?.trim()
+  const currentAppUrlPort = currentAppUrl?.match(/:(\d+)(?:$|\/)/)?.[1]?.trim()
+  const defaultPort = Number(currentPort || currentAppUrlPort || '3000')
 
   const { driver } = await prompts({
     type: 'select',
@@ -41,6 +45,19 @@ async function main() {
   })
 
   if (!driver) {
+    console.log('\n  Cancelled.\n')
+    process.exit(0)
+  }
+
+  const { port } = await prompts({
+    type: 'number',
+    name: 'port',
+    message: 'Select dev server port',
+    initial: defaultPort,
+    validate: value => (value > 0 && value < 65536 ? true : 'Enter a valid port number'),
+  })
+
+  if (!port) {
     console.log('\n  Cancelled.\n')
     process.exit(0)
   }
@@ -77,15 +94,40 @@ async function main() {
     envContent = `DB_DRIVER=${driver}\n${envContent}`
   }
 
+  // Update PORT in .env
+  if (envContent.match(/^PORT=.+$/m)) {
+    envContent = envContent.replace(/^PORT=.+$/m, `PORT=${port}`)
+  }
+  else {
+    envContent += `\nPORT=${port}`
+  }
+
+  // Update APP_URL for local development when using localhost-style URLs
+  const localUrlMatch = currentAppUrl?.match(/^(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0))(?:\:\d+)?(\/.*)?$/)
+  if (localUrlMatch) {
+    const [, host, path] = localUrlMatch
+    const appUrl = `${host}:${port}${path ?? ''}`
+    if (envContent.match(/^APP_URL=/m)) {
+      envContent = envContent.replace(/^APP_URL=.+$/m, `APP_URL=${appUrl}`)
+    }
+    else {
+      envContent += `\nAPP_URL=${appUrl}`
+    }
+  }
+  else if (!envContent.match(/^APP_URL=/m)) {
+    envContent += `\nAPP_URL=http://localhost:${port}`
+  }
+
   writeFileSync(ENV_PATH, envContent)
 
   console.log(`\n  ✓ Database: ${driver === 'sqlite' ? 'SQLite (./data/database.sqlite)' : 'PostgreSQL'}`)
+  console.log(`  ✓ Dev port: ${port}`)
   console.log('  Starting Nuxt dev server...\n')
 
   // Start nuxt dev with the env vars
-  execSync('npx nuxt dev', {
+  execSync(`npx nuxt dev --port ${port}`, {
     stdio: 'inherit',
-    env: { ...process.env, DB_DRIVER: driver },
+    env: { ...process.env, DB_DRIVER: driver, PORT: String(port) },
   })
 }
 
