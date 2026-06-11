@@ -51,7 +51,7 @@ const registerErrors = computed(() => {
 
 const registerErrorMessages = computed(() => {
   const errors = registerErrors.value
-  const msgs: Record<string, string> = {}
+  const msgs: Record<string, string | undefined> = {}
   
   if (!form.username && errors.username?.includes('Username is required')) {
     msgs.username = 'Username is required'
@@ -88,27 +88,27 @@ const registerErrorMessages = computed(() => {
 
 const showUsernameError = computed(() => {
   if (!touched.username) return false
-  return !form.username || registerErrors.value.username?.length > 0
+  return !form.username || registerErrors.value.username && registerErrors.value.username?.length > 0
 })
 
 const showFirstNameError = computed(() => {
   if (!touched.firstName) return false
-  return !form.firstName || registerErrors.value.firstName?.length > 0
+  return !form.firstName || registerErrors.value.firstName && registerErrors.value.firstName?.length > 0
 })
 
 const showEmailError = computed(() => {
   if (!touched.email) return false
-  return !form.email || registerErrors.value.email?.length > 0
+  return !form.email || registerErrors.value.email && registerErrors.value.email?.length > 0
 })
 
 const showPasswordError = computed(() => {
   if (!touched.password) return false
-  return registerErrors.value.password?.length > 0 || form.password.length < 8
+  return registerErrors.value.password && registerErrors.value.password?.length > 0 || form.password.length < 8
 })
 
 const showConfirmPasswordError = computed(() => {
   if (!touched.confirmPassword) return false
-  return registerErrors.value.confirmPassword?.length > 0 || form.password !== form.confirmPassword
+  return registerErrors.value.confirmPassword && registerErrors.value.confirmPassword?.length > 0 || form.password !== form.confirmPassword
 })
 
 async function handleRegister() {

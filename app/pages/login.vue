@@ -44,7 +44,7 @@ const loginErrors = computed(() => {
 
 const loginErrorMessages = computed(() => {
   const errors = loginErrors.value
-  const msgs: Record<string, string> = {}
+  const msgs: Record<string, string | undefined> = {}
   
   // For each field, check if required error exists first
   if (!form.identifier && errors.identifier?.includes('Username or email is required')) {
@@ -64,12 +64,12 @@ const loginErrorMessages = computed(() => {
 
 const showIdentifierError = computed(() => {
   if (!touched.identifier) return false
-  return !form.identifier || loginErrors.value?.identifier?.length > 0
+  return !form.identifier || loginErrors.value?.identifier && loginErrors.value?.identifier?.length > 0
 })
 
 const showPasswordError = computed(() => {
   if (!touched.password) return false
-  return !form.password || loginErrors.value?.password?.length > 0
+  return !form.password || loginErrors.value?.password && loginErrors.value?.password?.length > 0
 })
 
 async function handleLogin() {

@@ -3,6 +3,7 @@ const { user, logout } = useAuth()
 const config = useRuntimeConfig()
 const sidebarVisible = ref(true)
 const route = useRoute()
+const sidebarRef = ref<HTMLElement | null>(null)
 
 const menuItems = [
   { label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' },
@@ -14,11 +15,17 @@ const menuItems = [
 function isActive(path: string) {
   return route.path === path || route.path.startsWith(`${path}/`)
 }
+
+onClickOutside(sidebarRef, () => {
+  if (window.innerWidth <= 768) {
+    sidebarVisible.value = false
+  }
+})
 </script>
 
 <template>
   <div class="layout-dashboard">
-    <aside class="sidebar" :class="{ 'sidebar--collapsed': !sidebarVisible }">
+    <aside ref="sidebarRef" class="sidebar" :class="{ 'sidebar--collapsed': !sidebarVisible }">
       <div class="sidebar__header">
         <NuxtLink to="/dashboard" class="sidebar__logo">
           <i class="pi pi-users" />
