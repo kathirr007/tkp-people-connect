@@ -7,7 +7,9 @@ const { isAuthenticated } = useAuth()
 <template>
   <div>
     <section class="landing-hero" aria-labelledby="hero-heading">
-      <h1 id="hero-heading">TKP People Connect</h1>
+      <h1 id="hero-heading">
+        TKP People Connect
+      </h1>
       <p>
         A comprehensive people management platform for your organization.
         Manage contacts, track relationships, and keep your directory organized.
@@ -38,7 +40,9 @@ const { isAuthenticated } = useAuth()
     </section>
 
     <section class="landing-features" aria-labelledby="features-heading">
-      <h2 id="features-heading">Key Features</h2>
+      <h2 id="features-heading">
+        Key Features
+      </h2>
       <div class="feature-grid">
         <article class="feature-card">
           <i class="pi pi-users" aria-hidden="true" />
@@ -127,7 +131,9 @@ const { isAuthenticated } = useAuth()
   border-radius: 0.75rem;
   border: 1px solid var(--p-surface-200);
   background: var(--p-surface-0);
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
 }
 
 .feature-card:hover {

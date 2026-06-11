@@ -32,7 +32,7 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^3.12.0",
+    "@antfu/eslint-config": "^9.0.0",
     "@primevue/nuxt-module": "^4.3.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/papaparse": "^5.3.15",
@@ -41,9 +41,18 @@
     "@vueuse/nuxt": "^12.8.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.16.0",
+    "eslint-plugin-format": "^2.0.1",
+    "lint-staged": "^17.0.7",
     "nuxt-security": "^2.1.0",
     "prompts": "^2.4.2",
+    "simple-git-hooks": "^2.13.1",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
