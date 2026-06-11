@@ -5,7 +5,7 @@ const { isAuthenticated } = useAuth()
 </script>
 
 <template>
-  <div>
+  <div class="page-landing">
     <section class="landing-hero" aria-labelledby="hero-heading">
       <h1 id="hero-heading">
         TKP People Connect
@@ -16,10 +16,17 @@ const { isAuthenticated } = useAuth()
       </p>
       <div role="group" aria-label="Quick navigation" class="hero-actions">
         <Button
+          label="Browse People"
+          icon="pi pi-users"
+          @click="navigateTo('/people')"
+        />
+        <Button
           v-if="!isAuthenticated"
           label="Get Started"
           icon="pi pi-arrow-right"
           icon-pos="right"
+          severity="secondary"
+          outlined
           @click="navigateTo('/auth/signup')"
         />
         <Button
@@ -28,13 +35,6 @@ const { isAuthenticated } = useAuth()
           icon="pi pi-arrow-right"
           icon-pos="right"
           @click="navigateTo('/dashboard')"
-        />
-        <Button
-          v-if="!isAuthenticated"
-          label="Sign In"
-          severity="secondary"
-          outlined
-          @click="navigateTo('/auth/signin')"
         />
       </div>
     </section>
@@ -69,8 +69,8 @@ const { isAuthenticated } = useAuth()
   </div>
 </template>
 
-<style scoped>
-.landing-hero {
+<style>
+.page-landing .landing-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -80,18 +80,22 @@ const { isAuthenticated } = useAuth()
   background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-primary-100) 100%);
 }
 
-:deep(.dark-mode) .landing-hero {
+.dark-mode .page-landing .landing-hero {
   background: linear-gradient(135deg, var(--p-surface-800) 0%, var(--p-surface-900) 100%);
 }
 
-.landing-hero h1 {
+.page-landing .landing-hero h1 {
   font-size: 2.75rem;
   font-weight: 800;
   color: var(--p-primary-700);
   margin: 0 0 1rem;
 }
 
-.landing-hero p {
+.dark-mode .page-landing .landing-hero h1 {
+  color: var(--p-primary-300);
+}
+
+.page-landing .landing-hero p {
   font-size: 1.125rem;
   color: var(--p-text-muted-color);
   max-width: 36rem;
@@ -99,20 +103,20 @@ const { isAuthenticated } = useAuth()
   line-height: 1.6;
 }
 
-.hero-actions {
+.page-landing .hero-actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.landing-features {
+.page-landing .landing-features {
   padding: 4rem 2rem;
   max-width: 72rem;
   margin: 0 auto;
 }
 
-.landing-features h2 {
+.page-landing .landing-features h2 {
   text-align: center;
   font-size: 1.75rem;
   font-weight: 700;
@@ -120,13 +124,13 @@ const { isAuthenticated } = useAuth()
   color: var(--p-text-color);
 }
 
-.feature-grid {
+.page-landing .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1.5rem;
 }
 
-.feature-card {
+.page-landing .feature-card {
   padding: 1.75rem;
   border-radius: 0.75rem;
   border: 1px solid var(--p-surface-200);
@@ -136,23 +140,33 @@ const { isAuthenticated } = useAuth()
     transform 0.2s;
 }
 
-.feature-card:hover {
+.dark-mode .page-landing .feature-card {
+  border-color: var(--p-surface-700);
+  background: var(--p-surface-800);
+}
+
+.page-landing .feature-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
 }
 
-.feature-card i {
+.dark-mode .page-landing .feature-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.page-landing .feature-card i {
   font-size: 2rem;
   color: var(--p-primary-500);
 }
 
-.feature-card h3 {
+.page-landing .feature-card h3 {
   margin: 0.75rem 0 0.5rem;
   font-size: 1.125rem;
   font-weight: 600;
+  color: var(--p-text-color);
 }
 
-.feature-card p {
+.page-landing .feature-card p {
   margin: 0;
   color: var(--p-text-muted-color);
   font-size: 0.875rem;
@@ -160,15 +174,15 @@ const { isAuthenticated } = useAuth()
 }
 
 @media (max-width: 768px) {
-  .landing-hero {
+  .page-landing .landing-hero {
     padding: 3rem 1.5rem;
   }
 
-  .landing-hero h1 {
+  .page-landing .landing-hero h1 {
     font-size: 2rem;
   }
 
-  .landing-features {
+  .page-landing .landing-features {
     padding: 2.5rem 1.5rem;
   }
 }

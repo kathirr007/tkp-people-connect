@@ -1,6 +1,4 @@
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
-
   try {
     const query = getQuery(event)
     const { page, limit, search, sortBy, sortOrder, village, isActive } = paginationSchema.parse(query)

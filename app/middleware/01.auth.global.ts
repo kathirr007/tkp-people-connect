@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const publicRoutes = ['/', '/auth/signin', '/auth/signup', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email']
   const authRoutes = ['/auth/signin', '/auth/signup', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email']
-  const isPublicRoute = publicRoutes.includes(to.path)
+  const isPublicRoute = publicRoutes.includes(to.path) || to.path === '/people' || /^\/people\/[^/]+$/.test(to.path)
 
   if (!isAuthenticated.value) {
     await fetchUser()

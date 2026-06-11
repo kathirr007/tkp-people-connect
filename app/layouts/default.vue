@@ -17,6 +17,7 @@ async function handleLogout() {
           <span>{{ config.public.appName }}</span>
         </NuxtLink>
         <nav class="app-header-public__nav">
+          <ThemeToggle />
           <NuxtLink v-if="isAuthenticated" to="/dashboard">
             Dashboard
           </NuxtLink>
@@ -41,18 +42,18 @@ async function handleLogout() {
   </div>
 </template>
 
-<style scoped>
-.app-header-public {
+<style>
+.layout-public .app-header-public {
   border-bottom: 1px solid var(--p-surface-200);
   background: var(--p-surface-0);
 }
 
-.dark-mode .app-header-public {
+.dark-mode .layout-public .app-header-public {
   border-bottom-color: var(--p-surface-700);
   background: var(--p-surface-800);
 }
 
-.app-header-public__inner {
+.layout-public .app-header-public__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,7 +62,7 @@ async function handleLogout() {
   padding: 1rem 2rem;
 }
 
-.app-header-public__logo {
+.layout-public .app-header-public__logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -71,24 +72,24 @@ async function handleLogout() {
   text-decoration: none;
 }
 
-.app-header-public__nav {
+.layout-public .app-header-public__nav {
   display: flex;
   align-items: center;
   gap: 1.5rem;
 }
 
-.app-header-public__nav a {
+.layout-public .app-header-public__nav a {
   color: var(--p-text-color);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
 }
 
-.app-header-public__nav a:hover {
+.layout-public .app-header-public__nav a:hover {
   color: var(--p-primary-500);
 }
 
-.app-footer {
+.layout-public .app-footer {
   border-top: 1px solid var(--p-surface-200);
   padding: 1.5rem 2rem;
   text-align: center;
@@ -96,7 +97,7 @@ async function handleLogout() {
   font-size: 0.875rem;
 }
 
-.dark-mode .app-footer {
+.dark-mode .layout-public .app-footer {
   border-top-color: var(--p-surface-700);
 }
 </style>

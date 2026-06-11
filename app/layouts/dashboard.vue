@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user, logout: doLogout } = useAuth()
+const { user, isAuthenticated, logout: doLogout } = useAuth()
 
 async function logout() {
   await doLogout()
@@ -10,12 +10,17 @@ const sidebarVisible = ref(true)
 const route = useRoute()
 const sidebarRef = ref<HTMLElement | null>(null)
 
-const menuItems = [
-  { label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' },
-  { label: 'People', icon: 'pi pi-users', to: '/people' },
-  { label: 'Users', icon: 'pi pi-shield', to: '/users' },
-  { label: 'Settings', icon: 'pi pi-cog', to: '/settings' },
-]
+const menuItems = computed(() => {
+  const items = [
+    { label: 'People', icon: 'pi pi-users', to: '/people' },
+  ]
+  if (isAuthenticated.value) {
+    items.unshift({ label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' })
+    items.push({ label: 'Users', icon: 'pi pi-shield', to: '/users' })
+    items.push({ label: 'Settings', icon: 'pi pi-cog', to: '/settings' })
+  }
+  return items
+})
 
 function isActive(path: string) {
   return route.path === path || route.path.startsWith(`${path}/`)
@@ -32,7 +37,7 @@ onClickOutside(sidebarRef, () => {
   <div class="layout-dashboard">
     <aside ref="sidebarRef" class="sidebar" :class="{ 'sidebar--collapsed': !sidebarVisible }">
       <div class="sidebar__header">
-        <NuxtLink to="/dashboard" class="sidebar__logo">
+        <NuxtLink to="/" class="sidebar__logo">
           <i class="pi pi-users" />
           <span>{{ config.public.appName }}</span>
         </NuxtLink>
@@ -58,21 +63,31 @@ onClickOutside(sidebarRef, () => {
         </NuxtLink>
       </nav>
       <div class="sidebar__footer">
-        <div class="sidebar__user">
-          <i class="pi pi-user" />
-          <div class="sidebar__user-info">
-            <span class="sidebar__user-name">{{ user?.firstName }} {{ user?.lastName }}</span>
-            <span class="sidebar__user-role">{{ user?.role }}</span>
+        <template v-if="isAuthenticated">
+          <div class="sidebar__user">
+            <i class="pi pi-user" />
+            <div class="sidebar__user-info">
+              <span class="sidebar__user-name">{{ user?.firstName }} {{ user?.lastName }}</span>
+              <span class="sidebar__user-role">{{ user?.role }}</span>
+            </div>
           </div>
-        </div>
+          <Button
+            label="Logout"
+            icon="pi pi-sign-out"
+            severity="secondary"
+            text
+            size="small"
+            class="sidebar__logout"
+            @click="logout()"
+          />
+        </template>
         <Button
-          label="Logout"
-          icon="pi pi-sign-out"
-          severity="secondary"
-          text
+          v-else
+          label="Sign In"
+          icon="pi pi-sign-in"
           size="small"
           class="sidebar__logout"
-          @click="logout()"
+          @click="navigateTo('/auth/signin')"
         />
       </div>
     </aside>
@@ -87,6 +102,7 @@ onClickOutside(sidebarRef, () => {
         <div class="dashboard-header__right">
           <ThemeToggle />
           <Button
+            v-if="isAuthenticated"
             icon="pi pi-sign-out"
             text
             rounded

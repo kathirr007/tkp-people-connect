@@ -1,6 +1,4 @@
 export default defineEventHandler(async (event) => {
-  requireAuth(event)
-
   const id = getRouterParam(event, 'id')!
   const person = await findPersonById(id)
 
