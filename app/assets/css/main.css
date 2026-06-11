@@ -115,70 +115,6 @@ body,
   margin-top: 1.5rem;
 }
 
-.landing-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 6rem 2rem;
-  background: linear-gradient(135deg, var(--p-primary-50) 0%, var(--p-primary-100) 100%);
-}
-
-.dark-mode .landing-hero {
-  background: linear-gradient(135deg, var(--p-surface-800) 0%, var(--p-surface-900) 100%);
-}
-
-.landing-hero h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  color: var(--p-primary-700);
-  margin-bottom: 1rem;
-}
-
-.dark-mode .landing-hero h1 {
-  color: var(--p-primary-300);
-}
-
-.landing-hero p {
-  font-size: 1.25rem;
-  color: var(--p-text-muted-color);
-  max-width: 36rem;
-  margin-bottom: 2rem;
-}
-
-.landing-features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: 2rem;
-  padding: 4rem 2rem;
-  max-width: 72rem;
-  margin: 0 auto;
-}
-
-.feature-card {
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--p-surface-200);
-  background: var(--p-surface-0);
-}
-
-.dark-mode .feature-card {
-  border-color: var(--p-surface-700);
-  background: var(--p-surface-800);
-}
-
-.feature-card h3 {
-  margin-top: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-.feature-card p {
-  margin-top: 0.5rem;
-  color: var(--p-text-muted-color);
-  font-size: 0.875rem;
-}
 
 .error-page {
   display: flex;
@@ -244,9 +180,6 @@ body,
     padding: 1rem;
   }
 
-  .landing-hero h1 {
-    font-size: 2rem;
-  }
 
   .page-header {
     flex-direction: column;
