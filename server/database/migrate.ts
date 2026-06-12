@@ -51,6 +51,7 @@ export function runSqliteMigrations() {
       last_name TEXT NOT NULL,
       gender TEXT,
       date_of_birth TEXT,
+      age INTEGER, -- Added age column
       phone TEXT,
       email TEXT,
       village TEXT,
@@ -112,6 +113,11 @@ export function runSqliteMigrations() {
     db.exec('ALTER TABLE people ADD COLUMN education TEXT DEFAULT \'[]\'')
   }
 
+  // Add age column to people table if it doesn't exist
+  if (!peopleColumns.includes('age')) {
+    db.exec('ALTER TABLE people ADD COLUMN age INTEGER')
+  }
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS youth (
       id TEXT PRIMARY KEY,
@@ -119,6 +125,7 @@ export function runSqliteMigrations() {
       last_name TEXT NOT NULL,
       gender TEXT,
       date_of_birth TEXT,
+      age INTEGER, -- Added age column
       phone TEXT,
       email TEXT,
       village TEXT,
@@ -143,6 +150,12 @@ export function runSqliteMigrations() {
       updated_at TEXT NOT NULL
     );
   `)
+
+  // Add age column to youth table if it doesn't exist
+  const youthColumns = getTableColumns(db, 'youth')
+  if (!youthColumns.includes('age')) {
+    db.exec('ALTER TABLE youth ADD COLUMN age INTEGER')
+  }
 
   db.exec(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
@@ -191,6 +204,7 @@ export async function runPostgresMigrations() {
       last_name VARCHAR(100) NOT NULL,
       gender VARCHAR(10),
       date_of_birth VARCHAR(20),
+      age INTEGER, -- Added age column
       phone VARCHAR(20),
       email VARCHAR(255),
       village VARCHAR(100),
@@ -255,6 +269,7 @@ export async function runPostgresMigrations() {
       last_name VARCHAR(100) NOT NULL,
       gender VARCHAR(10),
       date_of_birth VARCHAR(20),
+      age INTEGER, -- Added age column
       phone VARCHAR(20),
       email VARCHAR(255),
       village VARCHAR(100),
@@ -303,6 +318,26 @@ export async function runPostgresMigrations() {
 
   if (!columnNames.includes('education')) {
     await sql`ALTER TABLE people ADD COLUMN education TEXT`
+  }
+
+  // Add age column to people table if it doesn't exist
+  const peopleAgeColumn = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'people' AND column_name = 'age'
+  `
+  if (peopleAgeColumn.length === 0) {
+    await sql`ALTER TABLE people ADD COLUMN age INTEGER`
+  }
+
+  // Add age column to youth table if it doesn't exist
+  const youthAgeColumn = await sql`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'youth' AND column_name = 'age'
+  `
+  if (youthAgeColumn.length === 0) {
+    await sql`ALTER TABLE youth ADD COLUMN age INTEGER`
   }
 
   await sql.end()

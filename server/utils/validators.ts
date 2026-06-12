@@ -40,6 +40,7 @@ export const personSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(100),
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
+  age: z.number().int().min(0).optional(), // Computed age field
   phone: z.string().max(20).optional().or(z.literal('')),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),
@@ -105,6 +106,7 @@ export const youthSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(100),
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
+  age: z.number().int().min(0).optional(), // Computed age field
   phone: z.string().max(20).optional().or(z.literal('')),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),

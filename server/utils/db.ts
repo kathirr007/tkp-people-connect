@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { calculateAgeFromDateOfBirth } from '@@/shared/utils/age-calculator'
 import { and, asc, count, desc, eq, like, or, sql } from 'drizzle-orm'
 import { useDatabase } from '../database'
 
@@ -26,6 +27,7 @@ export interface PersonRecord {
   lastName: string
   gender: string | null
   dateOfBirth: string | null
+  age: number | null // Added age field
   phone: string | null
   email: string | null
   village: string | null
@@ -197,7 +199,15 @@ export async function findPersonById(id: string): Promise<PersonRecord | undefin
 
 export async function createPerson(data: Record<string, unknown>): Promise<PersonRecord> {
   const { db, people } = useDatabase()
-  const results = await db.insert(people).values({ ...data } as any).returning()
+
+  // Calculate age from date of birth if date of birth is provided
+  const dateOfBirth = data.dateOfBirth as string | undefined
+  const age = calculateAgeFromDateOfBirth(dateOfBirth)
+
+  const results = await db.insert(people).values({
+    ...data,
+    age, // Add calculated age to the record
+  } as any).returning()
   return results[0] as PersonRecord
 }
 
@@ -205,6 +215,12 @@ export async function updatePerson(id: string, data: Record<string, unknown>): P
   const { db, people, driver } = useDatabase()
 
   const updateData: any = { ...data }
+
+  // Calculate age from date of birth if date of birth is provided
+  if (data.dateOfBirth !== undefined) {
+    const dateOfBirth = data.dateOfBirth as string | undefined
+    updateData.age = calculateAgeFromDateOfBirth(dateOfBirth)
+  }
 
   if (driver === 'sqlite') {
     updateData.updatedAt = new Date().toISOString()
@@ -266,7 +282,15 @@ export async function listPeople(params: {
 
 export async function insertManyPeople(records: Record<string, unknown>[]): Promise<number> {
   const { db, people } = useDatabase()
-  const result = await db.insert(people).values(records as any[]).returning()
+
+  // Calculate ages for all records before insertion
+  const recordsWithAges = records.map((record) => {
+    const dateOfBirth = record.dateOfBirth as string | undefined
+    const age = calculateAgeFromDateOfBirth(dateOfBirth)
+    return { ...record, age }
+  })
+
+  const result = await db.insert(people).values(recordsWithAges as any[]).returning()
   return result.length
 }
 
@@ -318,6 +342,7 @@ export interface YouthRecord {
   lastName: string
   gender: string | null
   dateOfBirth: string | null
+  age: number | null // Added age field
   phone: string | null
   email: string | null
   village: string | null
@@ -350,7 +375,15 @@ export async function findYouthById(id: string): Promise<YouthRecord | undefined
 
 export async function createYouth(data: Record<string, unknown>): Promise<YouthRecord> {
   const { db, youth } = useDatabase()
-  const results = await db.insert(youth).values({ ...data } as any).returning()
+
+  // Calculate age from date of birth if date of birth is provided
+  const dateOfBirth = data.dateOfBirth as string | undefined
+  const age = calculateAgeFromDateOfBirth(dateOfBirth)
+
+  const results = await db.insert(youth).values({
+    ...data,
+    age, // Add calculated age to the record
+  } as any).returning()
   return results[0] as YouthRecord
 }
 
@@ -358,6 +391,12 @@ export async function updateYouth(id: string, data: Record<string, unknown>): Pr
   const { db, youth, driver } = useDatabase()
 
   const updateData: any = { ...data }
+
+  // Calculate age from date of birth if date of birth is provided
+  if (data.dateOfBirth !== undefined) {
+    const dateOfBirth = data.dateOfBirth as string | undefined
+    updateData.age = calculateAgeFromDateOfBirth(dateOfBirth)
+  }
 
   if (driver === 'sqlite') {
     updateData.updatedAt = new Date().toISOString()
@@ -423,7 +462,15 @@ export async function listYouth(params: {
 
 export async function insertManyYouth(records: Record<string, unknown>[]): Promise<number> {
   const { db, youth } = useDatabase()
-  const result = await db.insert(youth).values(records as any[]).returning()
+
+  // Calculate ages for all records before insertion
+  const recordsWithAges = records.map((record) => {
+    const dateOfBirth = record.dateOfBirth as string | undefined
+    const age = calculateAgeFromDateOfBirth(dateOfBirth)
+    return { ...record, age }
+  })
+
+  const result = await db.insert(youth).values(recordsWithAges as any[]).returning()
   return result.length
 }
 
@@ -456,6 +503,7 @@ function formatYouth(record: YouthRecord) {
     lastName: record.lastName,
     gender: record.gender || '',
     dateOfBirth: record.dateOfBirth || '',
+    age: record.age, // Include age in formatted response
     phone: record.phone || '',
     email: record.email || '',
     village: record.village || '',
@@ -499,6 +547,7 @@ function formatPerson(record: PersonRecord) {
     lastName: record.lastName,
     gender: record.gender || '',
     dateOfBirth: record.dateOfBirth || '',
+    age: record.age, // Include age in formatted response
     phone: record.phone || '',
     email: record.email || '',
     village: record.village || '',

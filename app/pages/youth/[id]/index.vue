@@ -67,6 +67,12 @@ const categoryLabel = (cat: string) => cat ? cat.charAt(0).toUpperCase() + cat.s
               </p>
             </div>
             <div class="form-field-detail">
+              <label class="form-detail-label">Age</label>
+              <p class="form-detail-value">
+                {{ person.age !== null ? person.age : '-' }}
+              </p>
+            </div>
+            <div class="form-field-detail">
               <label class="form-detail-label">Phone</label>
               <p class="form-detail-value">
                 {{ person.phone || '-' }}

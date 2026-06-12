@@ -26,6 +26,7 @@ export const sqlitePeople = sqliteTable('people', {
   lastName: text('last_name').notNull(),
   gender: text('gender'),
   dateOfBirth: text('date_of_birth'),
+  age: integer('age'), // Computed age from date of birth
   phone: text('phone'),
   email: text('email'),
   // Location
@@ -84,6 +85,7 @@ export const pgPeople = pgTable('people', {
   lastName: varchar('last_name', { length: 100 }).notNull(),
   gender: varchar('gender', { length: 10 }),
   dateOfBirth: varchar('date_of_birth', { length: 20 }),
+  age: pgInteger('age'), // Computed age from date of birth
   phone: varchar('phone', { length: 20 }),
   email: varchar('email', { length: 255 }),
   // Location
@@ -124,6 +126,7 @@ export const sqliteYouth = sqliteTable('youth', {
   lastName: text('last_name').notNull(),
   gender: text('gender'),
   dateOfBirth: text('date_of_birth'),
+  age: integer('age'), // Computed age from date of birth
   phone: text('phone'),
   email: text('email'),
   // Location
@@ -162,6 +165,7 @@ export const pgYouth = pgTable('youth', {
   lastName: varchar('last_name', { length: 100 }).notNull(),
   gender: varchar('gender', { length: 10 }),
   dateOfBirth: varchar('date_of_birth', { length: 20 }),
+  age: pgInteger('age'), // Computed age from date of birth
   phone: varchar('phone', { length: 20 }),
   email: varchar('email', { length: 255 }),
   // Location

@@ -1,3 +1,5 @@
+import { calculateAgeFromDateOfBirth } from '@@/shared/utils/age-calculator'
+
 export default defineEventHandler(async (event) => {
   const user = requireRole(event, ['admin'])
 
@@ -45,8 +47,13 @@ export default defineEventHandler(async (event) => {
     for (let i = 0; i < rows.length; i++) {
       const result = youthSchema.safeParse(rows[i])
       if (result.success) {
+        // Calculate age from date of birth if date of birth is provided
+        const dateOfBirth = result.data.dateOfBirth
+        const age = calculateAgeFromDateOfBirth(dateOfBirth)
+
         validRecords.push({
           ...result.data,
+          age, // Include calculated age
           currentlyStudying: result.data.currentlyStudying ?? true,
           educationDetails: JSON.stringify(result.data.educationDetails || []),
           activities: JSON.stringify(result.data.activities || []),

@@ -175,6 +175,11 @@ function confirmDelete(id: string, name: string) {
         <Column field="firstName" header="First Name" sortable />
         <Column field="lastName" header="Last Name" sortable />
         <Column field="village" header="Village" sortable />
+        <Column field="age" header="Age" sortable>
+          <template #body="{ data: row }">
+            <span>{{ row.age !== null ? row.age : '-' }}</span>
+          </template>
+        </Column>
         <Column field="phone" header="Phone" />
         <Column field="fatherName" header="Father's Name" />
         <Column field="currentlyStudying" header="Studying">
