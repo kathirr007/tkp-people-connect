@@ -494,6 +494,54 @@ export async function getAllYouthForExport(filter?: { search?: string, village?:
   return (data as YouthRecord[]).map(formatYouth)
 }
 
+// ---- Text search (fallback when embeddings not available) ----
+
+export async function textSearchPeople(search: string, limit = 20): Promise<Array<{ id: string, type: 'people', score: number, data: Record<string, unknown> }>> {
+  const { db, people } = useDatabase()
+  const pattern = `%${search}%`
+  const results = await db.select().from(people).where(or(
+    like(people.firstName, pattern),
+    like(people.lastName, pattern),
+    like(people.phone, pattern),
+    like(people.village, pattern),
+    like(people.ward, pattern),
+    like(people.fatherName, pattern),
+    like(people.motherName, pattern),
+    like(people.email, pattern),
+  )).limit(limit)
+
+  return (results as PersonRecord[]).map((r, i) => ({
+    id: r.id,
+    type: 'people' as const,
+    score: 1 - (i * 0.01),
+    data: formatPerson(r) as unknown as Record<string, unknown>,
+  }))
+}
+
+export async function textSearchYouth(search: string, limit = 20): Promise<Array<{ id: string, type: 'youth', score: number, data: Record<string, unknown> }>> {
+  const { db, youth } = useDatabase()
+  const pattern = `%${search}%`
+  const results = await db.select().from(youth).where(or(
+    like(youth.firstName, pattern),
+    like(youth.lastName, pattern),
+    like(youth.phone, pattern),
+    like(youth.village, pattern),
+    like(youth.ward, pattern),
+    like(youth.fatherName, pattern),
+    like(youth.motherName, pattern),
+    like(youth.email, pattern),
+    like(youth.interests, pattern),
+    like(youth.careerGoal, pattern),
+  )).limit(limit)
+
+  return (results as YouthRecord[]).map((r, i) => ({
+    id: r.id,
+    type: 'youth' as const,
+    score: 1 - (i * 0.01),
+    data: formatYouth(r) as unknown as Record<string, unknown>,
+  }))
+}
+
 // ---- Helpers ----
 
 function formatYouth(record: YouthRecord) {

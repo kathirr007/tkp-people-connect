@@ -1,4 +1,4 @@
-import { findPersonById, findYouthById } from '../../utils/db'
+import { findPersonById, findYouthById, textSearchPeople, textSearchYouth } from '../../utils/db'
 import { getStoredEmbeddingCount, searchEmbeddings } from '../../utils/embeddings'
 
 export default defineEventHandler(async (event) => {
@@ -12,12 +12,27 @@ export default defineEventHandler(async (event) => {
   const startTime = Date.now()
 
   try {
-    const matches = await searchEmbeddings(query, type, limit)
     const totalIndexed = getStoredEmbeddingCount()
+    let matches: Array<{ id: string, type: 'people' | 'youth', score: number, data?: Record<string, unknown> }>
+    let usedFallback = false
 
-    // Fetch full record data for each match
+    if (totalIndexed > 0) {
+      matches = await searchEmbeddings(query, type, limit)
+    }
+    else {
+      usedFallback = true
+      const peopleResults = type === 'youth' ? [] : await textSearchPeople(query, limit)
+      const youthResults = type === 'people' ? [] : await textSearchYouth(query, limit)
+      matches = [...peopleResults, ...youthResults]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+    }
+
+    // Fetch full record data for each match (skip if fallback already provided data)
     const results = await Promise.all(
       matches.map(async (match) => {
+        if (usedFallback && match.data)
+          return match
         let data: Record<string, unknown> | undefined
         if (match.type === 'people') {
           const person = await findPersonById(match.id)
@@ -37,6 +52,7 @@ export default defineEventHandler(async (event) => {
       results,
       queryTime: Date.now() - startTime,
       totalIndexed,
+      fallback: usedFallback,
     }
   }
   catch (error: unknown) {

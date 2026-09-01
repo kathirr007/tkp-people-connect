@@ -1,7 +1,7 @@
 import type { AiQueryResponse } from '~~/shared/types/ai'
 import { getAiClient } from './ai/client'
 
-const SCHEMA_CONTEXT = `You are a SQL expert for a people management database. Generate PostgreSQL-compatible SQL queries.
+export const SCHEMA_CONTEXT = `You are a SQL expert for a people management database. Generate PostgreSQL-compatible SQL queries.
 
 Tables:
 - people (id TEXT PK, first_name TEXT, last_name TEXT, gender TEXT, date_of_birth TEXT, age INTEGER, phone TEXT, email TEXT, village TEXT, ward TEXT, address TEXT, father_name TEXT, father_phone TEXT, mother_name TEXT, mother_phone TEXT, marital_status TEXT, spouse_name TEXT, is_alive INTEGER, is_active INTEGER, created_at TEXT)
@@ -15,9 +15,113 @@ Rules:
 - For boolean fields (is_active, is_alive, currently_studying), compare with 1 (true) or 0 (false).
 - Return only the SQL query, no explanations or markdown formatting.`
 
-const FORMAT_CONTEXT = `You are a helpful assistant that converts database query results into natural language answers.
+export const FORMAT_CONTEXT = `You are a helpful assistant that converts database query results into natural language answers.
 
 Given the original question and the SQL query results, provide a clear, concise answer in natural language. Include relevant numbers and details from the results. If the results are empty, say so clearly.`
+
+export const WEB_SEARCH_FORMAT_CONTEXT = `You are a helpful assistant that answers questions using web search results.
+
+Given the original question and web search results, provide a clear, concise answer in natural language. Use bullet points or numbered lists when appropriate. Cite sources when possible.`
+
+export type QueryClassification = 'database' | 'web' | 'both'
+
+const DB_KEYWORDS = [
+  'people',
+  'person',
+  'youth',
+  'member',
+  'members',
+  'village',
+  'ward',
+  'phone',
+  'email',
+  'age',
+  'married',
+  'marriage',
+  'spouse',
+  'father',
+  'mother',
+  'gender',
+  'male',
+  'female',
+  'alive',
+  'active',
+  'interests',
+  'career',
+  'education',
+  'studying',
+  'how many',
+  'list',
+  'show',
+  'find',
+  'search for',
+  'who are',
+  'who is',
+  'which people',
+  'which youth',
+  'database',
+  'records',
+  'entries',
+]
+
+const WEB_KEYWORDS = [
+  'what is',
+  'what are',
+  'who is',
+  'who was',
+  'who are',
+  'how to',
+  'how do',
+  'how does',
+  'how can',
+  'why is',
+  'why do',
+  'why does',
+  'when was',
+  'when did',
+  'when is',
+  'where is',
+  'where was',
+  'where do',
+  'population',
+  'capital',
+  'country',
+  'world',
+  'history',
+  'science',
+  'technology',
+  'news',
+  'weather',
+  'stock',
+  'price',
+  'rate',
+  'definition',
+  'meaning',
+  'explain',
+  'describe',
+  'current',
+  'latest',
+  'recent',
+  'today',
+  'recipe',
+  'symptom',
+  'treatment',
+  'translate',
+  'language',
+]
+
+export function classifyQuery(query: string): QueryClassification {
+  const lower = query.toLowerCase().trim()
+
+  const mentionsDB = DB_KEYWORDS.some(kw => lower.includes(kw))
+  const mentionsWeb = WEB_KEYWORDS.some(kw => lower.includes(kw))
+
+  if (mentionsDB && mentionsWeb)
+    return 'both'
+  if (mentionsWeb)
+    return 'web'
+  return 'database'
+}
 
 export async function naturalLanguageQuery(query: string): Promise<AiQueryResponse> {
   const client = await getAiClient()

@@ -24,12 +24,14 @@ export default defineEventHandler(async (event) => {
     }
 
     const previousCount = getStoredEmbeddingCount()
-    await embedRecords(records)
+    const { embedded, failed } = await embedRecords(records)
 
     return {
-      success: true,
-      message: `Successfully embedded ${records.length} records`,
-      totalEmbedded: records.length,
+      success: embedded > 0,
+      message: failed > 0
+        ? `Embedded ${embedded} records (${failed} failed)`
+        : `Successfully embedded ${embedded} records`,
+      totalEmbedded: embedded,
       previousCount,
     }
   }

@@ -141,9 +141,11 @@ export async function embedRecord(id: string, type: 'people' | 'youth', record: 
   saveStore()
 }
 
-export async function embedRecords(records: Array<{ id: string, type: 'people' | 'youth', data: Record<string, unknown> }>): Promise<void> {
+export async function embedRecords(records: Array<{ id: string, type: 'people' | 'youth', data: Record<string, unknown> }>): Promise<{ embedded: number, failed: number }> {
   const store = loadStore()
   const client = await getEmbeddingClient()
+  let embedded = 0
+  let failed = 0
 
   for (const record of records) {
     const text = buildRecordText(record.data, record.type)
@@ -153,13 +155,16 @@ export async function embedRecords(records: Array<{ id: string, type: 'people' |
     try {
       const vector = await client.generateEmbedding(text)
       store.set(`${record.type}:${record.id}`, { id: record.id, type: record.type, vector, text })
+      embedded++
     }
-    catch {
-      console.warn(`[Embeddings] Failed to embed ${record.type}:${record.id}`)
+    catch (err) {
+      failed++
+      console.warn(`[Embeddings] Failed to embed ${record.type}:${record.id}:`, err instanceof Error ? err.message : err)
     }
   }
 
   saveStore()
+  return { embedded, failed }
 }
 
 export function getStoredEmbeddings(): EmbeddingVector[] {

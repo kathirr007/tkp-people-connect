@@ -8,6 +8,7 @@ export interface AiProviderClient {
   generateEmbedding: (text: string) => Promise<number[]>
   generateEmbeddings: (texts: string[]) => Promise<number[][]>
   chatCompletion: (prompt: string, systemPrompt?: string) => Promise<string>
+  chatCompletionStream?: (prompt: string, systemPrompt?: string) => AsyncGenerator<string, void, unknown>
 }
 
 export interface AiProviderConfig {
@@ -17,4 +18,6 @@ export interface AiProviderConfig {
   geminiApiKey: string
   geminiChatModel: string
   groqApiKey: string
+  groqChatModel: string
+  aiEmbedProvider: string
 }

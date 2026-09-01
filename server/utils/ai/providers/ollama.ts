@@ -54,4 +54,22 @@ export class OllamaProvider implements AiProviderClient {
     })
     return response.message.content
   }
+
+  async* chatCompletionStream(prompt: string, systemPrompt?: string): AsyncGenerator<string, void, unknown> {
+    const messages: Array<{ role: 'system' | 'user', content: string }> = []
+    if (systemPrompt) {
+      messages.push({ role: 'system', content: systemPrompt })
+    }
+    messages.push({ role: 'user', content: prompt })
+
+    const stream = await this.client.chat({
+      model: this.chatModel,
+      messages,
+      stream: true,
+    })
+    for await (const chunk of stream) {
+      if (chunk.message?.content)
+        yield chunk.message.content
+    }
+  }
 }

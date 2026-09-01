@@ -45,4 +45,23 @@ export class GroqProvider implements AiProviderClient {
     })
     return response.choices[0]?.message?.content || ''
   }
+
+  async* chatCompletionStream(prompt: string, systemPrompt?: string): AsyncGenerator<string, void, unknown> {
+    const messages: Array<{ role: 'system' | 'user', content: string }> = []
+    if (systemPrompt) {
+      messages.push({ role: 'system', content: systemPrompt })
+    }
+    messages.push({ role: 'user', content: prompt })
+
+    const stream = await this.client.chat.completions.create({
+      model: this.chatModel,
+      messages,
+      stream: true,
+    })
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content
+      if (content)
+        yield content
+    }
+  }
 }

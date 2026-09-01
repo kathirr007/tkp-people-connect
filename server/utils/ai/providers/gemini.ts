@@ -5,12 +5,12 @@ export class GeminiProvider implements AiProviderClient {
   readonly name = 'gemini' as const
   readonly embeddingModel: string
   readonly chatModel: string
-  readonly embeddingDimensions = 768
+  readonly embeddingDimensions = 3072
 
   private genAI: GoogleGenerativeAI
 
   constructor(apiKey: string, chatModel = 'gemini-3.6-flash') {
-    this.embeddingModel = 'text-embedding-004'
+    this.embeddingModel = 'gemini-embedding-001'
     this.chatModel = chatModel
     this.genAI = new GoogleGenerativeAI(apiKey)
   }
@@ -55,5 +55,18 @@ export class GeminiProvider implements AiProviderClient {
     })
     const result = await model.generateContent(prompt)
     return result.response.text()
+  }
+
+  async* chatCompletionStream(prompt: string, systemPrompt?: string): AsyncGenerator<string, void, unknown> {
+    const model = this.genAI.getGenerativeModel({
+      model: this.chatModel,
+      systemInstruction: systemPrompt,
+    })
+    const result = await model.generateContentStream(prompt)
+    for await (const chunk of result.stream) {
+      const text = chunk.text()
+      if (text)
+        yield text
+    }
   }
 }
