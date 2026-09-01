@@ -1,4 +1,4 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
 let sesClient: SESClient | null = null
 
@@ -35,9 +35,9 @@ async function sendEmail(to: string, subject: string, htmlBody: string): Promise
   const client = getClient()
 
   if (!client) {
-    console.log(`[Email] To: ${to}`)
-    console.log(`[Email] Subject: ${subject}`)
-    console.log(`[Email] Body: ${htmlBody}`)
+    console.warn(`[Email] To: ${to}`)
+    console.warn(`[Email] Subject: ${subject}`)
+    console.warn(`[Email] Body: ${htmlBody}`)
     return
   }
 

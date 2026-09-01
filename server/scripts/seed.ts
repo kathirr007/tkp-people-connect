@@ -1,5 +1,6 @@
-import { mkdirSync, existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
+import process from 'node:process'
 import bcrypt from 'bcryptjs'
 import Database from 'better-sqlite3'
 
@@ -26,7 +27,7 @@ function loadEnv(filePath: string) {
     if (value.startsWith('"') && value.endsWith('"')) {
       value = value.slice(1, -1)
     }
-    if (value.startsWith("'") && value.endsWith("'")) {
+    if (value.startsWith('\'') && value.endsWith('\'')) {
       value = value.slice(1, -1)
     }
 
@@ -41,8 +42,8 @@ loadEnv(resolve(process.cwd(), '.env'))
 const DB_DRIVER = process.env.DB_DRIVER || 'sqlite'
 const SQLITE_DB_PATH = process.env.SQLITE_DB_PATH || './data/database.sqlite'
 
-console.log(`[Seed] DB_DRIVER=${DB_DRIVER}`)
-console.log(`[Seed] DATABASE_URL=${process.env.DATABASE_URL ? '[loaded]' : '[not set]'}`)
+console.warn(`[Seed] DB_DRIVER=${DB_DRIVER}`)
+console.warn(`[Seed] DATABASE_URL=${process.env.DATABASE_URL ? '[loaded]' : '[not set]'}`)
 
 const seedPeople = [
   {
@@ -172,7 +173,7 @@ async function seed() {
       for (const u of seedUsers) {
         const existing = await sql`SELECT id FROM users WHERE email = ${u.email}`
         if (existing.length > 0) {
-          console.log(`[Seed] Already exists: ${u.email}`)
+          console.warn(`[Seed] Already exists: ${u.email}`)
           continue
         }
 
@@ -183,7 +184,7 @@ async function seed() {
           INSERT INTO users (id, username, email, password, first_name, last_name, role, is_verified, created_at, updated_at)
           VALUES (${id}, ${u.username}, ${u.email}, ${hashedPassword}, ${u.firstName}, ${u.lastName}, ${u.role}, true, NOW(), NOW())
         `
-        console.log(`[Seed] Created ${u.role}: ${u.email}`)
+        console.warn(`[Seed] Created ${u.role}: ${u.email}`)
       }
 
       const adminUser = await sql`SELECT id FROM users WHERE role = 'admin' LIMIT 1`
@@ -192,7 +193,7 @@ async function seed() {
       for (const p of seedPeople) {
         const existing = await sql`SELECT id FROM people WHERE first_name = ${p.firstName} AND last_name = ${p.lastName} AND village = ${p.village}`
         if (existing.length > 0) {
-          console.log(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
+          console.warn(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
           continue
         }
 
@@ -210,7 +211,7 @@ async function seed() {
             true, true, ${createdBy}, NOW(), NOW()
           )
         `
-        console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
+        console.warn(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
       }
 
       await sql.end()
@@ -259,7 +260,7 @@ async function seed() {
     for (const u of seedUsers) {
       const existing = checkStmt.get(u.email)
       if (existing) {
-        console.log(`[Seed] Already exists: ${u.email}`)
+        console.warn(`[Seed] Already exists: ${u.email}`)
         continue
       }
 
@@ -268,10 +269,10 @@ async function seed() {
       const now = new Date().toISOString()
 
       insertStmt.run(id, u.username, u.email, hashedPassword, u.firstName, u.lastName, u.role, now, now)
-      console.log(`[Seed] Created ${u.role}: ${u.email}`)
+      console.warn(`[Seed] Created ${u.role}: ${u.email}`)
     }
 
-    const adminRow = db.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").get() as { id: string } | undefined
+    const adminRow = db.prepare('SELECT id FROM users WHERE role = \'admin\' LIMIT 1').get() as { id: string } | undefined
     const createdBy = adminRow?.id || 'system'
 
     db.exec(`
@@ -319,21 +320,36 @@ async function seed() {
     for (const p of seedPeople) {
       const existing = checkPersonStmt.get(p.firstName, p.lastName, p.village ?? '')
       if (existing) {
-        console.log(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
+        console.warn(`[Seed] Person already exists: ${p.firstName} ${p.lastName}`)
         continue
       }
 
       const id = crypto.randomUUID()
       const now = new Date().toISOString()
       insertPersonStmt.run(
-        id, p.firstName, p.lastName, p.gender ?? null, p.dateOfBirth ?? null, p.phone ?? null,
-        p.village ?? null, p.ward ?? null, p.address ?? null,
-        p.fatherName ?? null, p.fatherPhone ?? null, p.motherName ?? null,
-        p.maritalStatus ?? null, p.spouseName ?? null, p.spousePhone ?? null,
-        p.marriageYear ?? null, p.numberOfChildren ?? null, p.notes ?? null,
-        createdBy, now, now,
+        id,
+        p.firstName,
+        p.lastName,
+        p.gender ?? null,
+        p.dateOfBirth ?? null,
+        p.phone ?? null,
+        p.village ?? null,
+        p.ward ?? null,
+        p.address ?? null,
+        p.fatherName ?? null,
+        p.fatherPhone ?? null,
+        p.motherName ?? null,
+        p.maritalStatus ?? null,
+        p.spouseName ?? null,
+        p.spousePhone ?? null,
+        p.marriageYear ?? null,
+        p.numberOfChildren ?? null,
+        p.notes ?? null,
+        createdBy,
+        now,
+        now,
       )
-      console.log(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
+      console.warn(`[Seed] Created person: ${p.firstName} ${p.lastName}`)
     }
 
     db.close()

@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import type { Youth } from '~~/shared/types'
 import { z } from 'zod'
+import { isValidPhoneNumber } from '~~/shared/utils/phone'
 
 const props = defineProps<{ mode: 'create' | 'edit', initialData?: Youth }>()
 
 const emit = defineEmits<{ success: [] }>()
+
+const phoneField = z
+  .string()
+  .max(20)
+  .optional()
+  .or(z.literal(''))
+  .refine(val => isValidPhoneNumber(val ?? ''), {
+    message: 'Please enter a valid phone number with country code (e.g., +255712345678)',
+  })
 
 const educationSchema = z.object({
   level: z.string().min(1, 'Education level is required'),
@@ -36,15 +46,15 @@ const youthFormSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(100),
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
-  phone: z.string().max(20).optional().or(z.literal('')),
+  phone: phoneField,
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),
   ward: z.string().max(100).optional().or(z.literal('')),
   address: z.string().max(500).optional().or(z.literal('')),
   fatherName: z.string().max(100).optional().or(z.literal('')),
-  fatherPhone: z.string().max(20).optional().or(z.literal('')),
+  fatherPhone: phoneField,
   motherName: z.string().max(100).optional().or(z.literal('')),
-  motherPhone: z.string().max(20).optional().or(z.literal('')),
+  motherPhone: phoneField,
   currentlyStudying: z.boolean().optional(),
   educationDetails: z.array(educationSchema).optional(),
   activities: z.array(activitySchema).optional(),
@@ -202,7 +212,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="phone">Phone</label>
-            <InputText id="phone" v-model="form.phone" placeholder="Phone number" fluid />
+            <InputText id="phone" v-model="form.phone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
           </div>
           <div class="form-field">
             <label for="email">Email</label>
@@ -250,7 +261,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="fatherPhone">Father's Phone</label>
-            <InputText id="fatherPhone" v-model="form.fatherPhone" placeholder="Father's phone" fluid />
+            <InputText id="fatherPhone" v-model="form.fatherPhone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.fatherPhone" class="p-error">{{ errors.fatherPhone }}</small>
           </div>
           <div class="form-field">
             <label for="motherName">Mother's Name</label>
@@ -258,7 +270,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="motherPhone">Mother's Phone</label>
-            <InputText id="motherPhone" v-model="form.motherPhone" placeholder="Mother's phone" fluid />
+            <InputText id="motherPhone" v-model="form.motherPhone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.motherPhone" class="p-error">{{ errors.motherPhone }}</small>
           </div>
         </div>
 

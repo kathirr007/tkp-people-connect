@@ -31,8 +31,8 @@ const registerSchema = z.object({
   email: z.string().email('Invalid email').min(1, 'Email is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string().min(1, 'Please confirm your password'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Passwords don\'t match',
   path: ['confirmPassword'],
 })
 
@@ -52,68 +52,79 @@ const registerErrors = computed(() => {
 const registerErrorMessages = computed(() => {
   const errors = registerErrors.value
   const msgs: Record<string, string | undefined> = {}
-  
+
   if (!form.username && errors.username?.includes('Username is required')) {
     msgs.username = 'Username is required'
-  } else if (errors.username?.length) {
+  }
+  else if (errors.username?.length) {
     msgs.username = errors.username[0]
   }
-  
+
   if (!form.firstName && errors.firstName?.includes('First name is required')) {
     msgs.firstName = 'First name is required'
-  } else if (errors.firstName?.length) {
+  }
+  else if (errors.firstName?.length) {
     msgs.firstName = errors.firstName[0]
   }
-  
+
   if (!form.email && errors.email?.includes('Email is required')) {
     msgs.email = 'Email is required'
-  } else if (errors.email?.length) {
+  }
+  else if (errors.email?.length) {
     msgs.email = errors.email[0]
   }
-  
+
   if (form.password.length < 8 && errors.password?.includes('Password must be at least 8 characters')) {
     msgs.password = 'Password must be at least 8 characters'
-  } else if (errors.password?.length) {
+  }
+  else if (errors.password?.length) {
     msgs.password = errors.password[0]
   }
-  
-  if (form.password !== form.confirmPassword && errors.confirmPassword?.includes("Passwords don't match")) {
-    msgs.confirmPassword = "Passwords don't match"
-  } else if (errors.confirmPassword?.length) {
+
+  if (form.password !== form.confirmPassword && errors.confirmPassword?.includes('Passwords don\'t match')) {
+    msgs.confirmPassword = 'Passwords don\'t match'
+  }
+  else if (errors.confirmPassword?.length) {
     msgs.confirmPassword = errors.confirmPassword[0]
   }
-  
+
   return msgs
 })
 
 const showUsernameError = computed(() => {
-  if (!touched.username) return false
-  return !form.username || registerErrors.value.username && registerErrors.value.username?.length > 0
+  if (!touched.username)
+    return false
+  return !form.username || (registerErrors.value.username && registerErrors.value.username?.length > 0)
 })
 
 const showFirstNameError = computed(() => {
-  if (!touched.firstName) return false
-  return !form.firstName || registerErrors.value.firstName && registerErrors.value.firstName?.length > 0
+  if (!touched.firstName)
+    return false
+  return !form.firstName || (registerErrors.value.firstName && registerErrors.value.firstName?.length > 0)
 })
 
 const showEmailError = computed(() => {
-  if (!touched.email) return false
-  return !form.email || registerErrors.value.email && registerErrors.value.email?.length > 0
+  if (!touched.email)
+    return false
+  return !form.email || (registerErrors.value.email && registerErrors.value.email?.length > 0)
 })
 
 const showPasswordError = computed(() => {
-  if (!touched.password) return false
-  return registerErrors.value.password && registerErrors.value.password?.length > 0 || form.password.length < 8
+  if (!touched.password)
+    return false
+  return (registerErrors.value.password && registerErrors.value.password?.length > 0) || form.password.length < 8
 })
 
 const showConfirmPasswordError = computed(() => {
-  if (!touched.confirmPassword) return false
-  return registerErrors.value.confirmPassword && registerErrors.value.confirmPassword?.length > 0 || form.password !== form.confirmPassword
+  if (!touched.confirmPassword)
+    return false
+  return (registerErrors.value.confirmPassword && registerErrors.value.confirmPassword?.length > 0) || form.password !== form.confirmPassword
 })
 
 async function handleRegister() {
-  if (!isRegisterValid.value) return
-  
+  if (!isRegisterValid.value)
+    return
+
   error.value = ''
   loading.value = true
   try {
@@ -152,7 +163,7 @@ async function handleRegister() {
           @click="navigateTo('/auth/signin')"
         />
       </div>
-      <form v-else @submit.prevent="handleRegister" role="form" aria-labelledby="form-title">
+      <form v-else role="form" aria-labelledby="form-title" @submit.prevent="handleRegister">
         <Message v-if="error" severity="error" :closable="false" class="mb-3" role="alert">
           {{ error }}
         </Message>
@@ -163,10 +174,10 @@ async function handleRegister() {
             v-model="form.username"
             placeholder="Choose a username"
             fluid
-            @blur="touched.username = true"
             aria-describedby="username-error"
             aria-invalid="showUsernameError"
             autocomplete="username"
+            @blur="touched.username = true"
           />
           <small v-if="showUsernameError" id="username-error" class="p-error" role="alert">{{ registerErrorMessages.username }}</small>
         </div>
@@ -177,10 +188,10 @@ async function handleRegister() {
               id="firstName"
               v-model="form.firstName"
               placeholder="First name"
-              @blur="touched.firstName = true"
               aria-describedby="firstName-error"
               aria-invalid="showFirstNameError"
               autocomplete="given-name"
+              @blur="touched.firstName = true"
             />
             <small v-if="showFirstNameError" id="firstName-error" class="p-error" role="alert">{{ registerErrorMessages.firstName }}</small>
           </div>
@@ -202,10 +213,10 @@ async function handleRegister() {
             type="email"
             placeholder="Enter your email"
             fluid
-            @blur="touched.email = true"
             aria-describedby="email-error"
             aria-invalid="showEmailError"
             autocomplete="email"
+            @blur="touched.email = true"
           />
           <small v-if="showEmailError" id="email-error" class="p-error" role="alert">{{ registerErrorMessages.email }}</small>
         </div>
@@ -217,10 +228,10 @@ async function handleRegister() {
             placeholder="Min 8 chars"
             toggle-mask
             fluid
-            @blur="touched.password = true"
             aria-describedby="password-error"
             aria-invalid="showPasswordError"
             autocomplete="new-password"
+            @blur="touched.password = true"
           />
           <small v-if="showPasswordError" id="password-error" class="p-error" role="alert">{{ registerErrorMessages.password }}</small>
         </div>
@@ -232,10 +243,10 @@ async function handleRegister() {
             placeholder="Confirm your password"
             toggle-mask
             fluid
-            @blur="touched.confirmPassword = true"
             aria-describedby="confirmPassword-error"
             aria-invalid="showConfirmPasswordError"
             autocomplete="new-password"
+            @blur="touched.confirmPassword = true"
           />
           <small v-if="showConfirmPasswordError" id="confirmPassword-error" class="p-error" role="alert">{{ registerErrorMessages.confirmPassword }}</small>
         </div>

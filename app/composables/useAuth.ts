@@ -31,7 +31,8 @@ export function useAuth() {
   }
 
   async function fetchUser() {
-    if (hasFetched.value) return
+    if (hasFetched.value)
+      return
 
     try {
       const headers = import.meta.server ? useRequestHeaders(['cookie']) : undefined

@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import type { PaginatedResponse, Person, PersonFormData } from '~~/shared/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
 export interface PeopleFilters {
   page?: number

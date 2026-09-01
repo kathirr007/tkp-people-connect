@@ -22,8 +22,6 @@ async function refreshStats() {
       />
     </div>
 
-    <IconExample v-if="$route.query.showIcons" />
-
     <section>
       <div class="stats-grid">
         <Card>

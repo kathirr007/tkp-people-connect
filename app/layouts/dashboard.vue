@@ -19,7 +19,6 @@ const menuItems = computed(() => {
     items.unshift({ label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' })
     items.push({ label: 'Users', icon: 'pi pi-shield', to: '/users' })
     items.push({ label: 'Settings', icon: 'pi pi-cog', to: '/settings' })
-    items.push({ label: 'Iconify Demo', icon: 'pi pi-star', to: '/iconify-demo' })
   }
   return items
 })

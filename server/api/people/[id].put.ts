@@ -8,16 +8,28 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const validated = personSchema.parse(body)
 
+    // Clear spouse-related fields when marital status is single
+    const dataToSave = validated.maritalStatus === 'single'
+      ? {
+          ...validated,
+          spouseName: '',
+          spousePhone: '',
+          marriageYear: null,
+          numberOfChildren: null,
+          children: [],
+        }
+      : validated
+
     // Calculate age from date of birth if date of birth is provided
-    const dateOfBirth = validated.dateOfBirth
+    const dateOfBirth = dataToSave.dateOfBirth
     const age = calculateAgeFromDateOfBirth(dateOfBirth)
 
     const person = await updatePerson(id, {
-      ...validated,
+      ...dataToSave,
       age, // Include calculated age
-      fatherId: validated.fatherId || null,
-      motherId: validated.motherId || null,
-      spouseId: validated.spouseId || null,
+      fatherId: dataToSave.fatherId || null,
+      motherId: dataToSave.motherId || null,
+      spouseId: dataToSave.spouseId || null,
       updatedBy: user.userId,
     })
 

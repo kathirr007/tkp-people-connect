@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { ROLE_LABELS, type Role } from '~~/shared/utils/roles'
+import type { Role } from '~~/shared/utils/roles'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { ROLE_LABELS } from '~~/shared/utils/roles'
 
 definePageMeta({
   layout: 'dashboard',
@@ -34,7 +35,7 @@ const updateRoleMutation = useMutation({
   },
 })
 
-const handleRoleMutation = (id: string, role: string) => {
+function handleRoleMutation(id: string, role: string) {
   updateRoleMutation.mutate({ id, role })
 }
 

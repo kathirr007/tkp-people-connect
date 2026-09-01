@@ -1,4 +1,14 @@
+import { isValidPhoneNumber } from '@@/shared/utils/phone'
 import { z } from 'zod'
+
+const phoneField = z
+  .string()
+  .max(20)
+  .optional()
+  .or(z.literal(''))
+  .refine(val => isValidPhoneNumber(val ?? ''), {
+    message: 'Please enter a valid phone number with country code (e.g., +255712345678)',
+  })
 
 export const registerSchema = z.object({
   username: z
@@ -41,20 +51,20 @@ export const personSchema = z.object({
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
   age: z.number().int().min(0).optional(), // Computed age field
-  phone: z.string().max(20).optional().or(z.literal('')),
+  phone: phoneField,
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),
   ward: z.string().max(100).optional().or(z.literal('')),
   address: z.string().max(500).optional().or(z.literal('')),
   fatherName: z.string().max(100).optional().or(z.literal('')),
-  fatherPhone: z.string().max(20).optional().or(z.literal('')),
+  fatherPhone: phoneField,
   fatherId: z.string().max(36).optional().or(z.literal('')),
   motherName: z.string().max(100).optional().or(z.literal('')),
-  motherPhone: z.string().max(20).optional().or(z.literal('')),
+  motherPhone: phoneField,
   motherId: z.string().max(36).optional().or(z.literal('')),
   maritalStatus: z.enum(['single', 'married', 'widowed', 'divorced']).optional(),
   spouseName: z.string().max(100).optional().or(z.literal('')),
-  spousePhone: z.string().max(20).optional().or(z.literal('')),
+  spousePhone: phoneField,
   spouseId: z.string().max(36).optional().or(z.literal('')),
   marriageYear: z.number().int().min(1900).max(2100).optional().nullable(),
   numberOfChildren: z.number().int().min(0).optional().nullable(),
@@ -107,15 +117,15 @@ export const youthSchema = z.object({
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
   age: z.number().int().min(0).optional(), // Computed age field
-  phone: z.string().max(20).optional().or(z.literal('')),
+  phone: phoneField,
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),
   ward: z.string().max(100).optional().or(z.literal('')),
   address: z.string().max(500).optional().or(z.literal('')),
   fatherName: z.string().max(100).optional().or(z.literal('')),
-  fatherPhone: z.string().max(20).optional().or(z.literal('')),
+  fatherPhone: phoneField,
   motherName: z.string().max(100).optional().or(z.literal('')),
-  motherPhone: z.string().max(20).optional().or(z.literal('')),
+  motherPhone: phoneField,
   currentlyStudying: z.boolean().optional(),
   educationDetails: z.array(youthEducationSchema).optional(),
   activities: z.array(youthActivitySchema).optional(),

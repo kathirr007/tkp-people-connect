@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import process from 'node:process'
 import prompts from 'prompts'
 
 const ENV_PATH = resolve(process.cwd(), '.env')
@@ -76,7 +77,7 @@ async function main() {
       })
 
       if (dbUrl) {
-        if (envContent.match(/^DATABASE_URL=/m)) {
+        if (/^DATABASE_URL=/m.test(envContent)) {
           envContent = envContent.replace(/^DATABASE_URL=.+$/m, `DATABASE_URL=${dbUrl}`)
         }
         else {
@@ -87,7 +88,7 @@ async function main() {
   }
 
   // Update DB_DRIVER in .env
-  if (envContent.match(/^DB_DRIVER=/m)) {
+  if (/^DB_DRIVER=/m.test(envContent)) {
     envContent = envContent.replace(/^DB_DRIVER=.+$/m, `DB_DRIVER=${driver}`)
   }
   else {
@@ -95,7 +96,7 @@ async function main() {
   }
 
   // Update PORT in .env
-  if (envContent.match(/^PORT=.+$/m)) {
+  if (/^PORT=.+$/m.test(envContent)) {
     envContent = envContent.replace(/^PORT=.+$/m, `PORT=${port}`)
   }
   else {
@@ -103,18 +104,18 @@ async function main() {
   }
 
   // Update APP_URL for local development when using localhost-style URLs
-  const localUrlMatch = currentAppUrl?.match(/^(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0))(?:\:\d+)?(\/.*)?$/)
+  const localUrlMatch = currentAppUrl?.match(/^(https?:\/\/(?:localhost|127\.0\.0\.1|0\.0\.0\.0))(?::\d+)?(\/.*)?$/)
   if (localUrlMatch) {
     const [, host, path] = localUrlMatch
     const appUrl = `${host}:${port}${path ?? ''}`
-    if (envContent.match(/^APP_URL=/m)) {
+    if (/^APP_URL=/m.test(envContent)) {
       envContent = envContent.replace(/^APP_URL=.+$/m, `APP_URL=${appUrl}`)
     }
     else {
       envContent += `\nAPP_URL=${appUrl}`
     }
   }
-  else if (!envContent.match(/^APP_URL=/m)) {
+  else if (!/^APP_URL=/m.test(envContent)) {
     envContent += `\nAPP_URL=http://localhost:${port}`
   }
 

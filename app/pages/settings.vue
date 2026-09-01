@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ROLE_LABELS, type Role } from '~~/shared/utils/roles'
+import type { Role } from '~~/shared/utils/roles'
+import { ROLE_LABELS } from '~~/shared/utils/roles'
 
 definePageMeta({ layout: 'dashboard' })
 
