@@ -19,6 +19,7 @@ const menuItems = computed(() => {
     items.unshift({ label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' })
     items.push({ label: 'Users', icon: 'pi pi-shield', to: '/users' })
     items.push({ label: 'Settings', icon: 'pi pi-cog', to: '/settings' })
+    items.push({ label: 'Iconify Demo', icon: 'pi pi-star', to: '/iconify-demo' })
   }
   return items
 })
@@ -63,6 +64,7 @@ onClickOutside(sidebarRef, () => {
           <span>{{ item.label }}</span>
         </NuxtLink>
       </nav>
+
       <div class="sidebar__footer">
         <template v-if="isAuthenticated">
           <div class="sidebar__user">

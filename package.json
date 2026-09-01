@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.700.0",
+    "@iconify/vue": "^4.1.2",
     "@primeuix/themes": "^1.0.0",
     "@tanstack/vue-query": "^5.62.0",
     "bcryptjs": "^3.0.3",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^9.0.0",
+    "@nuxt/icon": "^1.0.0",
     "@primevue/nuxt-module": "^4.3.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/papaparse": "^5.3.15",
