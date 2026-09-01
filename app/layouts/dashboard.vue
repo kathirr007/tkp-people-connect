@@ -44,7 +44,7 @@ onClickOutside(sidebarRef, () => {
           <span>{{ config.public.appName }}</span>
         </NuxtLink>
         <Button
-          icon="pi pi-times"
+          icon="pi pi-angle-left"
           text
           rounded
           size="small"
@@ -97,7 +97,7 @@ onClickOutside(sidebarRef, () => {
     <div class="layout-dashboard__main">
       <header class="dashboard-header">
         <Button
-          :icon="sidebarVisible ? 'pi pi-times' : 'pi pi-bars'"
+          :icon="sidebarVisible ? 'pi pi-angle-left' : 'pi pi-bars'"
           text
           rounded
           @click="sidebarVisible = !sidebarVisible"
@@ -181,6 +181,7 @@ onClickOutside(sidebarRef, () => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
+  margin-bottom: 0.25rem;
   border-radius: 0.5rem;
   color: var(--p-text-color);
   text-decoration: none;

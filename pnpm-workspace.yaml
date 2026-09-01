@@ -1,10 +1,8 @@
 shellEmulator: true
 
 trustPolicy: no-downgrade
-
-# Changed from 'no-downgrade' to allow handling of trust issues
-# This allows installation while maintaining reasonable security
-trust-policy: loose
+trustPolicyExclude:
+  - semver@6.3.1
 
 allowBuilds:
   '@parcel/watcher': true

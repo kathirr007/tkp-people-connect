@@ -2,7 +2,7 @@
 definePageMeta({ layout: 'dashboard' })
 
 // eslint-disable-next-line unused-imports/no-unused-vars
-const { data: stats, isPending, isError, refetch } = useDashboardStats()
+const { data: stats, isPending, isError, refetch } = useDashboard()
 
 async function refreshStats() {
   await refetch()

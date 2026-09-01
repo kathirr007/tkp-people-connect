@@ -1,7 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'dashboard',
-  middleware: ['auth'],
 })
 </script>
 
@@ -75,8 +74,8 @@ definePageMeta({
             <h4>Iconify Icons (New)</h4>
             <div class="icon-row">
               <div class="icon-item">
-                <Icon icon="material-symbols:people" />
-                <span>material-symbols:people</span>
+                <Icon icon="material-symbols:group-rounded" />
+                <span>material-symbols:group-rounded</span>
               </div>
               <div class="icon-item">
                 <Icon icon="lucide:home" />
