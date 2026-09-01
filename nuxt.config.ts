@@ -1,7 +1,8 @@
+import process from 'node:process'
 import Aura from '@primeuix/themes/aura'
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
+  compatibilityDate: '2026-09-01',
 
   modules: [
     '@primevue/nuxt-module',
@@ -43,14 +44,14 @@ export default defineNuxtConfig({
     headers: {
       crossOriginEmbedderPolicy: 'unsafe-none',
       contentSecurityPolicy: {
-        'base-uri': ["'none'"],
-        'font-src': ["'self'", 'https:', 'data:'],
-        'form-action': ["'self'"],
-        'frame-ancestors': ["'self'"],
-        'img-src': ["'self'", 'data:', 'https:'],
-        'object-src': ["'none'"],
-        'script-src-attr': ["'none'"],
-        'style-src': ["'self'", "'unsafe-inline'"],
+        'base-uri': ['\'none\''],
+        'font-src': ['\'self\'', 'https:', 'data:'],
+        'form-action': ['\'self\''],
+        'frame-ancestors': ['\'self\''],
+        'img-src': ['\'self\'', 'data:', 'https:'],
+        'object-src': ['\'none\''],
+        'script-src-attr': ['\'none\''],
+        'style-src': ['\'self\'', '\'unsafe-inline\''],
         'upgrade-insecure-requests': true,
       },
     },
@@ -129,5 +130,5 @@ export default defineNuxtConfig({
         'zod',
       ],
     },
-  }
+  },
 })
