@@ -41,16 +41,16 @@ onClickOutside(sidebarRef, () => {
       <div class="sidebar__header">
         <NuxtLink to="/" class="sidebar__logo">
           <i class="pi pi-users" />
-          <span>{{ config.public.appName }}</span>
+          <span class="sidebar__logo-text">{{ config.public.appName }}</span>
         </NuxtLink>
-        <Button
-          icon="pi pi-angle-left"
+        <!-- <Button
+          :icon="sidebarVisible ? 'pi pi-angle-left' : 'pi pi-angle-right'"
           text
           rounded
           size="small"
-          class="sidebar__close"
-          @click="sidebarVisible = false"
-        />
+          class="sidebar__toggle"
+          @click="sidebarVisible = !sidebarVisible"
+        /> -->
       </div>
       <nav class="sidebar__nav">
         <NuxtLink
@@ -59,15 +59,16 @@ onClickOutside(sidebarRef, () => {
           :to="item.to"
           class="sidebar__item"
           :class="{ 'sidebar__item--active': isActive(item.to) }"
+          :title="!sidebarVisible ? item.label : undefined"
         >
           <i :class="item.icon" />
-          <span>{{ item.label }}</span>
+          <span class="sidebar__item-label">{{ item.label }}</span>
         </NuxtLink>
       </nav>
 
       <div class="sidebar__footer">
         <template v-if="isAuthenticated">
-          <div class="sidebar__user">
+          <div class="sidebar__user" :title="!sidebarVisible ? `${user?.firstName} ${user?.lastName}` : undefined">
             <i class="pi pi-user" />
             <div class="sidebar__user-info">
               <span class="sidebar__user-name">{{ user?.firstName }} {{ user?.lastName }}</span>
@@ -75,6 +76,7 @@ onClickOutside(sidebarRef, () => {
             </div>
           </div>
           <Button
+            v-if="sidebarVisible"
             label="Logout"
             icon="pi pi-sign-out"
             severity="secondary"
@@ -83,10 +85,20 @@ onClickOutside(sidebarRef, () => {
             class="sidebar__logout"
             @click="logout()"
           />
+          <Button
+            v-else
+            icon="pi pi-sign-out"
+            severity="secondary"
+            text
+            size="small"
+            class="sidebar__logout"
+            title="Logout"
+            @click="logout()"
+          />
         </template>
         <Button
           v-else
-          label="Sign In"
+          :label="sidebarVisible ? 'Sign In' : undefined"
           icon="pi pi-sign-in"
           size="small"
           class="sidebar__logout"
@@ -132,11 +144,14 @@ onClickOutside(sidebarRef, () => {
   height: 100vh;
   position: sticky;
   top: 0;
-  transition: margin-left 0.3s ease;
+  transition:
+    width 0.3s ease,
+    min-width 0.3s ease;
 }
 
 .sidebar--collapsed {
-  margin-left: calc(-1 * var(--app-sidebar-width));
+  width: var(--app-sidebar-collapsed-width);
+  min-width: var(--app-sidebar-collapsed-width);
 }
 
 .dark-mode .sidebar {
@@ -152,8 +167,8 @@ onClickOutside(sidebarRef, () => {
   justify-content: space-between;
 }
 
-.sidebar__close {
-  display: none;
+.sidebar__toggle {
+  flex-shrink: 0;
 }
 
 .dark-mode .sidebar__header {
@@ -168,6 +183,42 @@ onClickOutside(sidebarRef, () => {
   font-weight: 700;
   color: var(--p-primary-500);
   text-decoration: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar--collapsed .sidebar__logo-text,
+.sidebar--collapsed .sidebar__item-label,
+.sidebar--collapsed .sidebar__user-info,
+.sidebar--collapsed .sidebar__logout .p-button-label {
+  display: none;
+}
+
+.sidebar--collapsed .sidebar__nav {
+  padding: 0.5rem;
+}
+
+.sidebar--collapsed .sidebar__item {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar--collapsed .sidebar__user {
+  justify-content: center;
+}
+
+.sidebar--collapsed .sidebar__header {
+  justify-content: center;
+  padding: 1.25rem 0.75rem;
+  gap: 0;
+}
+
+.sidebar--collapsed .sidebar__header .sidebar__logo {
+  justify-content: center;
+}
+
+.sidebar--collapsed .sidebar__footer {
+  padding: 1rem 0.5rem;
 }
 
 .sidebar__nav {
@@ -275,17 +326,47 @@ onClickOutside(sidebarRef, () => {
     position: fixed;
     z-index: 100;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-    margin-left: 0;
     transition: transform 0.3s ease;
   }
 
   .sidebar--collapsed {
-    margin-left: 0;
+    width: var(--app-sidebar-width);
+    min-width: var(--app-sidebar-width);
     transform: translateX(-100%);
   }
 
-  .sidebar__close {
-    display: inline-flex;
+  .sidebar--collapsed .sidebar__logo-text,
+  .sidebar--collapsed .sidebar__item-label,
+  .sidebar--collapsed .sidebar__user-info,
+  .sidebar--collapsed .sidebar__logout .p-button-label {
+    display: inline;
+  }
+
+  .sidebar--collapsed .sidebar__nav {
+    padding: 0.75rem;
+  }
+
+  .sidebar--collapsed .sidebar__item {
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar--collapsed .sidebar__user {
+    justify-content: flex-start;
+  }
+
+  .sidebar--collapsed .sidebar__header {
+    justify-content: space-between;
+    padding: 1.25rem;
+    gap: unset;
+  }
+
+  .sidebar--collapsed .sidebar__header .sidebar__logo {
+    justify-content: flex-start;
+  }
+
+  .sidebar--collapsed .sidebar__footer {
+    padding: 1rem;
   }
 }
 </style>
