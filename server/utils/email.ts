@@ -30,7 +30,7 @@ function getClient(): SESClient | null {
   return sesClient
 }
 
-async function sendEmail(to: string, subject: string, htmlBody: string): Promise<void> {
+export async function sendEmail(to: string, subject: string, htmlBody: string): Promise<void> {
   const config = useRuntimeConfig()
   const client = getClient()
 

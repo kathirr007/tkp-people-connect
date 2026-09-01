@@ -18,6 +18,13 @@ export default defineNuxtConfig({
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
     emailFrom: process.env.EMAIL_FROM || 'noreply@tkp-people-connect.com',
+    aiProvider: process.env.AI_PROVIDER || 'auto',
+    ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    ollamaEmbedModel: process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text',
+    ollamaChatModel: process.env.OLLAMA_CHAT_MODEL || 'llama3.1',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
+    geminiChatModel: process.env.GEMINI_CHAT_MODEL || 'gemini-3.6-flash',
+    groqApiKey: process.env.GROQ_API_KEY || '',
     public: {
       appName: 'TKP People Connect',
       appUrl: process.env.APP_URL || 'http://localhost:3000',
@@ -94,6 +101,12 @@ export default defineNuxtConfig({
   nitro: {
     plugins: ['~~/server/plugins/database.ts'],
     preset: 'vercel',
+    externals: {
+      inline: [],
+    },
+    rollupConfig: {
+      external: ['papaparse'],
+    },
   },
 
   typescript: {
@@ -121,6 +134,7 @@ export default defineNuxtConfig({
         'primevue/password',
         'primevue/progressbar',
         'primevue/select',
+        'primevue/selectbutton',
         'primevue/skeleton',
         'primevue/tag',
         'primevue/textarea',
@@ -128,6 +142,9 @@ export default defineNuxtConfig({
         'primevue/toggleswitch',
         'primevue/useconfirm',
         'zod',
+        'ollama',
+        '@google/generative-ai',
+        'groq-sdk',
       ],
     },
   },
