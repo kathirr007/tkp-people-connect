@@ -4,25 +4,28 @@ export default defineEventHandler(async (event) => {
   const user = requireRole(event, ['admin', 'user'])
 
   try {
+    const id = getRouterParam(event, 'id')!
     const body = await readBody(event)
-    const validated = personSchema.parse(body)
+    const validated = youthSchema.parse(body)
 
     // Calculate age from date of birth if date of birth is provided
     const dateOfBirth = validated.dateOfBirth
     const age = calculateAgeFromDateOfBirth(dateOfBirth)
 
-    const person = await createPerson({
+    const record = await updateYouth(id, {
       ...validated,
       age, // Include calculated age
-      fatherId: validated.fatherId || null,
-      motherId: validated.motherId || null,
-      spouseId: validated.spouseId || null,
-      isAlive: validated.isAlive ?? true,
-      isActive: validated.isActive ?? true,
-      createdBy: user.userId,
+      educationDetails: JSON.stringify(validated.educationDetails || []),
+      activities: JSON.stringify(validated.activities || []),
+      achievements: JSON.stringify(validated.achievements || []),
+      updatedBy: user.userId,
     })
 
-    return { success: true, data: person }
+    if (!record) {
+      throw createError({ statusCode: 404, message: 'Youth record not found' })
+    }
+
+    return { success: true, data: record }
   }
   catch (error) {
     handleApiError(error)

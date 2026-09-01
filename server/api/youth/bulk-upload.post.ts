@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const file = formData[0]
+    const file = formData[0]!
     if (!file.data || !file.filename) {
       throw createError({
         statusCode: 400,
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const rows = await detectFormatAndParse(
       file.data,
       file.filename,
-      file.type,
+      file.type || undefined,
     )
 
     if (rows.length === 0) {
@@ -42,22 +42,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const results = { success: 0, failed: 0, errors: [] as string[] }
-    const validPeople: Record<string, unknown>[] = []
+    const validRecords: Record<string, unknown>[] = []
 
     for (let i = 0; i < rows.length; i++) {
-      const result = personSchema.safeParse(rows[i])
+      const result = youthSchema.safeParse(rows[i])
       if (result.success) {
         // Calculate age from date of birth if date of birth is provided
         const dateOfBirth = result.data.dateOfBirth
         const age = calculateAgeFromDateOfBirth(dateOfBirth)
 
-        validPeople.push({
+        validRecords.push({
           ...result.data,
           age, // Include calculated age
-          fatherId: result.data.fatherId || null,
-          motherId: result.data.motherId || null,
-          spouseId: result.data.spouseId || null,
-          isAlive: result.data.isAlive ?? true,
+          currentlyStudying: result.data.currentlyStudying ?? true,
+          educationDetails: JSON.stringify(result.data.educationDetails || []),
+          activities: JSON.stringify(result.data.activities || []),
+          achievements: JSON.stringify(result.data.achievements || []),
           isActive: result.data.isActive ?? true,
           createdBy: user.userId,
         })
@@ -65,13 +65,13 @@ export default defineEventHandler(async (event) => {
       }
       else {
         results.failed++
-        const firstError = result.error.issues[0]
+        const firstError = result.error.issues[0]!
         results.errors.push(`Row ${i + 1}: ${firstError.path.join('.')} - ${firstError.message}`)
       }
     }
 
-    if (validPeople.length > 0) {
-      await insertManyPeople(validPeople)
+    if (validRecords.length > 0) {
+      await insertManyYouth(validRecords)
     }
 
     return {

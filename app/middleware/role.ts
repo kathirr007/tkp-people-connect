@@ -1,4 +1,5 @@
-import { hasPermission, type Role } from '~~/shared/utils/roles'
+import type { Role } from '~~/shared/utils/roles'
+import { hasPermission } from '~~/shared/utils/roles'
 
 export default defineNuxtRouteMiddleware((to) => {
   const { user } = useAuth()

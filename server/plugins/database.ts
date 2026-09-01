@@ -1,7 +1,8 @@
-import { mkdirSync, existsSync } from 'node:fs'
+import { existsSync, mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
+import process from 'node:process'
 import { useDatabase } from '../database'
-import { runSqliteMigrations, runPostgresMigrations } from '../database/migrate'
+import { runPostgresMigrations, runSqliteMigrations } from '../database/migrate'
 
 export default defineNitroPlugin(async () => {
   const driver = process.env.DB_DRIVER || 'sqlite'
@@ -13,11 +14,11 @@ export default defineNitroPlugin(async () => {
       mkdirSync(dir, { recursive: true })
     }
     runSqliteMigrations()
-    console.log(`[Database] SQLite initialized at ${dbPath}`)
+    console.warn(`[Database] SQLite initialized at ${dbPath}`)
   }
   else {
     await runPostgresMigrations()
-    console.log('[Database] PostgreSQL initialized')
+    console.warn('[Database] PostgreSQL initialized')
   }
 
   useDatabase()

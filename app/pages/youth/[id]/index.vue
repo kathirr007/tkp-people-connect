@@ -4,31 +4,26 @@ definePageMeta({ layout: 'dashboard' })
 const route = useRoute()
 const { canEdit } = useAuth()
 const id = computed(() => route.params.id as string)
-const { data, isPending } = usePerson(id)
+const { data, isPending } = useYouthRecord(id)
 const person = computed(() => data.value?.data)
 
-const formatName = (firstName: string, lastName: string) => `${firstName} ${lastName}`.trim()
 const formatDate = (date: string) => date ? new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'
 
-function statusSeverity(value: boolean, alive: boolean) {
-  if (!value)
-    return alive ? 'secondary' : 'danger'
-  return alive ? 'success' : 'info'
-}
+const categoryLabel = (cat: string) => cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : '-'
 </script>
 
 <template>
   <div class="page-container">
     <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
       <div>
-        <h1>Person Details</h1>
+        <h1>Youth Details</h1>
         <p v-if="person" class="text-muted" style="margin:0.5rem 0 0 0;font-size:0.9rem;">
           ID: {{ id }}
         </p>
       </div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <Button label="Back" icon="pi pi-arrow-left" severity="secondary" outlined @click="navigateTo('/people')" />
-        <Button v-if="canEdit && person" label="Edit" icon="pi pi-pencil" @click="navigateTo(`/people/${id}/edit`)" />
+        <Button label="Back" icon="pi pi-arrow-left" severity="secondary" outlined @click="navigateTo('/youth')" />
+        <Button v-if="canEdit && person" label="Edit" icon="pi pi-pencil" @click="navigateTo(`/youth/${id}/edit`)" />
       </div>
     </div>
 
@@ -56,7 +51,7 @@ function statusSeverity(value: boolean, alive: boolean) {
             <div class="form-field-detail">
               <label class="form-detail-label">Full Name</label>
               <p class="form-detail-value">
-                {{ formatName(person.firstName, person.lastName) }}
+                {{ person.firstName }} {{ person.lastName }}
               </p>
             </div>
             <div class="form-field-detail">
@@ -90,11 +85,14 @@ function statusSeverity(value: boolean, alive: boolean) {
               </p>
             </div>
             <div class="form-field-detail">
+              <label class="form-detail-label">Blood Group</label>
+              <p class="form-detail-value">
+                {{ person.bloodGroup || '-' }}
+              </p>
+            </div>
+            <div class="form-field-detail">
               <label class="form-detail-label">Status</label>
-              <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-                <Tag :value="person.isAlive ? 'Alive' : 'Deceased'" :severity="statusSeverity(person.isAlive, true)" />
-                <Tag :value="person.isActive ? 'Active' : 'Inactive'" :severity="statusSeverity(person.isActive, false)" />
-              </div>
+              <Tag :value="person.isActive ? 'Active' : 'Inactive'" :severity="person.isActive ? 'info' : 'danger'" />
             </div>
           </div>
         </template>
@@ -174,127 +172,130 @@ function statusSeverity(value: boolean, alive: boolean) {
         </template>
       </Card>
 
-      <!-- Own Family -->
-      <Card v-if="person.maritalStatus === 'married'" style="border-radius:1rem;margin-bottom:2rem;">
-        <template #title>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <i class="pi pi-heart" style="font-size:1.25rem;color:var(--p-primary-500);" />
-            <h3 class="form-section-title" style="margin:0;">
-              Family
-            </h3>
-          </div>
-        </template>
-        <template #content>
-          <div class="form-grid" style="gap:1.5rem;">
-            <div class="form-field-detail">
-              <label class="form-detail-label">Marital Status</label>
-              <p class="form-detail-value">
-                {{ person.maritalStatus ? person.maritalStatus.charAt(0).toUpperCase() + person.maritalStatus.slice(1) : '-' }}
-              </p>
-            </div>
-            <div class="form-field-detail">
-              <label class="form-detail-label">Marriage Year</label>
-              <p class="form-detail-value">
-                {{ person.marriageYear || '-' }}
-              </p>
-            </div>
-            <div class="form-field-detail">
-              <label class="form-detail-label">Spouse's Name</label>
-              <p class="form-detail-value">
-                {{ person.spouseName || '-' }}
-              </p>
-            </div>
-            <div class="form-field-detail">
-              <label class="form-detail-label">Spouse's Phone</label>
-              <p class="form-detail-value">
-                {{ person.spousePhone || '-' }}
-              </p>
-            </div>
-            <div class="form-field-detail">
-              <label class="form-detail-label">Number of Children</label>
-              <p class="form-detail-value">
-                {{ person.numberOfChildren ?? '-' }}
-              </p>
-            </div>
-          </div>
-        </template>
-      </Card>
-
-      <!-- Children Details -->
-      <Card v-if="person.children && person.children.length > 0" style="border-radius:1rem;margin-bottom:2rem;">
-        <template #title>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
-            <i class="pi pi-user-plus" style="font-size:1.25rem;color:var(--p-primary-500);" />
-            <h3 class="form-section-title" style="margin:0;">
-              Children Details
-            </h3>
-            <Tag :value="person.children.length" style="margin-left:auto;" severity="info" />
-          </div>
-        </template>
-        <template #content>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">
-            <div v-for="(child, index) in person.children" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
-              <h4 style="margin:0 0 0.75rem 0;color:var(--p-text-color);font-size:1rem;">
-                Child {{ index + 1 }}
-              </h4>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:0.25rem;font-size:0.875rem;">
-                <span class="form-detail-label">Name:</span>
-                <p style="margin:0">
-                  {{ child.name }}
-                </p>
-                <span class="form-detail-label">Gender:</span>
-                <p style="margin:0">
-                  {{ child.gender ? child.gender.charAt(0).toUpperCase() + child.gender.slice(1) : '-' }}
-                </p>
-                <span class="form-detail-label">DOB:</span>
-                <p style="margin:0">
-                  {{ formatDate(child.dateOfBirth as string) }}
-                </p>
-                <span class="form-detail-label">Phone:</span>
-                <p style="margin:0">
-                  {{ child.phone || '-' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </template>
-      </Card>
-
-      <!-- Education Details -->
-      <Card v-if="person.education && person.education.length > 0" style="border-radius:1rem;margin-bottom:2rem;">
+      <!-- Education -->
+      <Card style="border-radius:1rem;margin-bottom:2rem;">
         <template #title>
           <div style="display:flex;align-items:center;gap:0.5rem;">
             <i class="pi pi-graduation-cap" style="font-size:1.25rem;color:var(--p-primary-500);" />
             <h3 class="form-section-title" style="margin:0;">
               Education
             </h3>
-            <Tag :value="person.education.length" style="margin-left:auto;" severity="info" />
+            <Tag :value="person.currentlyStudying ? 'Currently Studying' : 'Not Studying'" :severity="person.currentlyStudying ? 'success' : 'secondary'" style="margin-left:auto;" />
           </div>
         </template>
         <template #content>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;">
-            <div v-for="(edu, index) in person.education" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
+          <div v-if="person.educationDetails && person.educationDetails.length > 0" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+            <div v-for="(edu, index) in person.educationDetails" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
               <h4 style="margin:0 0 0.75rem 0;color:var(--p-text-color);font-size:1rem;">
-                Education {{ index + 1 }}
+                {{ edu.level }}
               </h4>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:0.25rem;font-size:0.875rem;">
-                <span class="form-detail-label">Level:</span>
-                <p style="margin:0">
-                  {{ edu.level }}
-                </p>
-                <span class="form-detail-label">Institution:</span>
-                <p style="margin:0">
-                  {{ edu.institution || '-' }}
-                </p>
-                <span class="form-detail-label">Year Completed:</span>
-                <p style="margin:0">
-                  {{ edu.yearCompleted || '-' }}
-                </p>
-                <span class="form-detail-label">Notes:</span>
-                <p style="margin:0">
-                  {{ edu.notes || '-' }}
-                </p>
+              <div style="display:grid;gap:0.25rem;font-size:0.875rem;">
+                <div v-if="edu.institution">
+                  <span class="form-detail-label">Institution:</span> {{ edu.institution }}
+                </div>
+                <div v-if="edu.course">
+                  <span class="form-detail-label">Course:</span> {{ edu.course }}
+                </div>
+                <div v-if="edu.yearOfStudy">
+                  <span class="form-detail-label">Year of Study:</span> {{ edu.yearOfStudy }}
+                </div>
+                <div v-if="edu.yearCompleted">
+                  <span class="form-detail-label">Completed:</span> {{ edu.yearCompleted }}
+                </div>
+                <div v-if="edu.percentage">
+                  <span class="form-detail-label">Percentage:</span> {{ edu.percentage }}%
+                </div>
               </div>
+            </div>
+          </div>
+          <p v-else style="color:var(--p-text-muted-color);">
+            No education details added.
+          </p>
+        </template>
+      </Card>
+
+      <!-- Activities & Skills -->
+      <Card v-if="person.activities && person.activities.length > 0" style="border-radius:1rem;margin-bottom:2rem;">
+        <template #title>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <i class="pi pi-star" style="font-size:1.25rem;color:var(--p-primary-500);" />
+            <h3 class="form-section-title" style="margin:0;">
+              Activities & Skills
+            </h3>
+            <Tag :value="String(person.activities.length)" style="margin-left:auto;" severity="info" />
+          </div>
+        </template>
+        <template #content>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+            <div v-for="(activity, index) in person.activities" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
+              <h4 style="margin:0 0 0.5rem 0;color:var(--p-text-color);font-size:0.95rem;">
+                {{ activity.name }}
+              </h4>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                <Tag :value="categoryLabel(activity.type)" size="small" />
+                <Tag v-if="activity.proficiency" :value="categoryLabel(activity.proficiency)" severity="info" size="small" />
+              </div>
+              <p v-if="activity.notes" style="margin:0.5rem 0 0;font-size:0.8rem;color:var(--p-text-muted-color);">
+                {{ activity.notes }}
+              </p>
+            </div>
+          </div>
+        </template>
+      </Card>
+
+      <!-- Achievements -->
+      <Card v-if="person.achievements && person.achievements.length > 0" style="border-radius:1rem;margin-bottom:2rem;">
+        <template #title>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <i class="pi pi-trophy" style="font-size:1.25rem;color:var(--p-primary-500);" />
+            <h3 class="form-section-title" style="margin:0;">
+              Achievements & Awards
+            </h3>
+            <Tag :value="String(person.achievements.length)" style="margin-left:auto;" severity="warn" />
+          </div>
+        </template>
+        <template #content>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+            <div v-for="(ach, index) in person.achievements" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
+              <h4 style="margin:0 0 0.5rem 0;color:var(--p-text-color);font-size:0.95rem;">
+                {{ ach.title }}
+              </h4>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+                <Tag :value="categoryLabel(ach.category)" size="small" />
+                <Tag v-if="ach.level" :value="categoryLabel(ach.level)" severity="info" size="small" />
+                <Tag v-if="ach.year" :value="String(ach.year)" severity="secondary" size="small" />
+              </div>
+              <p v-if="ach.description" style="margin:0;font-size:0.8rem;color:var(--p-text-muted-color);">
+                {{ ach.description }}
+              </p>
+            </div>
+          </div>
+        </template>
+      </Card>
+
+      <!-- Interests & Goals -->
+      <Card v-if="person.interests || person.careerGoal" style="border-radius:1rem;margin-bottom:2rem;">
+        <template #title>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <i class="pi pi-compass" style="font-size:1.25rem;color:var(--p-primary-500);" />
+            <h3 class="form-section-title" style="margin:0;">
+              Interests & Goals
+            </h3>
+          </div>
+        </template>
+        <template #content>
+          <div class="form-grid" style="gap:1.5rem;">
+            <div v-if="person.interests" class="form-field-detail" style="grid-column:span 2;">
+              <label class="form-detail-label">Interests / Hobbies</label>
+              <p class="form-detail-value" style="white-space:pre-wrap;">
+                {{ person.interests }}
+              </p>
+            </div>
+            <div v-if="person.careerGoal" class="form-field-detail" style="grid-column:span 2;">
+              <label class="form-detail-label">Career Goal / Aspiration</label>
+              <p class="form-detail-value">
+                {{ person.careerGoal }}
+              </p>
             </div>
           </div>
         </template>

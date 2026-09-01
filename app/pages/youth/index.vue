@@ -7,7 +7,7 @@ definePageMeta({ layout: 'dashboard' })
 const { canEdit, isAdmin } = useAuth()
 const { showSuccess, showApiError } = useToastMessages()
 const confirm = useConfirm()
-const uploadMutation = useBulkUpload()
+const uploadMutation = useYouthBulkUpload()
 
 const actionsMenu = ref()
 const actionsMenuVisible = ref(false)
@@ -20,7 +20,7 @@ const importResults = ref<{ total: number, success: number, failed: number, erro
 const actionsMenuItems = computed(() => {
   const items = []
   if (canEdit.value) {
-    items.push({ label: 'Add Person', icon: 'pi pi-plus', command: () => navigateTo('/people/add') })
+    items.push({ label: 'Add Youth', icon: 'pi pi-plus', command: () => navigateTo('/youth/add') })
   }
   if (isAdmin.value) {
     items.push({
@@ -30,7 +30,7 @@ const actionsMenuItems = computed(() => {
     })
   }
   if (isAuthenticated.value) {
-    items.push({ label: 'Export', icon: 'pi pi-download', command: () => navigateTo('/api/people/export', { external: true }) })
+    items.push({ label: 'Export', icon: 'pi pi-download', command: () => navigateTo('/api/youth/export', { external: true }) })
   }
   return items
 })
@@ -44,8 +44,8 @@ const filters = ref({
   village: '',
 })
 
-const { data, isPending } = usePeopleList(filters)
-const deleteMutation = useDeletePerson()
+const { data, isPending } = useYouthList(filters)
+const deleteMutation = useDeleteYouth()
 
 const searchInput = ref('')
 let searchTimeout: ReturnType<typeof setTimeout>
@@ -128,14 +128,14 @@ function confirmDelete(id: string, name: string) {
 <template>
   <div class="page-container">
     <div class="page-header" role="search">
-      <h1>People Directory</h1>
+      <h1>Youth Directory</h1>
       <div style="display: flex; gap: 0.75rem; align-items: center;">
         <IconField>
           <InputIcon class="pi pi-search" />
           <InputText
             v-model="searchInput"
-            placeholder="Search people..."
-            aria-label="Search people by name, village, or phone"
+            placeholder="Search youth..."
+            aria-label="Search youth by name, village, or phone"
             @input="onSearchInput"
           />
         </IconField>
@@ -152,7 +152,7 @@ function confirmDelete(id: string, name: string) {
           v-model:visible="actionsMenuVisible"
           :model="actionsMenuItems"
           popup
-          :aria-label="actionsMenuVisible ? 'People actions menu' : 'People actions'"
+          :aria-label="actionsMenuVisible ? 'Youth actions menu' : 'Youth actions'"
         />
       </div>
     </div>
@@ -168,7 +168,7 @@ function confirmDelete(id: string, name: string) {
         :rows-per-page-options="[10, 20, 50]"
         striped-rows
         removable-sort
-        aria-label="People directory table"
+        aria-label="Youth directory table"
         @page="onPage($event)"
         @sort="onSort($event)"
       >
@@ -182,10 +182,9 @@ function confirmDelete(id: string, name: string) {
         </Column>
         <Column field="phone" header="Phone" />
         <Column field="fatherName" header="Father's Name" />
-        <Column field="maritalStatus" header="Marital Status" />
-        <Column field="isAlive" header="Alive">
+        <Column field="currentlyStudying" header="Studying">
           <template #body="{ data: row }">
-            <Tag :value="row.isAlive ? 'Alive' : 'Deceased'" :severity="row.isAlive ? 'success' : 'secondary'" />
+            <Tag :value="row.currentlyStudying ? 'Yes' : 'No'" :severity="row.currentlyStudying ? 'success' : 'secondary'" />
           </template>
         </Column>
         <Column field="isActive" header="Status">
@@ -201,7 +200,7 @@ function confirmDelete(id: string, name: string) {
                 text
                 rounded
                 size="small"
-                @click="navigateTo(`/people/${row._id}`)"
+                @click="navigateTo(`/youth/${row._id}`)"
               />
               <Button
                 v-if="canEdit"
@@ -210,7 +209,7 @@ function confirmDelete(id: string, name: string) {
                 rounded
                 size="small"
                 severity="info"
-                @click="navigateTo(`/people/${row._id}/edit`)"
+                @click="navigateTo(`/youth/${row._id}/edit`)"
               />
               <Button
                 v-if="isAdmin"
@@ -226,14 +225,14 @@ function confirmDelete(id: string, name: string) {
         </Column>
         <template #empty>
           <div style="text-align: center; padding: 2rem; color: var(--p-text-muted-color);">
-            No people found. {{ canEdit ? 'Click "Add Person" to get started.' : '' }}
+            No youth records found. {{ canEdit ? 'Click "Add Youth" to get started.' : '' }}
           </div>
         </template>
       </DataTable>
 
       <Dialog
         v-model:visible="importDialogVisible"
-        header="Import People"
+        header="Import Youth Records"
         modal
         :style="{ width: '32rem' }"
         @hide="closeImportDialog"

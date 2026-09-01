@@ -7,7 +7,7 @@ definePageMeta({
 
 const route = useRoute()
 const id = computed(() => route.params.id as string)
-const { data, isPending } = usePerson(id)
+const { data, isPending } = useYouthRecord(id)
 
 const person = computed(() => data.value?.data)
 </script>
@@ -15,7 +15,7 @@ const person = computed(() => data.value?.data)
 <template>
   <div class="page-container">
     <div class="page-header">
-      <h1>Edit Person</h1>
+      <h1>Edit Youth</h1>
     </div>
 
     <Card v-if="isPending">
@@ -24,11 +24,11 @@ const person = computed(() => data.value?.data)
       </template>
     </Card>
 
-    <PersonForm
+    <YouthForm
       v-else-if="person"
       mode="edit"
       :initial-data="person"
-      @success="navigateTo(`/people/${id}`)"
+      @success="navigateTo(`/youth/${id}`)"
     />
   </div>
 </template>

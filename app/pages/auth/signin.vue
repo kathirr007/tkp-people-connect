@@ -45,36 +45,41 @@ const loginErrors = computed(() => {
 const loginErrorMessages = computed(() => {
   const errors = loginErrors.value
   const msgs: Record<string, string | undefined> = {}
-  
+
   // For each field, check if required error exists first
   if (!form.identifier && errors.identifier?.includes('Username or email is required')) {
     msgs.identifier = 'Username or email is required'
-  } else if (errors.identifier?.length) {
+  }
+  else if (errors.identifier?.length) {
     msgs.identifier = errors.identifier[0]
   }
-  
+
   if (!form.password && errors.password?.includes('Password is required')) {
     msgs.password = 'Password is required'
-  } else if (errors.password?.length) {
+  }
+  else if (errors.password?.length) {
     msgs.password = errors.password[0]
   }
-  
+
   return msgs
 })
 
 const showIdentifierError = computed(() => {
-  if (!touched.identifier) return false
-  return !form.identifier || loginErrors.value?.identifier && loginErrors.value?.identifier?.length > 0
+  if (!touched.identifier)
+    return false
+  return !form.identifier || (loginErrors.value?.identifier && loginErrors.value?.identifier?.length > 0)
 })
 
 const showPasswordError = computed(() => {
-  if (!touched.password) return false
-  return !form.password || loginErrors.value?.password && loginErrors.value?.password?.length > 0
+  if (!touched.password)
+    return false
+  return !form.password || (loginErrors.value?.password && loginErrors.value?.password?.length > 0)
 })
 
 async function handleLogin() {
-  if (!isLoginValid.value) return
-  
+  if (!isLoginValid.value)
+    return
+
   error.value = ''
   resendMessage.value = ''
   resendError.value = ''
@@ -126,7 +131,7 @@ async function handleResendVerification() {
       <p>Welcome back! Enter your credentials to continue.</p>
     </template>
     <template #content>
-      <form @submit.prevent.stop="handleLogin" role="form" aria-labelledby="form-title">
+      <form role="form" aria-labelledby="form-title" @submit.prevent.stop="handleLogin">
         <Message v-if="error" severity="error" :closable="false" class="mb-3" role="alert">
           {{ error }}
         </Message>
@@ -168,10 +173,10 @@ async function handleResendVerification() {
             v-model="form.identifier"
             placeholder="Enter your email or username"
             fluid
-            @blur="touched.identifier = true"
             aria-describedby="identifier-error"
             :aria-invalid="showIdentifierError"
             autocomplete="username"
+            @blur="touched.identifier = true"
           />
           <small v-if="showIdentifierError" id="identifier-error" class="p-error" role="alert">{{ loginErrorMessages.identifier }}</small>
         </div>
@@ -184,10 +189,10 @@ async function handleResendVerification() {
             :feedback="false"
             toggle-mask
             fluid
-            @blur="touched.password = true"
             aria-describedby="password-error"
             :aria-invalid="showPasswordError"
             autocomplete="current-password"
+            @blur="touched.password = true"
           />
           <small v-if="showPasswordError" id="password-error" class="p-error" role="alert">{{ loginErrorMessages.password }}</small>
         </div>

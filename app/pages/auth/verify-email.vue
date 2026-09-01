@@ -36,7 +36,9 @@ onMounted(async () => {
     <template #content>
       <div v-if="loading" style="text-align: center; padding: 2rem;">
         <ProgressSpinner />
-        <p style="margin-top: 1rem;">Verifying your email...</p>
+        <p style="margin-top: 1rem;">
+          Verifying your email...
+        </p>
       </div>
       <div v-else-if="success">
         <Message severity="success" :closable="false">

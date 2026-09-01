@@ -5,24 +5,24 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event)
-    const validated = personSchema.parse(body)
+    const validated = youthSchema.parse(body)
 
     // Calculate age from date of birth if date of birth is provided
     const dateOfBirth = validated.dateOfBirth
     const age = calculateAgeFromDateOfBirth(dateOfBirth)
 
-    const person = await createPerson({
+    const youth = await createYouth({
       ...validated,
       age, // Include calculated age
-      fatherId: validated.fatherId || null,
-      motherId: validated.motherId || null,
-      spouseId: validated.spouseId || null,
-      isAlive: validated.isAlive ?? true,
+      currentlyStudying: validated.currentlyStudying ?? true,
+      educationDetails: JSON.stringify(validated.educationDetails || []),
+      activities: JSON.stringify(validated.activities || []),
+      achievements: JSON.stringify(validated.achievements || []),
       isActive: validated.isActive ?? true,
       createdBy: user.userId,
     })
 
-    return { success: true, data: person }
+    return { success: true, data: youth }
   }
   catch (error) {
     handleApiError(error)

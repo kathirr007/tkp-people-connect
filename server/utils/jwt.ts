@@ -1,5 +1,6 @@
-import { SignJWT, jwtVerify } from 'jose'
 import type { H3Event } from 'h3'
+import process from 'node:process'
+import { jwtVerify, SignJWT } from 'jose'
 
 export interface TokenPayload {
   userId: string

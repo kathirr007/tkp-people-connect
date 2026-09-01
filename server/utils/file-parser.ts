@@ -1,5 +1,6 @@
-import Papa from 'papaparse'
+import type { Buffer } from 'node:buffer'
 import ExcelJS from 'exceljs'
+import Papa from 'papaparse'
 
 export interface ParsedRow {
   firstName?: string
@@ -50,19 +51,19 @@ const COLUMN_MAP: Record<string, string> = {
   'full address': 'address',
   'father name': 'fatherName',
   'father_name': 'fatherName',
-  "father's name": 'fatherName',
+  'father\'s name': 'fatherName',
   'father phone': 'fatherPhone',
   'father_phone': 'fatherPhone',
   'mother name': 'motherName',
   'mother_name': 'motherName',
-  "mother's name": 'motherName',
+  'mother\'s name': 'motherName',
   'mother phone': 'motherPhone',
   'mother_phone': 'motherPhone',
   'marital status': 'maritalStatus',
   'marital_status': 'maritalStatus',
   'spouse name': 'spouseName',
   'spouse_name': 'spouseName',
-  "spouse's name": 'spouseName',
+  'spouse\'s name': 'spouseName',
   'spouse phone': 'spousePhone',
   'spouse_phone': 'spousePhone',
   'marriage year': 'marriageYear',
@@ -78,9 +79,23 @@ const COLUMN_MAP: Record<string, string> = {
 }
 
 const SIMPLE_FIELDS = new Set([
-  'firstName', 'lastName', 'gender', 'dateOfBirth', 'phone', 'email',
-  'village', 'ward', 'address', 'fatherName', 'fatherPhone', 'motherName',
-  'motherPhone', 'maritalStatus', 'spouseName', 'spousePhone', 'notes',
+  'firstName',
+  'lastName',
+  'gender',
+  'dateOfBirth',
+  'phone',
+  'email',
+  'village',
+  'ward',
+  'address',
+  'fatherName',
+  'fatherPhone',
+  'motherName',
+  'motherPhone',
+  'maritalStatus',
+  'spouseName',
+  'spousePhone',
+  'notes',
 ])
 
 function normalizeColumnName(name: string): string {
@@ -91,7 +106,8 @@ function mapRowToPersonData(raw: Record<string, string>): ParsedRow {
   const person: ParsedRow = {}
 
   for (const [key, value] of Object.entries(raw)) {
-    if (!value || !value.trim()) continue
+    if (!value || !value.trim())
+      continue
     const mappedKey = normalizeColumnName(key)
     const trimmedValue = value.trim()
 
@@ -100,7 +116,8 @@ function mapRowToPersonData(raw: Record<string, string>): ParsedRow {
     }
     else if (mappedKey === 'marriageYear' || mappedKey === 'numberOfChildren') {
       const num = Number(trimmedValue)
-      if (!Number.isNaN(num)) (person as Record<string, unknown>)[mappedKey] = num
+      if (!Number.isNaN(num))
+        (person as Record<string, unknown>)[mappedKey] = num
     }
     else if (mappedKey === 'isAlive') {
       person.isAlive = trimmedValue.toLowerCase() !== 'false' && trimmedValue !== '0'
@@ -158,7 +175,7 @@ export async function parseJSON(content: string): Promise<ParsedRow[]> {
   const data = JSON.parse(content)
 
   if (!Array.isArray(data)) {
-    throw new Error('JSON must be an array of objects')
+    throw new TypeError('JSON must be an array of objects')
   }
 
   return data.map((item: Record<string, unknown>) => {

@@ -101,7 +101,9 @@ async function handleUpload() {
           </Message>
 
           <div v-if="results.errors.length" style="margin-top: 1rem;">
-            <h4 style="margin-bottom: 0.5rem;">Errors:</h4>
+            <h4 style="margin-bottom: 0.5rem;">
+              Errors:
+            </h4>
             <div style="max-height: 12rem; overflow-y: auto; background: var(--p-surface-50); padding: 1rem; border-radius: 0.5rem; font-size: 0.8rem;">
               <p v-for="(err, i) in results.errors" :key="i" style="margin-bottom: 0.25rem; color: var(--p-red-500);">
                 {{ err }}
@@ -111,7 +113,9 @@ async function handleUpload() {
         </div>
 
         <div style="margin-top: 2rem; padding: 1.5rem; background: var(--p-surface-50); border-radius: 0.5rem;">
-          <h4 style="margin-bottom: 0.75rem;">Expected Column Headers</h4>
+          <h4 style="margin-bottom: 0.75rem;">
+            Expected Column Headers
+          </h4>
           <p style="font-size: 0.875rem; color: var(--p-text-muted-color);">
             <strong>Required:</strong> First Name, Last Name<br>
             <strong>Optional:</strong> Email, Phone, Organization, Designation, Department, Notes, Tags, Street, City, State, Zip Code, Country

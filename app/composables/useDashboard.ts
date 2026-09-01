@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/vue-query'
 import type { DashboardStats } from '~~/shared/types'
+import { useQuery } from '@tanstack/vue-query'
 
 export function useDashboard() {
   return useQuery({

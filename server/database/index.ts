@@ -1,7 +1,8 @@
 import { createRequire } from 'node:module'
+import process from 'node:process'
 import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { sqliteUsers, sqlitePeople, pgUsers, pgPeople } from './schema'
+import { pgPeople, pgUsers, pgYouth, sqlitePeople, sqliteUsers, sqliteYouth } from './schema'
 
 const _require = createRequire(import.meta.url)
 
@@ -17,9 +18,9 @@ function createDatabase() {
     const client = postgres(connectionString, {
       max: 20,
       idle_timeout: 30,
-      connection_timeout: 10,
+      connect_timeout: 10,
       max_lifetime: 60 * 60,
-      backoff: (retries) => Math.min(Math.pow(2, retries) * 100, 5000),
+      backoff: retries => Math.min(2 ** retries * 100, 5000),
       onnotice: () => {},
     })
     const db = drizzlePg(client)
@@ -28,6 +29,7 @@ function createDatabase() {
       driver: 'postgres' as const,
       users: pgUsers,
       people: pgPeople,
+      youth: pgYouth,
     }
   }
 
@@ -46,6 +48,7 @@ function createDatabase() {
     driver: 'sqlite' as const,
     users: sqliteUsers,
     people: sqlitePeople,
+    youth: sqliteYouth,
   }
 }
 

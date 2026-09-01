@@ -9,7 +9,7 @@ definePageMeta({
 
 const { isAdmin } = useAuth()
 const { showSuccess, showApiError } = useToastMessages()
-const uploadMutation = useBulkUpload()
+const uploadMutation = useYouthBulkUpload()
 
 const importDialogVisible = ref(false)
 const importFile = ref<File | null>(null)
@@ -52,22 +52,22 @@ function closeImportDialog() {
 <template>
   <div class="page-container">
     <div class="page-header" role="search">
-      <h1>Add Person</h1>
+      <h1>Add Youth</h1>
       <Button
         v-if="isAdmin"
         label="Import from File"
         icon="pi pi-upload"
         severity="secondary"
         outlined
-        aria-label="Import people from file"
+        aria-label="Import youth records from file"
         @click="importDialogVisible = true"
       />
     </div>
-    <PersonForm mode="create" @success="navigateTo('/people')" />
+    <YouthForm mode="create" @success="navigateTo('/youth')" />
 
     <Dialog
       v-model:visible="importDialogVisible"
-      header="Import People"
+      header="Import Youth Records"
       modal
       :style="{ width: '32rem' }"
       @hide="closeImportDialog"

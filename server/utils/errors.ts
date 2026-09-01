@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
-import { ZodError } from 'zod'
 import type { TokenPayload } from './jwt'
+import { ZodError } from 'zod'
 
 export function handleApiError(error: unknown): never {
   if (error instanceof ZodError) {

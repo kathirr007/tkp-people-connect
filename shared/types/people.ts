@@ -22,6 +22,7 @@ export interface Person {
   lastName: string
   gender?: Gender
   dateOfBirth?: string
+  age?: number // Computed age from date of birth
   phone?: string
   email?: string
   // Location
@@ -59,6 +60,7 @@ export interface PersonFormData {
   lastName: string
   gender?: Gender
   dateOfBirth?: string
+  age?: number // Computed age from date of birth
   phone?: string
   email?: string
   village?: string

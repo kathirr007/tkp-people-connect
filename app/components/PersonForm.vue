@@ -1,12 +1,26 @@
 <script setup lang="ts">
-import { z } from 'zod'
 import type { Person } from '~~/shared/types'
+import { z } from 'zod'
+import { isValidPhoneNumber } from '~~/shared/utils/phone'
+
+const props = defineProps<{ mode: 'create' | 'edit', initialData?: Person }>()
+
+const emit = defineEmits<{ success: [] }>()
+
+const phoneField = z
+  .string()
+  .max(20)
+  .optional()
+  .or(z.literal(''))
+  .refine(val => isValidPhoneNumber(val ?? ''), {
+    message: 'Please enter a valid phone number with country code (e.g., +255712345678)',
+  })
 
 const childSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   dateOfBirth: z.string().optional().or(z.literal('')),
   gender: z.enum(['male', 'female', 'other']).optional(),
-  phone: z.string().max(20).optional().or(z.literal('')),
+  phone: phoneField,
 })
 
 const educationSchema = z.object({
@@ -21,18 +35,18 @@ const personSchema = z.object({
   lastName: z.string().min(1, 'Last name is required').max(100),
   gender: z.enum(['male', 'female', 'other']).optional(),
   dateOfBirth: z.string().optional().or(z.literal('')),
-  phone: z.string().max(20).optional().or(z.literal('')),
+  phone: phoneField,
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   village: z.string().max(100).optional().or(z.literal('')),
   ward: z.string().max(100).optional().or(z.literal('')),
   address: z.string().max(500).optional().or(z.literal('')),
   fatherName: z.string().max(100).optional().or(z.literal('')),
-  fatherPhone: z.string().max(20).optional().or(z.literal('')),
+  fatherPhone: phoneField,
   motherName: z.string().max(100).optional().or(z.literal('')),
-  motherPhone: z.string().max(20).optional().or(z.literal('')),
+  motherPhone: phoneField,
   maritalStatus: z.enum(['single', 'married', 'widowed', 'divorced']).optional(),
   spouseName: z.string().max(100).optional().or(z.literal('')),
-  spousePhone: z.string().max(20).optional().or(z.literal('')),
+  spousePhone: phoneField,
   marriageYear: z.number().int().min(1900).max(2100).optional().nullable(),
   numberOfChildren: z.number().int().min(0).optional().nullable(),
   children: z.array(childSchema).optional().or(z.literal([])),
@@ -41,9 +55,6 @@ const personSchema = z.object({
   isAlive: z.boolean().optional(),
   isActive: z.boolean().optional(),
 })
-
-const props = defineProps<{ mode: 'create' | 'edit', initialData?: Person }>()
-const emit = defineEmits<{ success: [] }>()
 
 const { showSuccess, showApiError } = useToastMessages()
 const createMutation = useCreatePerson()
@@ -96,7 +107,8 @@ function validate(): boolean {
   if (!result.success) {
     for (const issue of result.error.issues) {
       const path = issue.path.join('.')
-      if (!errors.value[path]) errors.value[path] = issue.message
+      if (!errors.value[path])
+        errors.value[path] = issue.message
     }
     return false
   }
@@ -104,7 +116,8 @@ function validate(): boolean {
 }
 
 async function handleSubmit() {
-  if (!validate()) return
+  if (!validate())
+    return
   try {
     if (props.mode === 'create') {
       await createMutation.mutateAsync(form)
@@ -150,7 +163,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="phone">Phone</label>
-            <InputText id="phone" v-model="form.phone" placeholder="Phone number" fluid />
+            <InputText id="phone" v-model="form.phone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
           </div>
           <div class="form-field">
             <label for="email">Email</label>
@@ -201,7 +215,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="fatherPhone">Father's Phone</label>
-            <InputText id="fatherPhone" v-model="form.fatherPhone" placeholder="Father's phone" fluid />
+            <InputText id="fatherPhone" v-model="form.fatherPhone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.fatherPhone" class="p-error">{{ errors.fatherPhone }}</small>
           </div>
           <div class="form-field">
             <label for="motherName">Mother's Name</label>
@@ -209,7 +224,8 @@ async function handleSubmit() {
           </div>
           <div class="form-field">
             <label for="motherPhone">Mother's Phone</label>
-            <InputText id="motherPhone" v-model="form.motherPhone" placeholder="Mother's phone" fluid />
+            <InputText id="motherPhone" v-model="form.motherPhone" placeholder="+255 712 345 678" fluid />
+            <small v-if="errors.motherPhone" class="p-error">{{ errors.motherPhone }}</small>
           </div>
         </div>
 
@@ -221,55 +237,61 @@ async function handleSubmit() {
             <label for="maritalStatus">Marital Status</label>
             <Select id="maritalStatus" v-model="form.maritalStatus" :options="maritalStatusOptions" option-label="label" option-value="value" placeholder="Select status" fluid />
           </div>
-          <div class="form-field">
-            <label for="marriageYear">Marriage Year</label>
-            <InputText id="marriageYear" v-model.number="form.marriageYear" type="number" placeholder="e.g. 2005" fluid />
-          </div>
-          <div class="form-field">
-            <label for="spouseName">Spouse's Name</label>
-            <InputText id="spouseName" v-model="form.spouseName" placeholder="Spouse's full name" fluid />
-          </div>
-          <div class="form-field">
-            <label for="spousePhone">Spouse's Phone</label>
-            <InputText id="spousePhone" v-model="form.spousePhone" placeholder="Spouse's phone" fluid />
-          </div>
-          <div class="form-field">
-            <label for="numberOfChildren">Number of Children</label>
-            <InputText id="numberOfChildren" v-model.number="form.numberOfChildren" type="number" placeholder="0" fluid />
-          </div>
+          <template v-if="form.maritalStatus && form.maritalStatus !== 'single'">
+            <div class="form-field">
+              <label for="marriageYear">Marriage Year</label>
+              <InputText id="marriageYear" v-model.number="form.marriageYear" type="number" placeholder="e.g. 2005" fluid />
+            </div>
+            <div class="form-field">
+              <label for="spouseName">Spouse's Name</label>
+              <InputText id="spouseName" v-model="form.spouseName" placeholder="Spouse's full name" fluid />
+            </div>
+            <div class="form-field">
+              <label for="spousePhone">Spouse's Phone</label>
+              <InputText id="spousePhone" v-model="form.spousePhone" placeholder="+255 712 345 678" fluid />
+              <small v-if="errors.spousePhone" class="p-error">{{ errors.spousePhone }}</small>
+            </div>
+            <div class="form-field">
+              <label for="numberOfChildren">Number of Children</label>
+              <InputText id="numberOfChildren" v-model.number="form.numberOfChildren" type="number" placeholder="0" fluid />
+            </div>
+          </template>
         </div>
 
-        <h3 class="form-section-title" style="margin-top:2rem;">
-          Children Details
-        </h3>
-        <div v-for="(child, index) in form.children" :key="index" class="child-entry" style="background: var(--p-surface-50); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
-            <span style="font-weight:600;">Child {{ index + 1 }}</span>
-            <Button icon="pi pi-trash" severity="danger" outlined size="small" @click="form.children.splice(index, 1)" v-if="form.children.length > 1" />
+        <template v-if="form.maritalStatus && form.maritalStatus !== 'single'">
+          <h3 class="form-section-title" style="margin-top:2rem;">
+            Children Details
+          </h3>
+          <div v-for="(child, index) in form.children" :key="index" class="child-entry" style="background: var(--p-surface-50); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+              <span style="font-weight:600;">Child {{ index + 1 }}</span>
+              <Button v-if="form.children.length > 1" icon="pi pi-trash" severity="danger" outlined size="small" @click="form.children.splice(index, 1)" />
+            </div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label :for="`childName${index}`">Name *</label>
+                <InputText :id="`childName${index}`" v-model="child.name" placeholder="Child's name" fluid />
+                <small v-if="errors.children?.[index]?.name" class="p-error">{{ errors.children[index].name }}</small>
+              </div>
+              <div class="form-field">
+                <label :for="`childGender${index}`">Gender</label>
+                <Select :id="`childGender${index}`" v-model="child.gender" :options="genderOptions" option-label="label" option-value="value" placeholder="Select gender" fluid />
+              </div>
+              <div class="form-field">
+                <label :for="`childDOB${index}`">Date of Birth</label>
+                <InputText :id="`childDOB${index}`" v-model="child.dateOfBirth" type="date" fluid />
+              </div>
+              <div class="form-field">
+                <label :for="`childPhone${index}`">Phone</label>
+                <InputText :id="`childPhone${index}`" v-model="child.phone" placeholder="+255 712 345 678" fluid />
+                <small v-if="errors.children?.[index]?.phone" class="p-error">{{ errors.children[index].phone }}</small>
+              </div>
+            </div>
           </div>
-          <div class="form-grid">
-            <div class="form-field">
-              <label :for="'childName' + index">Name *</label>
-              <InputText :id="'childName' + index" v-model="child.name" placeholder="Child's name" fluid />
-              <small v-if="errors.children?.[index]?.name" class="p-error">{{ errors.children[index].name }}</small>
-            </div>
-            <div class="form-field">
-              <label :for="'childGender' + index">Gender</label>
-              <Select :id="'childGender' + index" v-model="child.gender" :options="genderOptions" option-label="label" option-value="value" placeholder="Select gender" fluid />
-            </div>
-            <div class="form-field">
-              <label :for="'childDOB' + index">Date of Birth</label>
-              <InputText :id="'childDOB' + index" v-model="child.dateOfBirth" type="date" fluid />
-            </div>
-            <div class="form-field">
-              <label :for="'childPhone' + index">Phone</label>
-              <InputText :id="'childPhone' + index" v-model="child.phone" placeholder="Phone number" fluid />
-            </div>
+          <div style="margin-top:0.5rem;">
+            <Button icon="pi pi-plus" label="Add Child" severity="secondary" outlined @click="form.children.push({ name: '', phone: '' })" />
           </div>
-        </div>
-        <div style="margin-top:0.5rem;">
-          <Button icon="pi pi-plus" label="Add Child" severity="secondary" outlined @click="form.children.push({ name: '', phone: '' })" />
-        </div>
+        </template>
 
         <h3 class="form-section-title" style="margin-top:2rem;">
           Education Details
@@ -277,26 +299,26 @@ async function handleSubmit() {
         <div v-for="(edu, index) in form.education" :key="index" class="education-entry" style="background: var(--p-surface-50); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
             <span style="font-weight:600;">Education {{ index + 1 }}</span>
-            <Button icon="pi pi-trash" severity="danger" outlined size="small" @click="form.education.splice(index, 1)" v-if="form.education.length > 1" />
+            <Button v-if="form.education.length > 1" icon="pi pi-trash" severity="danger" outlined size="small" @click="form.education.splice(index, 1)" />
           </div>
           <div class="form-grid">
             <div class="form-field">
-              <label :for="'eduLevel' + index">Education Level *</label>
-              <InputText :id="'eduLevel' + index" v-model="edu.level" placeholder="e.g. Bachelor's, High School" fluid />
+              <label :for="`eduLevel${index}`">Education Level *</label>
+              <InputText :id="`eduLevel${index}`" v-model="edu.level" placeholder="e.g. Bachelor's, High School" fluid />
               <small v-if="errors.education?.[index]?.level" class="p-error">{{ errors.education[index].level }}</small>
             </div>
             <div class="form-field">
-              <label :for="'eduInstitution' + index">Institution</label>
-              <InputText :id="'eduInstitution' + index" v-model="edu.institution" placeholder="School/University name" fluid />
+              <label :for="`eduInstitution${index}`">Institution</label>
+              <InputText :id="`eduInstitution${index}`" v-model="edu.institution" placeholder="School/University name" fluid />
             </div>
             <div class="form-field">
-              <label :for="'eduYear' + index">Year Completed</label>
-              <InputText :id="'eduYear' + index" v-model.number="edu.yearCompleted" type="number" placeholder="e.g. 2020" fluid />
+              <label :for="`eduYear${index}`">Year Completed</label>
+              <InputText :id="`eduYear${index}`" v-model.number="edu.yearCompleted" type="number" placeholder="e.g. 2020" fluid />
             </div>
           </div>
           <div class="form-field" style="grid-column:span 2;">
-            <label :for="'eduNotes' + index">Notes</label>
-            <InputText :id="'eduNotes' + index" v-model="edu.notes" placeholder="Additional notes" fluid />
+            <label :for="`eduNotes${index}`">Notes</label>
+            <InputText :id="`eduNotes${index}`" v-model="edu.notes" placeholder="Additional notes" fluid />
           </div>
         </div>
         <div style="margin-top:0.5rem;">
