@@ -1,6 +1,6 @@
 # TKP People Connect
 
-A full-stack people and youth management application built with Nuxt 4, featuring dual database support, JWT authentication, role-based access control, and bulk data import/export. Designed as a POC foundation for AI-powered people analytics and community management systems.
+A full-stack people and youth management application built with Nuxt 4, featuring dual database support, JWT authentication, role-based access control, bulk data import/export, and integrated AI capabilities including semantic search, a natural language data assistant, AI-powered email generation, and duplicate detection. Designed as a POC foundation for AI-powered people analytics and community management systems.
 
 ## Tech Stack
 
@@ -27,6 +27,9 @@ A full-stack people and youth management application built with Nuxt 4, featurin
 | **jose**                         | JWT token generation and verification                |
 | **bcryptjs**                     | Password hashing (12 salt rounds)                    |
 | **AWS SES**                      | Transactional email (verification, password reset)   |
+| **@google/generative-ai**        | Google Gemini API (chat + embeddings)                |
+| **groq-sdk**                     | Groq API (fast inference, no embeddings)             |
+| **ollama**                       | Local Ollama server (chat + embeddings)              |
 | **nuxt-security**                | CSP headers, rate limiting, CORS                     |
 
 ### DevOps & Tooling
@@ -50,27 +53,35 @@ tkp-people-connect/
 │   ├── components/
 │   │   ├── PersonForm.vue        # Create/Edit person (Zod-validated, multi-section)
 │   │   ├── YouthForm.vue         # Create/Edit youth (Zod-validated, multi-section)
+│   │   ├── AiSearchPanel.vue     # Semantic search UI with debounced input & filters
+│   │   ├── AiQueryPanel.vue      # Streaming chat interface for AI Data Assistant
+│   │   ├── AiEmailComposer.vue   # AI email generation dialog (welcome/event/follow-up)
+│   │   ├── AiDuplicateWarning.vue # Duplicate detection results dialog
 │   │   └── ThemeToggle.vue       # Dark/light mode toggle
 │   ├── composables/
 │   │   ├── useAuth.ts            # Auth state, login, register, logout, password reset
 │   │   ├── usePeople.ts          # TanStack Query hooks for People CRUD + bulk upload
 │   │   ├── useYouth.ts           # TanStack Query hooks for Youth CRUD + bulk upload
 │   │   ├── useDashboard.ts       # Dashboard stats query hook
-│   │   └── useToastMessages.ts   # PrimeVue toast helpers
+│   │   ├── useToastMessages.ts   # PrimeVue toast helpers
+│   │   ├── useAiSearch.ts        # Semantic search state & provider info
+│   │   ├── useAiQuery.ts         # Streaming chat composable (SSE)
+│   │   └── useAiEmail.ts         # AI email generation & send state
 │   ├── layouts/
 │   │   ├── default.vue           # Public layout (header + footer)
 │   │   ├── dashboard.vue         # Sidebar + header layout (collapsible, mobile)
 │   │   └── auth.vue              # Centered card layout for auth pages
 │   ├── middleware/
 │   │   └── role.ts               # Client-side role-based route guard
-│   └── pages/                    # 16 pages (see Pages section)
+│   └── pages/                    # 18 pages (see Pages section)
 ├── server/                       # Backend (Nitro)
 │   ├── api/                      # API routes
 │   │   ├── auth/                 # 9 auth endpoints
 │   │   ├── people/               # 7 people endpoints
 │   │   ├── youth/                # 7 youth endpoints
 │   │   ├── users/                # 2 user management endpoints
-│   │   └── dashboard/            # 1 stats endpoint
+│   │   ├── dashboard/            # 1 stats endpoint
+│   │   └── ai/                   # 8 AI endpoints
 │   ├── database/
 │   │   ├── schema.ts             # Drizzle schema (SQLite + PostgreSQL)
 │   │   ├── index.ts              # Database factory (singleton)
@@ -82,10 +93,22 @@ tkp-people-connect/
 │   ├── scripts/
 │   │   └── seed.ts               # Sample data seeder
 │   └── utils/
+│       ├── ai/                    # AI provider abstraction layer
+│       │   ├── client.ts          # AI client factory (auto-detect, provider selection)
+│       │   └── providers/
+│       │       ├── base.ts        # AiProviderClient interface
+│       │       ├── gemini.ts      # Google Gemini (chat + embeddings)
+│       │       ├── groq.ts        # Groq (chat only)
+│       │       └── ollama.ts      # Ollama local (chat + embeddings)
 │       ├── db.ts                 # Query layer (CRUD, pagination, search)
 │       ├── jwt.ts                # JWT sign/verify with jose
 │       ├── password.ts           # bcrypt hash/compare
 │       ├── email.ts              # AWS SES email templates
+│       ├── email-generator.ts    # AI-powered personalized email generation
+│       ├── embeddings.ts         # Vector embedding store & cosine similarity search
+│       ├── duplicate-detector.ts # AI duplicate detection via embeddings
+│       ├── nl-query.ts           # Natural language to SQL conversion
+│       ├── web-search.ts         # DuckDuckGo web search for query augmentation
 │       ├── errors.ts             # Zod/auth/role error handlers
 │       ├── file-parser.ts        # CSV/Excel/JSON parser with column mapping
 │       └── validators.ts         # Zod schemas for all endpoints
@@ -94,7 +117,8 @@ tkp-people-connect/
 │   │   ├── api.ts                # PaginatedResponse, ApiSuccess/Error, DashboardStats
 │   │   ├── auth.ts               # AuthUser, LoginCredentials, RegisterData
 │   │   ├── people.ts             # Person, PersonFormData, Child, Education
-│   │   └── youth.ts              # Youth, YouthFormData, Activities, Achievements
+│   │   ├── youth.ts              # Youth, YouthFormData, Activities, Achievements
+│   │   └── ai.ts                 # AiProvider, SearchResult, DuplicateMatch, etc.
 │   └── utils/
 │       ├── age-calculator.ts     # calculateAgeFromDateOfBirth()
 │       ├── phone.ts              # Phone validation via libphonenumber-js
@@ -104,7 +128,8 @@ tkp-people-connect/
 ├── drizzle.config.ts             # Dual-dialect Drizzle config
 ├── nuxt.config.ts                # Nuxt 4 config (PrimeVue, security, rate limiting)
 └── data/
-    └── database.sqlite           # SQLite database file (dev)
+    ├── database.sqlite           # SQLite database file (dev)
+    └── embeddings.json           # Vector embeddings store (generated)
 ```
 
 ## Pages Overview
@@ -123,6 +148,8 @@ tkp-people-connect/
 | Youth Detail     | `/youth/:id`            | dashboard | Multi-card view (personal, location, education, activities, achievements, interests) |
 | Edit Youth       | `/youth/:id/edit`       | dashboard | Pre-filled edit form                                                                 |
 | Users            | `/users`                | dashboard | Admin-only user management with role change                                          |
+| AI Search        | `/ai/search`            | dashboard | Semantic search over people/youth records using vector embeddings                    |
+| AI Assistant     | `/ai/query`             | dashboard | Natural language query interface (streaming chat with SQL generation)                |
 | Settings         | `/settings`             | dashboard | Profile display (read-only)                                                          |
 | Sign In          | `/auth/signin`          | auth      | Login with resend verification flow                                                  |
 | Sign Up          | `/auth/signup`          | auth      | Registration with confirm password                                                   |
@@ -168,6 +195,19 @@ tkp-people-connect/
 | PUT    | `/api/users/:id`       | admin | Update user role     |
 | GET    | `/api/dashboard/stats` | Auth  | Dashboard statistics |
 
+### AI
+
+| Method | Endpoint                  | Auth | Description                                           |
+| ------ | ------------------------- | ---- | ----------------------------------------------------- |
+| POST   | `/api/ai/search`          | Auth | Semantic search via vector embeddings (cosine sim)    |
+| POST   | `/api/ai/query`           | Auth | Natural language query (non-streaming)                |
+| POST   | `/api/ai/query-stream`    | Auth | Streaming chat (SSE) with SQL gen + web search        |
+| GET    | `/api/ai/provider`        | Auth | Current AI provider info (name, model, availability)  |
+| GET    | `/api/ai/providers`       | Auth | List available AI providers                           |
+| POST   | `/api/ai/embeddings-sync` | Auth | Generate/store vector embeddings for all records      |
+| POST   | `/api/ai/email-generate`  | Auth | AI-generated personalized emails (with optional send) |
+| POST   | `/api/ai/duplicates`      | Auth | Detect duplicate records via embedding similarity     |
+
 ## Getting Started
 
 ### Prerequisites
@@ -175,6 +215,7 @@ tkp-people-connect/
 - **Node.js** >= 18
 - **pnpm** >= 8
 - (Optional) **PostgreSQL** for production
+- (Optional) **Ollama** for local AI (install from https://ollama.com)
 
 ### Installation
 
@@ -219,6 +260,27 @@ AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_SES_REGION=us-east-1
 EMAIL_FROM=noreply@yourdomain.com
+
+# AI Provider (all free - no paid subscriptions needed)
+# Options: "ollama" (local/free), "gemini" (free tier), "groq" (free tier), "auto" (auto-detect)
+AI_PROVIDER=auto
+
+# AI Embedding Provider (optional, defaults to same as AI_PROVIDER)
+# Only needed when chat provider doesn't support embeddings (e.g., Groq)
+AI_EMBED_PROVIDER=
+
+# Ollama (100% free, runs locally - https://ollama.com)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_EMBED_MODEL=nomic-embed-text
+OLLAMA_CHAT_MODEL=llama3.1
+
+# Google Gemini (free tier - https://aistudio.google.com/apikey)
+GEMINI_API_KEY=
+GEMINI_CHAT_MODEL=gemini-3.6-flash
+
+# Groq (free tier - https://console.groq.com/keys)
+GROQ_API_KEY=
+GROQ_CHAT_MODEL=openai/gpt-oss-20b
 ```
 
 ### Development
@@ -291,10 +353,12 @@ Use the existing utilities:
 - `server/utils/validators.ts` for Zod validation
 - `server/utils/errors.ts` for error handling
 - `server/utils/jwt.ts` for auth checks
+- `server/utils/ai/client.ts` for AI provider access (`getAiClient()`, `getEmbeddingClient()`)
+- `server/utils/embeddings.ts` for vector search operations
 
 ### 4. Adding New Pages
 
-Create files in `app/pages/` following Nuxt file-based routing. Use existing composables (`useAuth`, `usePeople`, `useYouth`) and layouts (`dashboard`, `auth`, `default`).
+Create files in `app/pages/` following Nuxt file-based routing. Use existing composables (`useAuth`, `usePeople`, `useYouth`, `useAiSearch`, `useAiQuery`, `useAiEmail`) and layouts (`dashboard`, `auth`, `default`).
 
 ### 5. Role-Based Access
 
@@ -331,6 +395,17 @@ rateLimiter: {
   }
 }
 ```
+
+### 8. AI Provider Configuration
+
+Set `AI_PROVIDER` in `.env` to switch between providers. The system auto-detects availability:
+
+- **`auto`** (default) — Tries Ollama → Groq → Gemini in order
+- **`ollama`** — Local, 100% free. Requires Ollama running with `nomic-embed-text` and `llama3.1` models pulled
+- **`groq`** — Free tier (~1000 req/day), fast inference. No embedding support (use `AI_EMBED_PROVIDER=gemini` for embeddings)
+- **`gemini`** — Free tier (20 req/day), supports both chat and embeddings
+
+To add a new AI provider, implement the `AiProviderClient` interface in `server/utils/ai/providers/base.ts` and register it in `server/utils/ai/client.ts`.
 
 ## Edge Cases & POC Highlights
 
@@ -379,6 +454,30 @@ The seed script creates Tamil Nadu, India-specific sample data (regional names, 
 ### Error Handling Pipeline
 
 A unified error handler converts Zod validation errors (422), authentication errors (401/403), and generic errors (500) into consistent API responses. This structured error output is critical for AI agents that need to parse and react to API failures programmatically.
+
+### Multi-Provider AI Abstraction Layer
+
+The `server/utils/ai/providers/` directory implements a provider pattern with a shared `AiProviderClient` interface. Ollama (local/free), Google Gemini (free tier), and Groq (free tier) all conform to the same contract. Auto-detection tries providers in order (Ollama → Groq → Gemini), and a separate embedding provider chain handles cases where the chat provider lacks embedding support (e.g., Groq). This pattern enables zero-cost AI in development while scaling to paid providers in production.
+
+### Semantic Search via Vector Embeddings
+
+People and youth records are embedded into vector space using the configured provider's embedding model. The `server/utils/embeddings.ts` module manages a JSON-based vector store with cosine similarity search. The `AiSearchPanel.vue` component provides debounced search with type filtering — demonstrating how traditional CRUD data becomes AI-searchable without a dedicated vector database.
+
+### Natural Language to SQL (Streaming)
+
+The AI Assistant classifies user queries as `database`, `web`, or `both`, then generates SQL from natural language using a schema-aware prompt. Results are formatted back into natural language and streamed to the client via Server-Sent Events. SQL safety validation restricts to SELECT-only queries and blocks dangerous keywords — a critical guardrail when AI agents generate database queries.
+
+### AI-Powered Duplicate Detection
+
+During bulk uploads, new records are compared against stored embeddings using cosine similarity. Scores ≥ 0.85 are flagged as "likely" duplicates, scores ≥ 0.70 as "possible". This pattern leverages semantic similarity rather than exact matching — useful for detecting records that are the same person with slightly different data entry.
+
+### AI Email Generation with Contextual Personalization
+
+The email generator builds personalized prompts from person data (name, village, education, activities) and generates contextually appropriate emails for different scenarios (welcome, event invitation, follow-up, custom). The output is structured JSON that the `AiEmailComposer.vue` component renders as a preview before optional sending via AWS SES.
+
+### Web Search Augmentation
+
+The streaming query endpoint integrates DuckDuckGo web search for queries classified as "web" or "both". Search results are fetched, summarized, and streamed alongside database results — demonstrating how AI assistants can combine internal data with external information in a single response.
 
 ## Known Limitations
 

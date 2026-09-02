@@ -27,6 +27,7 @@ function createDatabase() {
     return {
       db,
       driver: 'postgres' as const,
+      rawClient: client,
       users: pgUsers,
       people: pgPeople,
       youth: pgYouth,
@@ -46,6 +47,7 @@ function createDatabase() {
   return {
     db,
     driver: 'sqlite' as const,
+    rawClient: sqlite,
     users: sqliteUsers,
     people: sqlitePeople,
     youth: sqliteYouth,

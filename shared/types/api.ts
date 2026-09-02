@@ -30,6 +30,14 @@ export interface BulkUploadResults {
     success: number
     failed: number
     errors: string[]
+    duplicates?: Array<{
+      row: number
+      score: number
+      severity: 'likely' | 'possible'
+      matchedId: string
+      matchedName: string
+      matchedType: 'people' | 'youth'
+    }>
   }
 }
 

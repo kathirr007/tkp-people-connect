@@ -1,4 +1,5 @@
 import { calculateAgeFromDateOfBirth } from '@@/shared/utils/age-calculator'
+import { detectDuplicates } from '../../utils/duplicate-detector'
 
 export default defineEventHandler(async (event) => {
   const user = requireRole(event, ['admin'])
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const results = { success: 0, failed: 0, errors: [] as string[] }
+    const results = { success: 0, failed: 0, errors: [] as string[], duplicates: [] as Awaited<ReturnType<typeof detectDuplicates>> }
     const validRecords: Record<string, unknown>[] = []
 
     for (let i = 0; i < rows.length; i++) {
@@ -67,6 +68,16 @@ export default defineEventHandler(async (event) => {
         results.failed++
         const firstError = result.error.issues[0]!
         results.errors.push(`Row ${i + 1}: ${firstError.path.join('.')} - ${firstError.message}`)
+      }
+    }
+
+    // AI duplicate detection
+    if (validRecords.length > 0) {
+      try {
+        results.duplicates = await detectDuplicates(validRecords, 'youth')
+      }
+      catch {
+        // Duplicate detection is non-blocking — continue with insert
       }
     }
 

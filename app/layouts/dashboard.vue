@@ -17,6 +17,8 @@ const menuItems = computed(() => {
   ]
   if (isAuthenticated.value) {
     items.unshift({ label: 'Dashboard', icon: 'pi pi-home', to: '/dashboard' })
+    items.push({ label: 'AI Search', icon: 'pi pi-sparkles', to: '/ai/search' })
+    items.push({ label: 'AI Assistant', icon: 'pi pi-comments', to: '/ai/query' })
     items.push({ label: 'Users', icon: 'pi pi-shield', to: '/users' })
     items.push({ label: 'Settings', icon: 'pi pi-cog', to: '/settings' })
   }
