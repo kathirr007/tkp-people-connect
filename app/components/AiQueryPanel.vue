@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { messages, isQuerying, error, currentStatus, selectedQueryMode, sendQuery, cancelQuery, clearMessages } = useAiQuery()
+const { messages, isQuerying, error, currentStatus, selectedProvider, selectedQueryMode, sendQuery, cancelQuery, clearMessages } = useAiQuery()
 
 const input = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
@@ -236,6 +236,15 @@ watch(
       />
       <div class="ai-query-input-toolbar">
         <div class="ai-query-input-controls">
+          <Select
+            v-model="selectedProvider"
+            :options="providers"
+            option-label="label"
+            option-value="name"
+            size="small"
+            :disabled="isQuerying"
+            class="ai-query-provider-select"
+          />
           <span v-tooltip.top="modeTooltips[selectedQueryMode]">
             <SelectButton
               v-model="selectedQueryMode"
