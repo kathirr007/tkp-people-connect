@@ -196,10 +196,20 @@ function getRecordDetail(item: { data?: Record<string, unknown> }) {
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  background: var(--p-surface-0);
 }
 
 .ai-search-item:hover {
   background: var(--p-surface-50);
+  border-color: var(--p-primary-color);
+}
+
+.dark-mode .ai-search-item {
+  background: var(--p-surface-800);
+}
+
+.dark-mode .ai-search-item:hover {
+  background: var(--p-surface-700);
   border-color: var(--p-primary-color);
 }
 
@@ -232,6 +242,10 @@ function getRecordDetail(item: { data?: Record<string, unknown> }) {
   background: var(--p-surface-200);
   border-radius: 2px;
   overflow: hidden;
+}
+
+.dark-mode .ai-search-score-bar {
+  background: var(--p-surface-600);
 }
 
 .ai-search-score-fill {

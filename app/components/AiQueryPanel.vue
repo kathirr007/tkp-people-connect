@@ -273,6 +273,10 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   color: var(--p-primary-color);
 }
 
+.dark-mode .ai-query-message--assistant .ai-query-message-avatar {
+  background: var(--p-surface-600);
+}
+
 .ai-query-message-content {
   max-width: 80%;
   min-width: 0;
@@ -310,6 +314,10 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   border: 1px solid var(--p-border-color);
 }
 
+.dark-mode .ai-query-message--assistant .ai-query-message-text {
+  background: var(--p-surface-700);
+}
+
 .ai-query-cursor {
   display: inline-block;
   width: 2px;
@@ -336,6 +344,10 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   background: var(--p-surface-50);
   border: 1px solid var(--p-border-color);
   border-radius: 0.5rem;
+}
+
+.dark-mode .ai-query-sql {
+  background: var(--p-surface-800);
 }
 
 .ai-query-sql-header {
@@ -367,12 +379,20 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   color: var(--p-text-muted-color);
 }
 
+.dark-mode .ai-query-source-badge {
+  background: var(--p-surface-700);
+}
+
 .ai-query-web-results {
   margin-top: 0.5rem;
   padding: 0.5rem;
   background: var(--p-surface-50);
   border: 1px solid var(--p-border-color);
   border-radius: 0.5rem;
+}
+
+.dark-mode .ai-query-web-results {
+  background: var(--p-surface-800);
 }
 
 .ai-query-web-header {
@@ -388,6 +408,10 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   font-size: 0.75rem;
   padding: 0.25rem 0;
   border-bottom: 1px solid var(--p-surface-200);
+}
+
+.dark-mode .ai-query-web-item {
+  border-bottom-color: var(--p-surface-600);
 }
 
 .ai-query-web-item:last-child {
@@ -430,6 +454,10 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   color: var(--p-text-muted-color);
 }
 
+.dark-mode .ai-query-status {
+  background: var(--p-surface-700);
+}
+
 .ai-query-status-spinner {
   width: 14px;
   height: 14px;
@@ -437,6 +465,11 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   border-top-color: var(--p-primary-color);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.dark-mode .ai-query-status-spinner {
+  border-color: var(--p-surface-600);
+  border-top-color: var(--p-primary-color);
 }
 
 @keyframes spin {
