@@ -159,9 +159,16 @@ export function useAiQuery() {
 
       case 'error': {
         error.value = data.message as string
-        const idx = messages.value.findIndex(m => m.id === assistantMessage.id)
-        if (idx !== -1)
-          messages.value.splice(idx, 1)
+        // Only remove the placeholder if nothing was streamed yet
+        if (!assistantMessage.content) {
+          const idx = messages.value.findIndex(m => m.id === assistantMessage.id)
+          if (idx !== -1)
+            messages.value.splice(idx, 1)
+        }
+        else {
+          assistantMessage.isStreaming = false
+          messages.value = [...messages.value]
+        }
         break
       }
     }

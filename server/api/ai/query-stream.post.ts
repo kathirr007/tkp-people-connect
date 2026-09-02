@@ -51,12 +51,14 @@ export default defineEventHandler(async (event) => {
     const queryType = classifyQuery(query)
     sendSSE(event, { type: 'classified', queryType })
 
+    // Declare webResults in outer scope so it's accessible across both blocks
+    let webResults: Awaited<ReturnType<typeof webSearch>> | null = null
+
     // Step 2: Route based on classification
     if (queryType === 'web' || queryType === 'both') {
       // Web search
       sendSSE(event, { type: 'status', message: 'Searching the web...' })
 
-      let webResults
       try {
         webResults = await webSearch(query)
       }
@@ -154,10 +156,11 @@ export default defineEventHandler(async (event) => {
       const formatPrompt = `Original question: "${query}"\n\nSQL query: ${cleanedSql}\n\nResults (${data.length} rows):\n${JSON.stringify(data.slice(0, 50), null, 2)}`
       const answer = await streamOrComplete(client, formatPrompt, FORMAT_CONTEXT, event, 'answer-chunk')
 
-      // If "both", append web context
+      // If "both" and web results have useful content, combine them
       let finalAnswer = answer
-      if (queryType === 'both' && webResults!) {
-        const searchContext = formatWebSearchContext(webResults)
+      const hasWebContent = webResults && (webResults.results.length > 0 || webResults.abstract || webResults.answer)
+      if (queryType === 'both' && hasWebContent) {
+        const searchContext = formatWebSearchContext(webResults!)
         sendSSE(event, { type: 'status', message: 'Combining database and web results...' })
         finalAnswer = await streamOrComplete(
           client,
@@ -173,8 +176,8 @@ export default defineEventHandler(async (event) => {
         answer: finalAnswer,
         sql: cleanedSql,
         rowCount: data.length,
-        data: data.slice(0, 100),
         source: queryType === 'both' ? 'both' : 'database',
+        webResults: webResults ? webResults.results.slice(0, 5) : undefined,
       })
     }
   }
