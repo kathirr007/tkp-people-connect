@@ -46,9 +46,8 @@ export default defineEventHandler(async (event) => {
     'X-Accel-Buffering': 'no',
   })
 
-  const client = await getAiClientByName(provider)
-
   try {
+    const client = await getAiClientByName(provider)
     // Step 1: Determine query type — use user selection or fall back to classification
     sendSSE(event, { type: 'status', message: 'Analyzing your question...' })
 
@@ -191,6 +190,12 @@ export default defineEventHandler(async (event) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     if (message.includes('No AI provider available')) {
       sendSSE(event, { type: 'error', message: 'AI provider not available. Install Ollama or configure GEMINI_API_KEY.' })
+    }
+    else if (message.includes('API_KEY is required')) {
+      sendSSE(event, { type: 'error', message: `${message} — add it to your .env file and restart the server.` })
+    }
+    else if (message === 'Connection error.' || message.toLowerCase().includes('connection error')) {
+      sendSSE(event, { type: 'error', message: `Could not connect to the ${provider} API. Check your API key is valid and your network allows outbound HTTPS to the provider.` })
     }
     else {
       sendSSE(event, { type: 'error', message })

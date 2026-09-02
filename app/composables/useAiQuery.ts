@@ -202,6 +202,10 @@ export function useAiQuery() {
     }
   }
 
+  function clearError() {
+    error.value = null
+  }
+
   function clearMessages() {
     messages.value = []
     error.value = null
@@ -218,6 +222,7 @@ export function useAiQuery() {
     selectedQueryMode,
     sendQuery,
     cancelQuery,
+    clearError,
     clearMessages,
   }
 }

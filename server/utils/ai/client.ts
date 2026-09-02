@@ -15,7 +15,7 @@ function getConfig(): AiProviderConfig {
     geminiApiKey: process.env.GEMINI_API_KEY || '',
     geminiChatModel: process.env.GEMINI_CHAT_MODEL || 'gemini-3.6-flash',
     groqApiKey: process.env.GROQ_API_KEY || '',
-    groqChatModel: process.env.GROQ_CHAT_MODEL || 'llama-3.1-8b-instant',
+    groqChatModel: process.env.GROQ_CHAT_MODEL || 'llama-3.3-70b-versatile',
     aiEmbedProvider: process.env.AI_EMBED_PROVIDER || '',
   }
 }

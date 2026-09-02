@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { messages, isQuerying, error, currentStatus, selectedProvider, selectedQueryMode, sendQuery, cancelQuery, clearMessages } = useAiQuery()
+const { messages, isQuerying, error, currentStatus, selectedProvider, selectedQueryMode, sendQuery, cancelQuery, clearError, clearMessages } = useAiQuery()
 
 const input = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
@@ -216,10 +216,8 @@ watch(
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="error" class="ai-query-error">
-      <Message severity="error" :closable="false">
+      <Message v-if="error" severity="error" :closable="true" class="ai-query-error" @close="clearError">
         {{ error }}
       </Message>
     </div>

@@ -8,6 +8,7 @@ export class GeminiProvider implements AiProviderClient {
   readonly embeddingDimensions = 3072
 
   private genAI: GoogleGenerativeAI
+  private readonly apiOpts = { apiVersion: 'v1' }
 
   constructor(apiKey: string, chatModel = 'gemini-3.6-flash') {
     this.embeddingModel = 'gemini-embedding-001'
@@ -17,8 +18,8 @@ export class GeminiProvider implements AiProviderClient {
 
   async isAvailable(): Promise<boolean> {
     try {
-      const model = this.genAI.getGenerativeModel({ model: this.chatModel })
-      await model.generateContent('test')
+      const model = this.genAI.getGenerativeModel({ model: this.chatModel }, this.apiOpts)
+      await model.countTokens('test')
       return true
     }
     catch {
@@ -27,15 +28,14 @@ export class GeminiProvider implements AiProviderClient {
   }
 
   async generateEmbedding(text: string): Promise<number[]> {
-    const model = this.genAI.getGenerativeModel({ model: this.embeddingModel })
+    const model = this.genAI.getGenerativeModel({ model: this.embeddingModel }, this.apiOpts)
     const result = await model.embedContent(text)
     return result.embedding.values
   }
 
   async generateEmbeddings(texts: string[]): Promise<number[][]> {
-    const model = this.genAI.getGenerativeModel({ model: this.embeddingModel })
+    const model = this.genAI.getGenerativeModel({ model: this.embeddingModel }, this.apiOpts)
     const results: number[][] = []
-    // Gemini supports batch embedding
     const batchResults = await model.batchEmbedContents({
       requests: texts.map(text => ({
         content: { role: 'user', parts: [{ text }] },
@@ -52,7 +52,7 @@ export class GeminiProvider implements AiProviderClient {
     const model = this.genAI.getGenerativeModel({
       model: this.chatModel,
       systemInstruction: systemPrompt,
-    })
+    }, this.apiOpts)
     const result = await model.generateContent(prompt)
     return result.response.text()
   }
@@ -61,7 +61,7 @@ export class GeminiProvider implements AiProviderClient {
     const model = this.genAI.getGenerativeModel({
       model: this.chatModel,
       systemInstruction: systemPrompt,
-    })
+    }, this.apiOpts)
     const result = await model.generateContentStream(prompt)
     for await (const chunk of result.stream) {
       const text = chunk.text()

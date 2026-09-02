@@ -9,7 +9,7 @@ export class GroqProvider implements AiProviderClient {
 
   private client: Groq
 
-  constructor(apiKey: string, chatModel = 'llama-3.1-8b-instant') {
+  constructor(apiKey: string, chatModel = 'llama-3.3-70b-versatile') {
     this.chatModel = chatModel
     this.client = new Groq({ apiKey })
   }
