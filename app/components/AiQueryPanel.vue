@@ -1,8 +1,33 @@
 <script setup lang="ts">
-const { messages, isQuerying, error, currentStatus, sendQuery, clearMessages } = useAiQuery()
+const { messages, isQuerying, error, currentStatus, selectedQueryMode, sendQuery, cancelQuery, clearMessages } = useAiQuery()
 
 const input = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
+
+const providers = ref<{ name: string, label: string }[]>([{ name: 'auto', label: 'Auto' }])
+const queryModes = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'Database', value: 'database' },
+  { label: 'Web', value: 'web' },
+  { label: 'Both', value: 'both' },
+]
+
+const modeTooltips: Record<string, string> = {
+  auto: 'AI decides the best source automatically',
+  database: 'Query the local people & youth database only',
+  web: 'Search the web for general information',
+  both: 'Combine database results with web search',
+}
+
+onMounted(async () => {
+  try {
+    const data = await $fetch<{ providers: { name: string, label: string }[] }>('/api/ai/providers')
+    providers.value = data.providers
+  }
+  catch {
+    // keep defaults
+  }
+})
 
 const exampleQueries = [
   'How many people are from Trichy?',
@@ -72,8 +97,10 @@ async function handleSubmit() {
     return
   const query = input.value
   input.value = ''
-  await sendQuery(query)
-  scrollToBottom()
+  sendQuery(query)
+  // Force scroll immediately so the user message and loading bubble are visible
+  await nextTick()
+  scrollToBottom(true)
 }
 
 function handleExample(query: string) {
@@ -81,18 +108,27 @@ function handleExample(query: string) {
   handleSubmit()
 }
 
-function scrollToBottom() {
-  nextTick(() => {
-    if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-    }
-  })
+function isNearBottom(): boolean {
+  if (!chatContainer.value)
+    return true
+  const { scrollTop, scrollHeight, clientHeight } = chatContainer.value
+  return scrollHeight - scrollTop - clientHeight < 120
 }
 
-// Auto-scroll when streaming content updates
-watch(() => messages.value.map(m => m.content).join(''), () => {
-  scrollToBottom()
-})
+function scrollToBottom(force = false) {
+  if (!chatContainer.value)
+    return
+  if (force || isNearBottom()) {
+    chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+  }
+}
+
+// flush: 'post' runs after the DOM is updated, so scrollHeight is accurate
+watch(
+  () => messages.value.map(m => m.content).join(''),
+  () => scrollToBottom(),
+  { flush: 'post' },
+)
 </script>
 
 <template>
@@ -102,13 +138,24 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
         <i class="pi pi-comments" />
         AI Data Assistant
       </h3>
-      <Button
-        v-if="messages.length" icon="pi pi-trash" text rounded size="small"
-        aria-label="Clear chat" @click="clearMessages"
-      />
+      <div class="ai-query-header-actions">
+        <Button
+          v-if="isQuerying"
+          v-tooltip.bottom="'Stop generation'"
+          icon="pi pi-stop-circle" text rounded size="small"
+          severity="danger"
+          aria-label="Stop generation"
+          @click="cancelQuery"
+        />
+        <Button
+          v-if="messages.length && !isQuerying" v-tooltip.bottom="'Clear chat'" icon="pi pi-trash" text rounded
+          size="small"
+          aria-label="Clear chat" @click="clearMessages"
+        />
+      </div>
     </div>
 
-    <div ref="chatContainer" class="ai-query-messages">
+    <div ref="chatContainer" class="ai-query-messages" aria-live="polite" aria-label="Chat messages">
       <div v-if="messages.length === 0" class="ai-query-empty">
         <i class="pi pi-sparkles" style="font-size: 2rem; color: var(--p-primary-color);" />
         <p>Ask questions about your data or anything — AI decides the best source</p>
@@ -177,12 +224,49 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
       </Message>
     </div>
 
-    <form class="ai-query-input" @submit.prevent="handleSubmit">
-      <InputText v-model="input" placeholder="Ask about your data or anything else..." :disabled="isQuerying" fluid />
-      <Button
-        type="submit" icon="pi pi-send" :disabled="!input.trim() || isQuerying"
-        :loading="isQuerying"
+    <form class="ai-query-input-card" @submit.prevent="handleSubmit">
+      <Textarea
+        v-model="input"
+        placeholder="Ask about your data or anything else..."
+        :disabled="isQuerying"
+        :auto-resize="true"
+        rows="1"
+        class="ai-query-textarea"
+        @keydown.enter.exact.prevent="handleSubmit"
       />
+      <div class="ai-query-input-toolbar">
+        <div class="ai-query-input-controls">
+          <span v-tooltip.top="modeTooltips[selectedQueryMode]">
+            <SelectButton
+              v-model="selectedQueryMode"
+              :options="queryModes"
+              option-label="label"
+              option-value="value"
+              :allow-empty="false"
+              size="small"
+              :disabled="isQuerying"
+            />
+          </span>
+        </div>
+        <Button
+          v-if="isQuerying"
+          v-tooltip.top="'Stop'"
+          type="button"
+          icon="pi pi-stop-circle"
+          rounded
+          severity="danger"
+          aria-label="Stop generation"
+          @click="cancelQuery"
+        />
+        <Button
+          v-else
+          type="submit"
+          icon="pi pi-send"
+          rounded
+          :disabled="!input.trim()"
+          aria-label="Send message"
+        />
+      </div>
     </form>
   </div>
 </template>
@@ -209,6 +293,12 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.ai-query-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .ai-query-messages {
@@ -278,7 +368,7 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
 }
 
 .ai-query-message-content {
-  max-width: 80%;
+  max-width: 90%;
   min-width: 0;
 }
 
@@ -362,8 +452,8 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
 .ai-query-sql code {
   display: block;
   font-size: 0.75rem;
-  white-space: pre-wrap;
-  word-break: break-all;
+  white-space: pre;
+  overflow-x: auto;
 }
 
 .ai-query-source-badge {
@@ -478,10 +568,66 @@ watch(() => messages.value.map(m => m.content).join(''), () => {
   }
 }
 
-.ai-query-input {
+.ai-query-input-card {
+  margin: 0 1rem 0.875rem;
+  border: 1.5px solid var(--p-border-color);
+  border-radius: 1.5rem;
+  background: var(--p-surface-0);
   display: flex;
+  flex-direction: column;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.ai-query-input-card:focus-within {
+  border-color: var(--p-primary-color);
+}
+
+.dark-mode .ai-query-input-card {
+  background: var(--p-surface-800);
+}
+
+.ai-query-textarea {
+  width: 100%;
+}
+
+.ai-query-textarea :deep(textarea) {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  padding: 0.875rem 1.25rem 0.375rem !important;
+  resize: none !important;
+  max-height: 8rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  border-radius: 1.5rem !important;
+  width: 100%;
+}
+
+.ai-query-textarea :deep(textarea:focus) {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.ai-query-input-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.375rem 0.75rem 0.5rem;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--p-border-color);
+}
+
+.ai-query-input-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ai-query-provider-select {
+  min-width: 7rem;
 }
 </style>

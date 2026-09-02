@@ -1,4 +1,4 @@
-import { getAiClient } from '../../utils/ai/client'
+import { getAiClientByName } from '../../utils/ai/client'
 import { classifyQuery, FORMAT_CONTEXT, SCHEMA_CONTEXT, WEB_SEARCH_FORMAT_CONTEXT } from '../../utils/nl-query'
 import { formatWebSearchContext, webSearch } from '../../utils/web-search'
 
@@ -25,7 +25,11 @@ export default defineEventHandler(async (event) => {
   requireAuth(event)
 
   const body = await readBody(event)
-  const { query } = body as { query?: string }
+  const { query, provider = 'auto', queryMode = 'auto' } = body as {
+    query?: string
+    provider?: string
+    queryMode?: string
+  }
 
   if (!query || typeof query !== 'string') {
     throw createError({ statusCode: 400, message: 'Query is required' })
@@ -42,14 +46,16 @@ export default defineEventHandler(async (event) => {
     'X-Accel-Buffering': 'no',
   })
 
-  const client = await getAiClient()
+  const client = await getAiClientByName(provider)
 
   try {
-    // Step 1: Classify the query (rule-based, no API call)
+    // Step 1: Determine query type — use user selection or fall back to classification
     sendSSE(event, { type: 'status', message: 'Analyzing your question...' })
 
-    const queryType = classifyQuery(query)
-    sendSSE(event, { type: 'classified', queryType })
+    const queryType = (queryMode && queryMode !== 'auto')
+      ? queryMode
+      : classifyQuery(query)
+    sendSSE(event, { type: 'classified', queryType, provider: client.name })
 
     // Declare webResults in outer scope so it's accessible across both blocks
     let webResults: Awaited<ReturnType<typeof webSearch>> | null = null

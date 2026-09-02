@@ -100,6 +100,14 @@ export async function getAiClient(): Promise<AiProviderClient> {
   return _client
 }
 
+export async function getAiClientByName(providerName: string): Promise<AiProviderClient> {
+  if (!providerName || providerName === 'auto') {
+    return getAiClient()
+  }
+  const config = getConfig()
+  return createChatProvider(config, providerName)
+}
+
 export async function getAiClientSafe(): Promise<AiProviderClient | null> {
   try {
     return await getAiClient()

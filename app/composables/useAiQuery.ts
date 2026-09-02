@@ -17,16 +17,25 @@ export interface ChatMessage {
 }
 
 export function useAiQuery() {
-  const messages = ref<ChatMessage[]>([])
+  // shallowRef avoids deep reactive wrapping of every message object;
+  // triggerRef() is used to notify watchers after mutations.
+  const messages = shallowRef<ChatMessage[]>([])
   const isQuerying = ref(false)
   const error = ref<string | null>(null)
   const currentStatus = ref<string | null>(null)
+  const selectedProvider = ref('auto')
+  const selectedQueryMode = ref('auto')
+
+  let abortController: AbortController | null = null
 
   async function sendQuery(query: string) {
     if (!query.trim())
       return
 
-    // Add user message
+    // Cancel any in-flight request before starting a new one
+    abortController?.abort()
+    abortController = new AbortController()
+
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -35,7 +44,6 @@ export function useAiQuery() {
     }
     messages.value.push(userMessage)
 
-    // Create placeholder for streaming assistant message
     const assistantId = `assistant-${Date.now()}`
     const assistantMessage: ChatMessage = {
       id: assistantId,
@@ -45,20 +53,21 @@ export function useAiQuery() {
       isStreaming: true,
     }
     messages.value.push(assistantMessage)
+    triggerRef(messages)
 
     isQuerying.value = true
     error.value = null
     currentStatus.value = 'Analyzing your question...'
 
     try {
-      // Use native fetch for streaming (ofetch/$fetch buffers)
       const response = await fetch('/api/ai/query-stream', {
         method: 'POST',
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, provider: selectedProvider.value, queryMode: selectedQueryMode.value }),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'text/event-stream',
         },
+        signal: abortController.signal,
       })
 
       if (!response.ok) {
@@ -82,7 +91,6 @@ export function useAiQuery() {
         for (const line of lines) {
           if (!line.startsWith('data: '))
             continue
-
           try {
             const data = JSON.parse(line.slice(6))
             handleStreamEvent(data, assistantMessage)
@@ -94,17 +102,36 @@ export function useAiQuery() {
       }
     }
     catch (e: unknown) {
+      // AbortError means the user cancelled — preserve any partial content
+      if ((e as Error)?.name === 'AbortError') {
+        if (!assistantMessage.content) {
+          const idx = messages.value.findIndex(m => m.id === assistantId)
+          if (idx !== -1)
+            messages.value.splice(idx, 1)
+        }
+        else {
+          assistantMessage.isStreaming = false
+        }
+        triggerRef(messages)
+        return
+      }
       const err = e as { data?: { message?: string }, message?: string }
       error.value = err?.data?.message || err?.message || 'Query failed'
-      // Remove the empty assistant message on error
       const idx = messages.value.findIndex(m => m.id === assistantId)
       if (idx !== -1)
         messages.value.splice(idx, 1)
+      triggerRef(messages)
     }
     finally {
+      abortController = null
       isQuerying.value = false
       currentStatus.value = null
     }
+  }
+
+  function cancelQuery() {
+    abortController?.abort()
+    abortController = null
   }
 
   function handleStreamEvent(data: Record<string, unknown>, assistantMessage: ChatMessage) {
@@ -115,12 +142,14 @@ export function useAiQuery() {
 
       case 'classified': {
         const qType = data.queryType as string
+        const prov = data.provider as string | undefined
+        const provLabel = prov ? ` via ${prov}` : ''
         if (qType === 'web')
-          currentStatus.value = 'Web search needed...'
+          currentStatus.value = `Web search${provLabel}...`
         else if (qType === 'both')
-          currentStatus.value = 'Needs database + web search...'
+          currentStatus.value = `Database + web${provLabel}...`
         else
-          currentStatus.value = 'Database query...'
+          currentStatus.value = `Database query${provLabel}...`
         break
       }
 
@@ -144,7 +173,7 @@ export function useAiQuery() {
 
       case 'answer-chunk':
         assistantMessage.content += data.content as string
-        messages.value = [...messages.value]
+        triggerRef(messages)
         break
 
       case 'complete':
@@ -154,12 +183,11 @@ export function useAiQuery() {
         assistantMessage.source = data.source as string
         assistantMessage.webResults = data.webResults as WebSearchResult[] | undefined
         assistantMessage.isStreaming = false
-        messages.value = [...messages.value]
+        triggerRef(messages)
         break
 
       case 'error': {
         error.value = data.message as string
-        // Only remove the placeholder if nothing was streamed yet
         if (!assistantMessage.content) {
           const idx = messages.value.findIndex(m => m.id === assistantMessage.id)
           if (idx !== -1)
@@ -167,8 +195,8 @@ export function useAiQuery() {
         }
         else {
           assistantMessage.isStreaming = false
-          messages.value = [...messages.value]
         }
+        triggerRef(messages)
         break
       }
     }
@@ -178,6 +206,7 @@ export function useAiQuery() {
     messages.value = []
     error.value = null
     currentStatus.value = null
+    triggerRef(messages)
   }
 
   return {
@@ -185,7 +214,10 @@ export function useAiQuery() {
     isQuerying,
     error,
     currentStatus,
+    selectedProvider,
+    selectedQueryMode,
     sendQuery,
+    cancelQuery,
     clearMessages,
   }
 }
