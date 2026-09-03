@@ -199,7 +199,7 @@ async function handleSubmit() {
             <label for="ward">Ward</label>
             <InputText id="ward" v-model="form.ward" placeholder="Ward / Area" fluid />
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label for="address">Address</label>
             <InputText id="address" v-model="form.address" placeholder="Full address" fluid />
           </div>
@@ -316,7 +316,7 @@ async function handleSubmit() {
               <InputText :id="`eduYear${index}`" v-model.number="edu.yearCompleted" type="number" placeholder="e.g. 2020" fluid />
             </div>
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label :for="`eduNotes${index}`">Notes</label>
             <InputText :id="`eduNotes${index}`" v-model="edu.notes" placeholder="Additional notes" fluid />
           </div>

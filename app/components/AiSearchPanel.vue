@@ -77,6 +77,7 @@ function getRecordDetail(item: { data?: Record<string, unknown> }) {
           option-label="label" option-value="value" :allow-empty="false"
         />
         <Button
+          class="ai-search-sync-btn"
           label="Sync Index" icon="pi pi-refresh" size="small" outlined :loading="isSyncing"
           @click="handleSync"
         />
@@ -158,6 +159,32 @@ function getRecordDetail(item: { data?: Record<string, unknown> }) {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ai-search-controls :deep(.p-selectbutton) {
+  flex: 1;
+  display: flex;
+}
+
+.ai-search-controls :deep(.p-selectbutton .p-togglebutton) {
+  flex: 1;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .ai-search-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ai-search-controls :deep(.p-selectbutton) {
+    width: 100%;
+  }
+
+  .ai-search-sync-btn {
+    align-self: flex-end;
+  }
 }
 
 .ai-search-loading {

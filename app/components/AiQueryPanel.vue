@@ -321,11 +321,12 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
   text-align: center;
   color: var(--p-text-muted-color);
   gap: 1rem;
+  margin: auto;
+  padding: 1rem 0;
+  width: 100%;
 }
 
 .ai-query-examples {
@@ -576,6 +577,7 @@ watch(
 }
 
 .ai-query-input-card {
+  flex-shrink: 0;
   margin: 0 1rem 0.875rem;
   border: 1.5px solid var(--p-border-color);
   border-radius: 1.5rem;
@@ -632,9 +634,60 @@ watch(
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .ai-query-provider-select {
   min-width: 7rem;
+}
+
+@media (max-width: 600px) {
+  .ai-query-input-card {
+    margin: 0 0.5rem 0.75rem;
+    border-radius: 1rem;
+  }
+
+  .ai-query-input-toolbar {
+    padding: 0.25rem 0.5rem 0.5rem;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .ai-query-input-controls {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-shrink: 1;
+  }
+
+  .ai-query-input-controls::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-query-provider-select {
+    min-width: 5.5rem;
+    flex-shrink: 0;
+  }
+
+  .ai-query-input-toolbar > .p-button {
+    flex-shrink: 0;
+  }
+
+  .ai-query-textarea :deep(textarea) {
+    padding: 0.75rem 1rem 0.375rem !important;
+    font-size: 0.875rem;
+  }
+
+  .ai-query-messages {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .ai-query-examples {
+    max-width: 100%;
+  }
 }
 </style>

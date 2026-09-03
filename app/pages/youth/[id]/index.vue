@@ -122,7 +122,7 @@ const categoryLabel = (cat: string) => cat ? cat.charAt(0).toUpperCase() + cat.s
                 {{ person.ward || '-' }}
               </p>
             </div>
-            <div class="form-field-detail" style="grid-column:span 2;">
+            <div class="form-field-detail form-field--full">
               <label class="form-detail-label">Address</label>
               <p class="form-detail-value" style="white-space:pre-wrap;">
                 {{ person.address || '-' }}
@@ -285,13 +285,13 @@ const categoryLabel = (cat: string) => cat ? cat.charAt(0).toUpperCase() + cat.s
         </template>
         <template #content>
           <div class="form-grid" style="gap:1.5rem;">
-            <div v-if="person.interests" class="form-field-detail" style="grid-column:span 2;">
+            <div v-if="person.interests" class="form-field-detail form-field--full">
               <label class="form-detail-label">Interests / Hobbies</label>
               <p class="form-detail-value" style="white-space:pre-wrap;">
                 {{ person.interests }}
               </p>
             </div>
-            <div v-if="person.careerGoal" class="form-field-detail" style="grid-column:span 2;">
+            <div v-if="person.careerGoal" class="form-field-detail form-field--full">
               <label class="form-detail-label">Career Goal / Aspiration</label>
               <p class="form-detail-value">
                 {{ person.careerGoal }}

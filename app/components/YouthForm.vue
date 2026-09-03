@@ -245,7 +245,7 @@ async function handleSubmit() {
             <label for="ward">Ward</label>
             <InputText id="ward" v-model="form.ward" placeholder="Ward / Area" fluid />
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label for="address">Address</label>
             <InputText id="address" v-model="form.address" placeholder="Full address" fluid />
           </div>
@@ -377,7 +377,7 @@ async function handleSubmit() {
               <label :for="`achYear${index}`">Year</label>
               <InputText :id="`achYear${index}`" v-model.number="achievement.year" type="number" placeholder="e.g. 2024" fluid />
             </div>
-            <div class="form-field" style="grid-column:span 2;">
+            <div class="form-field form-field--full">
               <label :for="`achDesc${index}`">Description</label>
               <InputText :id="`achDesc${index}`" v-model="achievement.description" placeholder="Brief description" fluid />
             </div>
@@ -391,11 +391,11 @@ async function handleSubmit() {
           Interests & Goals
         </h3>
         <div class="form-grid">
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label for="interests">Interests / Hobbies</label>
             <Textarea id="interests" v-model="form.interests" placeholder="E.g. Reading, gardening, sports..." rows="3" fluid />
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label for="careerGoal">Career Goal / Aspiration</label>
             <InputText id="careerGoal" v-model="form.careerGoal" placeholder="E.g. Engineer, Doctor, Teacher..." fluid />
           </div>

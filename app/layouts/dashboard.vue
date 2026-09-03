@@ -38,6 +38,11 @@ onClickOutside(sidebarRef, () => {
 
 <template>
   <div class="layout-dashboard">
+    <div
+      v-if="sidebarVisible"
+      class="sidebar-overlay"
+      @click="sidebarVisible = false"
+    />
     <aside ref="sidebarRef" class="sidebar" :class="{ 'sidebar--collapsed': !sidebarVisible }">
       <div class="sidebar__header">
         <NuxtLink to="/" class="sidebar__logo">
@@ -328,12 +333,22 @@ onClickOutside(sidebarRef, () => {
     z-index: 100;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    width: var(--app-sidebar-width) !important;
+    min-width: var(--app-sidebar-width) !important;
   }
 
   .sidebar--collapsed {
-    width: var(--app-sidebar-width);
-    min-width: var(--app-sidebar-width);
+    width: var(--app-sidebar-width) !important;
+    min-width: var(--app-sidebar-width) !important;
     transform: translateX(-100%);
+  }
+
+  .layout-dashboard__main {
+    width: 100%;
+  }
+
+  .dashboard-header {
+    padding: 0.5rem 1rem;
   }
 
   .sidebar--collapsed .sidebar__logo-text,
