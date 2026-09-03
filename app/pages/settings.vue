@@ -8,7 +8,11 @@ const { user } = useAuth()
 const { showInfo } = useToastMessages()
 
 function copyInfo() {
-  showInfo('Profile info is read-only', 'Contact an administrator to change your account details.')
+  const isAdmin = user.value?.role === 'admin'
+  const detail = isAdmin
+    ? 'To update your profile, please contact system support or another administrator.'
+    : 'Contact an administrator to change your account details.'
+  showInfo('Profile info is read-only', detail)
 }
 </script>
 

@@ -101,6 +101,14 @@ const form = reactive({
 const errors = ref<Record<string, string>>({})
 const isPending = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
+const isDirty = ref(props.mode === 'create')
+if (props.mode === 'edit') {
+  const initialSnapshot = JSON.stringify(form)
+  watch(form, () => {
+    isDirty.value = JSON.stringify(form) !== initialSnapshot
+  }, { deep: true })
+}
+
 function validate(): boolean {
   errors.value = {}
   const result = personSchema.safeParse(form)
@@ -334,7 +342,7 @@ async function handleSubmit() {
 
         <div class="form-actions">
           <Button label="Cancel" severity="secondary" outlined @click="navigateTo('/people')" />
-          <Button type="submit" :label="mode === 'create' ? 'Create Person' : 'Save Changes'" :loading="isPending" />
+          <Button type="submit" :label="mode === 'create' ? 'Create Person' : 'Save Changes'" :loading="isPending" :disabled="!isDirty" />
         </div>
       </form>
     </template>
