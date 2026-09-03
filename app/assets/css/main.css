@@ -269,3 +269,31 @@ body,
     grid-template-columns: 1fr;
   }
 }
+
+/* Toast responsive */
+.p-toast {
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 768px) {
+  .p-toast.p-toast-top-right {
+    right: 1rem !important;
+    top: 1rem !important;
+    max-width: min(24rem, calc(100vw - 2rem)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .p-toast.p-toast-top-right {
+    left: 50% !important;
+    right: auto !important;
+    top: 1rem !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .p-toast .p-toast-message {
+    border-radius: 0.75rem;
+  }
+}
