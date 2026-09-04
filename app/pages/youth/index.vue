@@ -129,7 +129,7 @@ function confirmDelete(id: string, name: string) {
   <div class="page-container">
     <div class="page-header" role="search">
       <h1>Youth Directory</h1>
-      <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <div class="page-header__actions">
         <IconField>
           <InputIcon class="pi pi-search" />
           <InputText
@@ -157,7 +157,7 @@ function confirmDelete(id: string, name: string) {
       </div>
     </div>
 
-    <div aria-live="polite">
+    <div aria-live="polite" class="table-wrapper">
       <DataTable
         :value="data?.data || []"
         :loading="isPending"
@@ -234,7 +234,7 @@ function confirmDelete(id: string, name: string) {
         v-model:visible="importDialogVisible"
         header="Import Youth Records"
         modal
-        :style="{ width: '32rem' }"
+        :style="{ width: 'min(32rem, 95vw)' }"
         @hide="closeImportDialog"
       >
         <FileUpload
@@ -281,3 +281,26 @@ function confirmDelete(id: string, name: string) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.page-header__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .page-header__actions {
+    width: 100%;
+  }
+
+  .page-header__actions :deep(.p-inputtext) {
+    width: 100%;
+    flex: 1;
+  }
+
+  .page-header__actions :deep(.p-icon-field) {
+    flex: 1;
+  }
+}
+</style>

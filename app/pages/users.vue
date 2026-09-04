@@ -68,54 +68,65 @@ function getRoleSeverity(role: string) {
       <InputText
         v-model="search"
         placeholder="Search users..."
+        class="users-search"
         @input="onSearchInput"
       />
     </div>
 
-    <DataTable
-      :value="data?.data || []"
-      :loading="isPending"
-      lazy
-      paginator
-      :rows="20"
-      :total-records="data?.meta?.total || 0"
-      striped-rows
-      @page="(e: { page: number }) => page = e.page + 1"
-    >
-      <Column header="Name">
-        <template #body="{ data: row }">
-          {{ row.firstName }} {{ row.lastName }}
-        </template>
-      </Column>
-      <Column field="email" header="Email" />
-      <Column field="role" header="Role">
-        <template #body="{ data: row }">
-          <Tag :value="ROLE_LABELS[row.role as Role]" :severity="getRoleSeverity(row.role)" />
-        </template>
-      </Column>
-      <Column field="isVerified" header="Verified">
-        <template #body="{ data: row }">
-          <Tag :value="row.isVerified ? 'Yes' : 'No'" :severity="row.isVerified ? 'success' : 'warn'" />
-        </template>
-      </Column>
-      <Column header="Change Role" style="width: 12rem;">
-        <template #body="{ data: row }">
-          <Select
-            :model-value="row.role"
-            :options="roleOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="Select role"
-            size="small"
-            @update:model-value="(val: string) => handleRoleMutation(row.id, val)"
-          />
-        </template>
-      </Column>
-      <Column field="createdAt" header="Joined">
-        <template #body="{ data: row }">
-          {{ new Date(row.createdAt).toLocaleDateString() }}
-        </template>
-      </Column>
-    </DataTable>
+    <div class="table-wrapper">
+      <DataTable
+        :value="data?.data || []"
+        :loading="isPending"
+        lazy
+        paginator
+        :rows="20"
+        :total-records="data?.meta?.total || 0"
+        striped-rows
+        @page="(e: { page: number }) => page = e.page + 1"
+      >
+        <Column header="Name">
+          <template #body="{ data: row }">
+            {{ row.firstName }} {{ row.lastName }}
+          </template>
+        </Column>
+        <Column field="email" header="Email" />
+        <Column field="role" header="Role">
+          <template #body="{ data: row }">
+            <Tag :value="ROLE_LABELS[row.role as Role]" :severity="getRoleSeverity(row.role)" />
+          </template>
+        </Column>
+        <Column field="isVerified" header="Verified">
+          <template #body="{ data: row }">
+            <Tag :value="row.isVerified ? 'Yes' : 'No'" :severity="row.isVerified ? 'success' : 'warn'" />
+          </template>
+        </Column>
+        <Column header="Change Role" style="width: 12rem;">
+          <template #body="{ data: row }">
+            <Select
+              :model-value="row.role"
+              :options="roleOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="Select role"
+              size="small"
+              @update:model-value="(val: string) => handleRoleMutation(row.id, val)"
+            />
+          </template>
+        </Column>
+        <Column field="createdAt" header="Joined">
+          <template #body="{ data: row }">
+            {{ new Date(row.createdAt).toLocaleDateString() }}
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 768px) {
+  .users-search {
+    width: 100%;
+  }
+}
+</style>

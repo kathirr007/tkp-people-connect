@@ -69,7 +69,7 @@ function closeImportDialog() {
       v-model:visible="importDialogVisible"
       header="Import Youth Records"
       modal
-      :style="{ width: '32rem' }"
+      :style="{ width: 'min(32rem, 95vw)' }"
       @hide="closeImportDialog"
     >
       <FileUpload
