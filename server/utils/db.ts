@@ -315,21 +315,24 @@ export async function getAllPeopleForExport(filter?: { search?: string, village?
 }
 
 export async function getDashboardStats() {
-  const { db, people } = useDatabase()
+  const { db, people, youth } = useDatabase()
 
-  const [totalResult, activeResult, recentPeople] = await Promise.all([
+  const [totalResult, activeResult, recentPeople, youthResult] = await Promise.all([
     db.select({ count: count() }).from(people),
     db.select({ count: count() }).from(people).where(eq(people.isActive, true)),
     db.select().from(people).orderBy(desc(people.createdAt)).limit(5),
+    db.select({ count: count() }).from(youth),
   ])
 
   const total = totalResult[0]?.count || 0
   const active = activeResult[0]?.count || 0
+  const totalYouth = youthResult[0]?.count || 0
 
   return {
     totalPeople: total,
     activePeople: active,
     inactivePeople: total - active,
+    totalYouth,
     recentlyAdded: (recentPeople as PersonRecord[]).map(formatPerson),
   }
 }
