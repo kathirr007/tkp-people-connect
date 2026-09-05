@@ -94,7 +94,7 @@ async function refreshStats() {
       </div>
     </section>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="dashboard-panels">
       <Card>
         <template #title>
           <h3>Recently Added</h3>

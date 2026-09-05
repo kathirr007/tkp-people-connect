@@ -124,7 +124,7 @@ function statusSeverity(value: boolean, alive: boolean) {
                 {{ person.ward || '-' }}
               </p>
             </div>
-            <div class="form-field-detail" style="grid-column:span 2;">
+            <div class="form-field-detail form-field--full">
               <label class="form-detail-label">Address</label>
               <p class="form-detail-value" style="white-space:pre-wrap;">
                 {{ person.address || '-' }}
@@ -232,12 +232,12 @@ function statusSeverity(value: boolean, alive: boolean) {
           </div>
         </template>
         <template #content>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">
+          <div class="child-edu-grid">
             <div v-for="(child, index) in person.children" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
               <h4 style="margin:0 0 0.75rem 0;color:var(--p-text-color);font-size:1rem;">
                 Child {{ index + 1 }}
               </h4>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:0.25rem;font-size:0.875rem;">
+              <div class="detail-pair-grid">
                 <span class="form-detail-label">Name:</span>
                 <p style="margin:0">
                   {{ child.name }}
@@ -272,12 +272,12 @@ function statusSeverity(value: boolean, alive: boolean) {
           </div>
         </template>
         <template #content>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;">
+          <div class="child-edu-grid">
             <div v-for="(edu, index) in person.education" :key="index" style="background:var(--p-surface-100);padding:1rem;border-radius:0.75rem;">
               <h4 style="margin:0 0 0.75rem 0;color:var(--p-text-color);font-size:1rem;">
                 Education {{ index + 1 }}
               </h4>
-              <div style="display:grid;grid-template-columns:1fr auto;gap:0.25rem;font-size:0.875rem;">
+              <div class="detail-pair-grid">
                 <span class="form-detail-label">Level:</span>
                 <p style="margin:0">
                   {{ edu.level }}
@@ -350,5 +350,25 @@ function statusSeverity(value: boolean, alive: boolean) {
 :deep(.p-tag) {
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
+}
+
+.child-edu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-pair-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  align-items: baseline;
+}
+
+@media (max-width: 480px) {
+  .child-edu-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

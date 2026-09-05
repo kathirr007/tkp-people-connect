@@ -101,6 +101,14 @@ const form = reactive({
 const errors = ref<Record<string, string>>({})
 const isPending = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
+const isDirty = ref(props.mode === 'create')
+if (props.mode === 'edit') {
+  const initialSnapshot = JSON.stringify(form)
+  watch(form, () => {
+    isDirty.value = JSON.stringify(form) !== initialSnapshot
+  }, { deep: true })
+}
+
 function validate(): boolean {
   errors.value = {}
   const result = personSchema.safeParse(form)
@@ -199,7 +207,7 @@ async function handleSubmit() {
             <label for="ward">Ward</label>
             <InputText id="ward" v-model="form.ward" placeholder="Ward / Area" fluid />
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label for="address">Address</label>
             <InputText id="address" v-model="form.address" placeholder="Full address" fluid />
           </div>
@@ -316,7 +324,7 @@ async function handleSubmit() {
               <InputText :id="`eduYear${index}`" v-model.number="edu.yearCompleted" type="number" placeholder="e.g. 2020" fluid />
             </div>
           </div>
-          <div class="form-field" style="grid-column:span 2;">
+          <div class="form-field form-field--full">
             <label :for="`eduNotes${index}`">Notes</label>
             <InputText :id="`eduNotes${index}`" v-model="edu.notes" placeholder="Additional notes" fluid />
           </div>
@@ -334,7 +342,7 @@ async function handleSubmit() {
 
         <div class="form-actions">
           <Button label="Cancel" severity="secondary" outlined @click="navigateTo('/people')" />
-          <Button type="submit" :label="mode === 'create' ? 'Create Person' : 'Save Changes'" :loading="isPending" />
+          <Button type="submit" :label="mode === 'create' ? 'Create Person' : 'Save Changes'" :loading="isPending" :disabled="!isDirty" />
         </div>
       </form>
     </template>

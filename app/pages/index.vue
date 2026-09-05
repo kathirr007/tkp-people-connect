@@ -128,9 +128,11 @@ const { isAuthenticated } = useAuth()
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1.5rem;
+  justify-items: center;
 }
 
 .page-landing .feature-card {
+  width: 100%;
   padding: 1.75rem;
   border-radius: 0.75rem;
   border: 1px solid var(--p-surface-200);
@@ -184,6 +186,34 @@ const { isAuthenticated } = useAuth()
 
   .page-landing .landing-features {
     padding: 2.5rem 1.5rem;
+  }
+
+  .page-landing .feature-grid {
+    grid-template-columns: 1fr;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-landing .landing-hero {
+    padding: 2.5rem 1rem;
+  }
+
+  .page-landing .landing-hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .page-landing .landing-hero p {
+    font-size: 1rem;
+  }
+
+  .page-landing .landing-features {
+    padding: 2rem 1rem;
+  }
+
+  .page-landing .feature-grid {
+    max-width: 100%;
   }
 }
 </style>

@@ -75,7 +75,8 @@ async function handleLogout() {
 .layout-public .app-header-public__nav {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .layout-public .app-header-public__nav a {
@@ -99,5 +100,26 @@ async function handleLogout() {
 
 .dark-mode .layout-public .app-footer {
   border-top-color: var(--p-surface-700);
+}
+
+@media (max-width: 480px) {
+  .layout-public .app-header-public__inner {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .layout-public .app-header-public__logo span {
+    font-size: 1rem;
+  }
+
+  .layout-public .app-header-public__nav {
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .layout-public .app-footer {
+    padding: 1rem;
+  }
 }
 </style>

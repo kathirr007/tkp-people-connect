@@ -2,10 +2,6 @@
   --app-header-height: 4rem;
   --app-sidebar-width: 16rem;
   --app-sidebar-collapsed-width: 4rem;
-  /* Add brand colors as CSS variables */
-  --brand-green-bg: #e8f5e8;
-  --brand-green-accent: #009688;
-  --brand-green-hover: #00796b;
 }
 
 * {
@@ -24,112 +20,6 @@ body,
     -apple-system,
     sans-serif;
 }
-
-/* --- New Branding Styles for Home Page --- */
-/* Target the home page route if possible, or apply globally if necessary */
-/* Assuming the home page might have a specific class or we target body on home */
-body.home-page,
-body[data-page='home'] {
-  background-color: var(--brand-green-bg);
-}
-
-/* Hero Section */
-.hero {
-  background-color: var(--brand-green-bg);
-  color: #333;
-  text-align: center;
-  padding: 6rem 2rem;
-  min-height: calc(100vh - var(--app-header-height)); /* Adjust if header height is dynamic */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.hero h1 {
-  font-size: 2.5rem;
-  color: var(--brand-green-accent);
-  margin-bottom: 1rem;
-}
-
-.hero p {
-  font-size: 1.1rem;
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
-}
-
-.hero .btn-primary {
-  background-color: var(--brand-green-accent);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  text-decoration: none; /* In case it's an anchor */
-  display: inline-block; /* For anchors */
-}
-
-.hero .btn-primary:hover {
-  background-color: var(--brand-green-hover);
-}
-
-.hero .btn-secondary {
-  color: #333;
-  text-decoration: none;
-  margin-left: 1rem;
-  font-size: 1rem;
-}
-
-/* Feature Cards */
-.features {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  padding: 4rem 2rem;
-  flex-wrap: wrap;
-}
-
-.feature-card {
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  width: 250px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.feature-card i {
-  color: var(--brand-green-accent);
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  display: block; /* Ensure icon takes full width */
-}
-
-.feature-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-  color: #333;
-}
-
-.feature-card p {
-  font-size: 0.9rem;
-  color: #666;
-  line-height: 1.5;
-}
-
-/* --- End New Branding Styles --- */
 
 .layout-public {
   display: flex;
@@ -199,6 +89,12 @@ body[data-page='home'] {
   margin-bottom: 1.5rem;
 }
 
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
@@ -261,6 +157,32 @@ body[data-page='home'] {
   margin-top: 2rem;
 }
 
+/* Responsive utilities */
+.form-field--full {
+  grid-column: 1 / -1;
+}
+
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 0.5rem;
+}
+
+/* Sidebar mobile overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99;
+}
+
 /* Page transitions */
 .page-enter-active,
 .page-leave-active {
@@ -298,5 +220,80 @@ body[data-page='home'] {
   .page-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field--full {
+    grid-column: auto;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .layout-auth__container {
+    padding: 1.5rem 1rem;
+  }
+
+  .form-actions {
+    flex-wrap: wrap;
+  }
+
+  .form-actions .p-button {
+    flex: 1;
+    min-width: 8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-dashboard__content {
+    padding: 0.75rem;
+  }
+
+  .layout-auth__container {
+    padding: 1rem 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Toast responsive */
+.p-toast {
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 768px) {
+  .p-toast.p-toast-top-right {
+    right: 1rem !important;
+    top: 1rem !important;
+    max-width: min(24rem, calc(100vw - 2rem)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .p-toast.p-toast-top-right {
+    left: 50% !important;
+    right: auto !important;
+    top: 1rem !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .p-toast .p-toast-message {
+    border-radius: 0.75rem;
   }
 }
