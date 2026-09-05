@@ -45,6 +45,7 @@ export interface DashboardStats {
   totalPeople: number
   activePeople: number
   inactivePeople: number
+  totalYouth: number
   totalOrganizations: number
   recentlyAdded: Array<{
     _id: string
